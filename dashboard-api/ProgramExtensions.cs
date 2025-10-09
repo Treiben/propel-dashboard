@@ -4,8 +4,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Propel.FeatureFlags.Clients;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure;
-
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.FlagEvaluators;
 using Propel.FeatureFlags.Infrastructure;

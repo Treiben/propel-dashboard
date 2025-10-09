@@ -1,5 +1,6 @@
 using Propel.FeatureFlags.Dashboard.Api;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Dashboard.Api.Healthchecks;
 using Propel.FeatureFlags.Infrastructure;
 
@@ -60,6 +61,12 @@ builder.Services.AddAuthorizationBuilder()
 	.AddFallbackPolicy("RequiresReadRights", AuthorizationPolicies.HasReadActionPolicy);
 
 var app = builder.Build();
+
+// Apply database migrations on startup (development only)
+if (app.Environment.IsDevelopment())
+{
+	await app.MigrateDatabaseAsync();
+}
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
