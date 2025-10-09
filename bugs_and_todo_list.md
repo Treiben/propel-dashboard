@@ -114,6 +114,30 @@
 6. Bring back IsPermanent flag
 - Add api support
 - Add UI support
+- Description of permanent flag
+	- a flag that is permanent cannot be deleted from the system. It can be disabled, but not deleted.
+	- Permanent flags are typically used for critical features that should always be available in the system, even if they are not currently in use. 
+	- This ensures that important features are not accidentally removed or lost, and can be easily re-enabled when needed.
+- Characteristics of permanent flag
+	- Cannot be deleted
+	- Can be disabled
+	- Never expires (no expiration date)
+	- IsPermenent is set to true by default on creation from dashboard
+	- IsPermenent is can be flipped to false (not permanent) after creation (expiration date can be set then or defaults in 1 month))
+
+8. Security: add user authentication and authorization
+- Add user authentication and authorization to API
+- Add user authentication and authorization to UI
+- Add admin user management to UI
+- Add admin user management to API
+- Add user roles: admin, user, viewer
+- Add user roles to API
+- Add user roles to UI
+- Add user roles to database
+- Add user roles to seed data
+- Add user roles to tests
+- Add user roles to documentation
+- Add login page to UI
 
 
 
@@ -122,10 +146,10 @@
 ## NEW FEATURES
 1. Add CLI commands (maybe)
 
-2. Improve CLI migration: 
+~~2. Improve CLI migration: 
 	- embed up/down scripts per db provider
-	- add indexes
+	- add indexes~~
 
-2. Add CLI documentation
+~~2. Add CLI documentation~~
 
-3. Add CLI tests
+~~3. Add CLI tests~~
