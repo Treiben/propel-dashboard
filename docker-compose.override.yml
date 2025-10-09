@@ -41,7 +41,6 @@ services:
     volumes:
       - ./dashboard-react:/app
       - /app/node_modules  # Anonymous volume to prevent overwriting node_modules
-    # The command is now in the Dockerfile, but we can override if needed
-    # command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "80"]
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "80"]
 
 
