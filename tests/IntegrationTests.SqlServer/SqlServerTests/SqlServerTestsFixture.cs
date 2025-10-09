@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure.SqlServer;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.SqlServer;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.SqlServer.Initialization;
 using Propel.FeatureFlags.Infrastructure;
 using Testcontainers.MsSql;
 
@@ -28,19 +29,31 @@ public class SqlServerTestsFixture : IAsyncLifetime
 
 	public async Task InitializeAsync()
 	{
-		var connectionString = await StartContainer();
+		// Start the container
+		await _container.StartAsync();
+
+		var connectionString = _container.GetConnectionString();
 
 		var services = new ServiceCollection();
 
 		services.AddLogging();
 
+		// Add the DbContext with test container connection string
 		services.AddSqlServerDbContext(connectionString);
 
 		Services = services.BuildServiceProvider();
+
+		// Apply migrations to initialize the database schema
+		await ApplyMigrationsAsync();
 	}
 
 	public async Task DisposeAsync()
 	{
+		if (Services is IDisposable disposable)
+		{
+			disposable.Dispose();
+		}
+
 		await _container.DisposeAsync();
 	}
 
@@ -49,18 +62,30 @@ public class SqlServerTestsFixture : IAsyncLifetime
 		var connectionString = _container.GetConnectionString();
 		using var connection = new SqlConnection(connectionString);
 		await connection.OpenAsync();
+
+		// Delete in correct order to respect foreign key constraints
 		using var command = new SqlCommand(@"
-			DELETE FROM FeatureFlagsAudit;
-			DELETE FROM FeatureFlagsMetadata;
-			DELETE FROM FeatureFlags;", connection);
+			TRUNCATE TABLE FeatureFlagsAudit;
+			TRUNCATE TABLE FeatureFlagsMetadata;
+			TRUNCATE TABLE FeatureFlags;
+		", connection);
+
 		await command.ExecuteNonQueryAsync();
 	}
 
-	private async Task<string> StartContainer()
+	private async Task ApplyMigrationsAsync()
 	{
-		await _container.StartAsync();
+		using var scope = Services.CreateScope();
+		var dbContext = scope.ServiceProvider.GetRequiredService<SqlServerMigrationDbContext>();
 
-		var connectionString = _container.GetConnectionString();
-		return connectionString;
+		// Apply all pending migrations
+		await dbContext.Database.MigrateAsync();
+
+		// Optionally verify the database was created successfully
+		var canConnect = await dbContext.Database.CanConnectAsync();
+		if (!canConnect)
+		{
+			throw new InvalidOperationException("Failed to connect to test database after migration.");
+		}
 	}
 }

@@ -1,9 +1,11 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Propel.FeatureFlags.Dashboard.Api;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.SqlServer.Initialization;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.Infrastructure;
 using Propel.FeatureFlags.Infrastructure.Cache;
@@ -44,8 +46,11 @@ public class HandlersTestsFixture : IAsyncLifetime
 
 	public async Task InitializeAsync()
 	{
-		var sqlConnectionString = await StartSqlContainer();
-		var redisConnectionString = await StartRedisContainer();
+		await _sqlContainer.StartAsync();
+		await _redisContainer.StartAsync();
+
+		var sqlConnectionString = _sqlContainer.GetConnectionString();
+		var redisConnectionString = _redisContainer.GetConnectionString();
 
 		var services = new ServiceCollection();
 		services.AddLogging();
@@ -86,6 +91,8 @@ public class HandlersTestsFixture : IAsyncLifetime
 		services.AddDashboardServices();
 
 		Services = services.BuildServiceProvider();
+		// Apply migrations to initialize the database schema
+		await ApplyMigrationsAsync();
 	}
 	public async Task DisposeAsync()
 	{
@@ -104,18 +111,19 @@ public class HandlersTestsFixture : IAsyncLifetime
 		await Cache.ClearAsync();
 	}
 
-	private async Task<string> StartSqlContainer()
+	private async Task ApplyMigrationsAsync()
 	{
-		await _sqlContainer.StartAsync();
+		using var scope = Services.CreateScope();
+		var dbContext = scope.ServiceProvider.GetRequiredService<SqlServerMigrationDbContext>();
 
-		var connectionString = _sqlContainer.GetConnectionString();
-		return connectionString;
-	}
+		// Apply all pending migrations
+		await dbContext.Database.MigrateAsync();
 
-	private async Task<string> StartRedisContainer()
-	{
-		await _redisContainer.StartAsync();
-		var connectionString = _redisContainer.GetConnectionString();
-		return connectionString;
+		// Optionally verify the database was created successfully
+		var canConnect = await dbContext.Database.CanConnectAsync();
+		if (!canConnect)
+		{
+			throw new InvalidOperationException("Failed to connect to test database after migration.");
+		}
 	}
 }

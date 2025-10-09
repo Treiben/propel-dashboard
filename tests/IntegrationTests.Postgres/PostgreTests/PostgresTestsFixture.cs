@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure.Postgres;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres.Initialization;
 using Propel.FeatureFlags.Infrastructure;
 using Testcontainers.PostgreSql;
 
@@ -10,7 +12,7 @@ namespace FeatureFlags.IntegrationTests.Postgres.PostgreTests;
 public class PostgresTestsFixture : IAsyncLifetime
 {
 	private readonly PostgreSqlContainer _container;
-	public IServiceProvider Services {get; private set; } = null!;
+	public IServiceProvider Services { get; private set; } = null!;
 	public IFeatureFlagRepository FeatureFlagRepository => Services.GetRequiredService<IFeatureFlagRepository>();
 	public IDashboardRepository DashboardRepository => Services.GetRequiredService<IDashboardRepository>();
 
@@ -27,19 +29,31 @@ public class PostgresTestsFixture : IAsyncLifetime
 
 	public async Task InitializeAsync()
 	{
-		var connectionString = await StartContainer();
+		// Start the container
+		await _container.StartAsync();
+		
+		var connectionString = _container.GetConnectionString();
 
 		var services = new ServiceCollection();
 
 		services.AddLogging();
 
+		// Add the DbContext with test container connection string
 		services.AddPostgresDbContext(connectionString);
 
 		Services = services.BuildServiceProvider();
+
+		// Apply migrations to initialize the database schema
+		await ApplyMigrationsAsync();
 	}
 
 	public async Task DisposeAsync()
 	{
+		if (Services is IDisposable disposable)
+		{
+			disposable.Dispose();
+		}
+		
 		await _container.DisposeAsync();
 	}
 
@@ -48,19 +62,30 @@ public class PostgresTestsFixture : IAsyncLifetime
 		var connectionString = _container.GetConnectionString();
 		using var connection = new NpgsqlConnection(connectionString);
 		await connection.OpenAsync();
+		
+		// Delete in correct order to respect foreign key constraints
 		using var command = new NpgsqlCommand(@"
-			DELETE FROM feature_flags_audit;
-			DELETE FROM feature_flags_metadata;
-			DELETE FROM feature_flags;
+			TRUNCATE TABLE feature_flags_audit CASCADE;
+			TRUNCATE TABLE feature_flags_metadata CASCADE;
+			TRUNCATE TABLE feature_flags CASCADE;
 		", connection);
+		
 		await command.ExecuteNonQueryAsync();
 	}
 
-	private async Task<string> StartContainer()
+	private async Task ApplyMigrationsAsync()
 	{
-		await _container.StartAsync();
-
-		var connectionString = _container.GetConnectionString();
-		return connectionString;
+		using var scope = Services.CreateScope();
+		var dbContext = scope.ServiceProvider.GetRequiredService<PostgresMigrationDbContext>();
+		
+		// Apply all pending migrations
+		await dbContext.Database.MigrateAsync();
+		
+		// Optionally verify the database was created successfully
+		var canConnect = await dbContext.Database.CanConnectAsync();
+		if (!canConnect)
+		{
+			throw new InvalidOperationException("Failed to connect to test database after migration.");
+		}
 	}
 }

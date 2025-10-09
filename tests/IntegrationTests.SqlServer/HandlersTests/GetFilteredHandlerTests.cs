@@ -99,7 +99,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_one_evaluation_mode()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-filter-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new FlagIdentifier("mode-filter-flag1", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Name",
 						Description: "With specific mode",
@@ -143,7 +143,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_many_evaluation_modes()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-filter-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new FlagIdentifier("mode-filter-flag2", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Name",
 						Description: "With specific mode",

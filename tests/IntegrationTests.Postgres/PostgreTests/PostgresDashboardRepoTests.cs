@@ -1,6 +1,6 @@
 using Knara.UtcStrict;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 
 namespace FeatureFlags.IntegrationTests.Postgres.PostgreTests.Dashboard;

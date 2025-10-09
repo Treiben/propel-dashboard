@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
 using Propel.FeatureFlags.Dashboard.Api;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.Infrastructure;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres.Initialization;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.Infrastructure;
 using Propel.FeatureFlags.Infrastructure.Cache;
@@ -45,8 +48,11 @@ public class HandlersTestsFixture : IAsyncLifetime
 
 	public async Task InitializeAsync()
 	{
-		var sqlConnectionString = await StartPostgresContainer();
-		var redisConnectionString = await StartRedisContainer();
+		await _postgresContainer.StartAsync();
+		await _redisContainer.StartAsync();
+
+		var sqlConnectionString = _postgresContainer.GetConnectionString();
+		var redisConnectionString = _redisContainer.GetConnectionString();
 
 		var services = new ServiceCollection();
 		services.AddLogging();
@@ -87,6 +93,9 @@ public class HandlersTestsFixture : IAsyncLifetime
 		services.AddDashboardServices();
 
 		Services = services.BuildServiceProvider();
+
+		// Apply migrations to initialize the database schema
+		await ApplyMigrationsAsync();
 	}
 	public async Task DisposeAsync()
 	{
@@ -98,25 +107,31 @@ public class HandlersTestsFixture : IAsyncLifetime
 	{
 		var connectionString = _postgresContainer.GetConnectionString();
 		using var connection = new NpgsqlConnection(connectionString);
+		using var command = new NpgsqlCommand(@"
+			TRUNCATE TABLE feature_flags_audit CASCADE;
+			TRUNCATE TABLE feature_flags_metadata CASCADE;
+			TRUNCATE TABLE feature_flags CASCADE;
+		", connection);
+
 		await connection.OpenAsync();
-		using var command = new NpgsqlCommand("DELETE FROM feature_flags", connection);
 		await command.ExecuteNonQueryAsync();
 
 		await Cache.ClearAsync();
 	}
 
-	private async Task<string> StartPostgresContainer()
+	private async Task ApplyMigrationsAsync()
 	{
-		await _postgresContainer.StartAsync();
+		using var scope = Services.CreateScope();
+		var dbContext = scope.ServiceProvider.GetRequiredService<PostgresMigrationDbContext>();
 
-		var connectionString = _postgresContainer.GetConnectionString();
-		return connectionString;
-	}
+		// Apply all pending migrations
+		await dbContext.Database.MigrateAsync();
 
-	private async Task<string> StartRedisContainer()
-	{
-		await _redisContainer.StartAsync();
-		var connectionString = _redisContainer.GetConnectionString();
-		return connectionString;
+		// Optionally verify the database was created successfully
+		var canConnect = await dbContext.Database.CanConnectAsync();
+		if (!canConnect)
+		{
+			throw new InvalidOperationException("Failed to connect to test database after migration.");
+		}
 	}
 }
