@@ -20,6 +20,14 @@ public static class DatabaseMigrationExtensions
 			{
 				logger.LogInformation("Applying PostgreSQL database migrations...");
 				await postgresMigrationContext.Database.MigrateAsync();
+
+				// Optionally verify the database was created successfully
+				var canConnect = await postgresMigrationContext.Database.CanConnectAsync();
+				if (!canConnect)
+				{
+					throw new InvalidOperationException("Failed to connect to test database after migration.");
+				}
+
 				logger.LogInformation("PostgreSQL database migrations applied successfully.");
 				return app;
 			}
@@ -30,6 +38,14 @@ public static class DatabaseMigrationExtensions
 			{
 				logger.LogInformation("Applying SQL Server database migrations...");
 				await sqlServerContext.Database.MigrateAsync();
+
+				// Optionally verify the database was created successfully
+				var canConnect = await sqlServerContext.Database.CanConnectAsync();
+				if (!canConnect)
+				{
+					throw new InvalidOperationException("Failed to connect to test database after migration.");
+				}
+
 				logger.LogInformation("SQL Server database migrations applied successfully.");
 				return app;
 			}

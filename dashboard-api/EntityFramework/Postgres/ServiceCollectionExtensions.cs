@@ -6,7 +6,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres;
 public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddPostgresDbContext(this IServiceCollection services, string connectionString)
-	{
+	{		
 		services.AddDbContext<PostgresDbContext>(options =>
 		{
 			options.UseNpgsql(connectionString, npgsqlOptions =>
@@ -26,6 +26,13 @@ public static class ServiceCollectionExtensions
 			options.UseNpgsql(connectionString, npgsqlOptions =>
 			{
 				npgsqlOptions.MigrationsAssembly(typeof(PostgresDbContextFactory).Assembly.FullName);
+
+				// Extract schema from connection string
+				var schema = MigrationBuilderExtensions.GetSchemaFromConnectionString(connectionString) ??
+					PostgresMigrationDbContext.DefaultSchema;
+
+				// Store migrations history in the schema
+				npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", schema);
 			});
 		});
 

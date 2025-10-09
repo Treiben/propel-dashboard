@@ -12,7 +12,7 @@ using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres.Initialization;
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres.Migrations
 {
     [DbContext(typeof(PostgresMigrationDbContext))]
-    [Migration("20251009031459_InitialCreate")]
+    [Migration("20251009155719_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
