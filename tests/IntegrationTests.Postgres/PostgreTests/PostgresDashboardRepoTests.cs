@@ -16,7 +16,7 @@ public class GetAsync_WithDashboardRepository(PostgresTestsFixture fixture) : IC
 		var metadata = new FlagAdministration(Name:"Comprehensive Test Flag",
 			Description: "Complete field mapping test with all possible values",
 			Tags: new Dictionary<string, string> { { "category", "testing" }, { "priority", "high" }, { "env", "staging" } },
-			RetentionPolicy: new RetentionPolicy(DateTimeOffset.UtcNow.AddDays(45)),
+			RetentionPolicy: new RetentionPolicy(IsPermanent: false, DateTimeOffset.UtcNow.AddDays(45)),
 			ChangeHistory: [new AuditTrail(DateTimeOffset.UtcNow.AddDays(-5), "test-creator", "flag-created", "Initial creation with full details")]
 		);
 
@@ -650,7 +650,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(PostgresTestsFixture fi
 		var updatedMetadata = new FlagAdministration(
 			Name: "Updated Metadata Name",
 			Description: "Updated metadata description",
-			RetentionPolicy: new RetentionPolicy(DateTimeOffset.UtcNow.AddDays(30)),
+			RetentionPolicy: new RetentionPolicy(IsPermanent: false, DateTimeOffset.UtcNow.AddDays(30)),
 			Tags: new Dictionary<string, string> { { "updated", "true" }, { "version", "2.0" } },
 			ChangeHistory: [.. originalFlag.Administration.ChangeHistory, AuditTrail.FlagModified("metadata-updater", "Metadata updated")]
 		);

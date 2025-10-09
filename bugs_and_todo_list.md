@@ -130,7 +130,7 @@
 - Add user authentication and authorization to UI
 - Add admin user management to UI
 - Add admin user management to API
-- Add user roles: admin, user, viewer
+- Add user roles: admin (can read/write flag operations, read/write users operations), user (read/write flag operations), viewer (read only flag operations)
 - Add user roles to API
 - Add user roles to UI
 - Add user roles to database

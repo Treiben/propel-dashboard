@@ -2,13 +2,13 @@
 
 namespace Propel.FeatureFlags.Dashboard.Api.Domain;
 
-public record RetentionPolicy(UtcDateTime ExpirationDate)
+public record RetentionPolicy(bool IsPermanent, UtcDateTime ExpirationDate)
 {
-	public static RetentionPolicy OneMonthRetentionPolicy => new(ExpirationDate: DateTimeOffset.UtcNow.AddDays(30));
+	public static RetentionPolicy OneMonthRetentionPolicy => new(false, ExpirationDate: DateTimeOffset.UtcNow.AddDays(30));
 
-	public static RetentionPolicy GlobalPolicy => new(UtcDateTime.MaxValue);
+	public static RetentionPolicy GlobalPolicy => new(true, UtcDateTime.MaxValue);
 
-	public bool IsPermanent => ExpirationDate == UtcDateTime.MaxValue;
+	public bool IsExpired => ExpirationDate <= DateTime.UtcNow;
 
-	public bool CanBeDeleted => !IsPermanent && ExpirationDate <= DateTime.UtcNow;
+	public bool IsDeleteable => !IsPermanent && IsExpired;
 }

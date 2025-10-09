@@ -7,7 +7,13 @@ using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
 
-public record UpdateFlagRequest(string? Name, string? Description, Dictionary<string, string>? Tags, DateTimeOffset? ExpirationDate, string? Notes);
+public record UpdateFlagRequest(
+	string? Name, 
+	string? Description, 
+	Dictionary<string, string>? Tags, 
+	bool? IsPermanent,
+	DateTimeOffset? ExpirationDate, 
+	string? Notes);
 
 public sealed class UpdateMetadataEndpoint : IEndpoint
 {
@@ -71,12 +77,20 @@ public sealed class UpdateFlagHandler(
 
 	private static FeatureFlag CreateFlagWithUpdatedMetadata(UpdateFlagRequest request, FeatureFlag flag, string username)
 	{
+		// Retention policy
+		var isPermanent = request.IsPermanent ?? flag.Administration.RetentionPolicy.IsPermanent;
+		var expirationDate = request.ExpirationDate ?? flag.Administration.RetentionPolicy.ExpirationDate;
+
+		// Metadata fields
+		var name = string.IsNullOrWhiteSpace(request.Name) ? flag.Administration.Name : request.Name!.Trim();
+		var description = string.IsNullOrWhiteSpace(request.Description) ? flag.Administration.Description : request.Description!.Trim();
+
 		var metadata = flag.Administration with
 		{
-			Name = string.IsNullOrWhiteSpace(request.Name) ? flag.Administration.Name : request.Name!.Trim(),
-			Description = string.IsNullOrWhiteSpace(request.Description) ? flag.Administration.Description : request.Description!.Trim(),
+			Name = name,
+			Description = description,
 			Tags = request.Tags ?? flag.Administration.Tags,
-			RetentionPolicy = request.ExpirationDate.HasValue ? new RetentionPolicy(request.ExpirationDate.Value) : flag.Administration.RetentionPolicy,
+			RetentionPolicy = new RetentionPolicy(isPermanent, expirationDate),
 			ChangeHistory =
 			[
 				.. flag.Administration.ChangeHistory,

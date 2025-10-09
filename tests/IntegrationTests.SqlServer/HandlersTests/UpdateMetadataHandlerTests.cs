@@ -30,7 +30,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
-		var request = new UpdateFlagRequest("New Name", null, null, null, null);
+		var request = new UpdateFlagRequest(Name: "New Name", Description: null, Tags: null, Notes: null, IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		var result = await handler.HandleAsync("update-name-flag", headers, request, CancellationToken.None);
@@ -62,7 +62,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
-		var request = new UpdateFlagRequest(null, "New Description", null, null, null);
+		var request = new UpdateFlagRequest(Name: null, Description: "New Description", Tags: null, Notes: null, IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		var result = await handler.HandleAsync("update-desc-flag", headers, request, CancellationToken.None);
@@ -95,7 +95,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var newTags = new Dictionary<string, string> { ["env"] = "production", ["team"] = "backend" };
-		var request = new UpdateFlagRequest(null, null, newTags, null, null);
+		var request = new UpdateFlagRequest(Name: null, Description: null, Tags: newTags, Notes: null, IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		var result = await handler.HandleAsync("update-tags-flag", headers, request, CancellationToken.None);
@@ -127,7 +127,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var expirationDate = DateTimeOffset.UtcNow.AddDays(30);
-		var request = new UpdateFlagRequest(null, null, null, expirationDate, null);
+		var request = new UpdateFlagRequest(Name: null, Description: null, Tags: null, Notes: null, IsPermanent: null, ExpirationDate: expirationDate);
 
 		// Act
 		var result = await handler.HandleAsync("update-expiration-flag", headers, request, CancellationToken.None);
@@ -158,7 +158,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var newTags = new Dictionary<string, string> { ["updated"] = "true" };
-		var request = new UpdateFlagRequest("New Name", "New Description", newTags, null, "Bulk update");
+		var request = new UpdateFlagRequest(Name: "New Name", Description: "New Description", Tags: newTags, Notes: "Bulk Update", IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		var result = await handler.HandleAsync("update-multiple-flag", headers, request, CancellationToken.None);
@@ -193,7 +193,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
-		var request = new UpdateFlagRequest("Updated Name", null, null, null, null);
+		var request = new UpdateFlagRequest(Name: "Updated Name", Description: null, Tags: null, Notes: null, IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		await handler.HandleAsync("cached-update-flag", headers, request, CancellationToken.None);
@@ -209,7 +209,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		// Arrange
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
-		var request = new UpdateFlagRequest("New Name", null, null, null, null);
+		var request = new UpdateFlagRequest(Name: "New Name", Description: null, Tags: null, Notes: null, IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		var result = await handler.HandleAsync("non-existent", headers, request, CancellationToken.None);
@@ -237,7 +237,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
-		var request = new UpdateFlagRequest(null, "Only description updated", null, null, null);
+		var request = new UpdateFlagRequest(Name: null, Description: "Only description updated", Tags: null, Notes: null, IsPermanent: null, ExpirationDate: null);
 
 		// Act
 		var result = await handler.HandleAsync("preserve-flag", headers, request, CancellationToken.None);
