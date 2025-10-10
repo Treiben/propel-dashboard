@@ -44,6 +44,7 @@ public record FeatureFlagResponse
 	public Dictionary<string, string>? Tags { get; set; } = [];
 	public DateTime? ExpirationDate { get; set; }
 	public bool IsPermanent { get; set; }
+	public bool IsLocked { get; set; }
 
 	public string? ApplicationName {get;set; }
 
@@ -84,9 +85,10 @@ public record FeatureFlagResponse
 		Variations = configuration.Variations ?? new Variations();
 
 		Tags = metadata.Tags;
-		IsPermanent = retention.IsPermanent;
-		ExpirationDate = retention.ExpirationDate;
 
+		IsPermanent = retention.IsPermanent;
+		IsLocked = retention.IsLocked;
+		ExpirationDate = retention.ExpirationDate;
 	}
 
 	private static FlagSchedule? MapSchedule(UtcSchedule schedule)

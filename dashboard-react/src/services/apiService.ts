@@ -76,6 +76,7 @@ export interface FeatureFlagDto {
 	tags: Record<string, string>;
 	expirationDate?: string;
 	isPermanent: boolean;
+	isLocked: boolean; // Add this line
 	applicationName?: string;
 	applicationVersion?: string;
 	scope: Scope;
@@ -100,6 +101,7 @@ export interface GetFlagsParams {
 	tags?: string[]; // Format: ["key:value", "key2:value2"]
 	applicationName?: string;
 	scope?: Scope;
+	isPermanent?: boolean; // Add this line
 }
 
 export interface TargetingRule {
@@ -121,6 +123,7 @@ export interface UpdateFlagRequest {
 	name?: string;
 	description?: string;
 	tags?: Record<string, string>;
+	isPermanent?: boolean; // Add this line
 	expirationDate?: string;
 	notes?: string;
 }
@@ -477,6 +480,9 @@ function buildQueryParams(params: GetFlagsParams): URLSearchParams {
 	}
 	if (params.scope !== undefined) {
 		searchParams.append('scope', params.scope.toString());
+	}
+	if (params.isPermanent !== undefined) { // Add this block
+		searchParams.append('isPermanent', params.isPermanent.toString());
 	}
 	return searchParams;
 }

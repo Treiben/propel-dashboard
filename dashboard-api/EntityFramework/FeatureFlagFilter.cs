@@ -7,7 +7,8 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 public record FeatureFlagFilter(Dictionary<string, string>? Tags = null,
 	EvaluationMode[]? EvaluationModes = null,
 	string? ApplicationName = null,
-	Scope? Scope = null);
+	Scope? Scope = null,
+	bool? PermanentFlagsOnly = null);
 
 public static class PostgresFiltering
 {
@@ -100,6 +101,14 @@ public static class PostgresFiltering
 			var scopeParam = "scope";
 			parameters[scopeParam] = (int)filter.Scope.Value;
 			conditions.Add($"ff.scope = {{{scopeParam}}}");
+		}
+
+		// Flag permanent retention filtering
+		if (filter.PermanentFlagsOnly.HasValue)
+		{
+			var permanentParam = "is_permanent";
+			parameters[permanentParam] = filter.PermanentFlagsOnly.Value;
+			conditions.Add($"ffm.is_permanent = {{{permanentParam}}}");
 		}
 
 		// Evaluation modes filtering - use ff table (main flag data)
@@ -237,6 +246,14 @@ public static class SqlServerFiltering
 			var scopeParam = "scope";
 			parameters[scopeParam] = (int)filter.Scope.Value;
 			conditions.Add($"ff.Scope = @{scopeParam}");
+		}
+
+		// Flag permanent retention filtering
+		if (filter.PermanentFlagsOnly.HasValue)
+		{
+			var permanentParam = "IsPermanent";
+			parameters[permanentParam] = filter.PermanentFlagsOnly.Value;
+			conditions.Add($"ffm.IsPermanent = {{{permanentParam}}}");
 		}
 
 		// Evaluation modes filtering - use ff table (main flag data)

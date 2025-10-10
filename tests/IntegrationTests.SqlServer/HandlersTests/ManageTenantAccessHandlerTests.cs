@@ -1,3 +1,4 @@
+using Knara.UtcStrict;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tenant Percentage",
 						Description: "Will have percentage",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -51,7 +52,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Allowed Tenants",
 						Description: "Will have allowed tenants",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -61,7 +62,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var request = new ManageTenantAccessRequest(
-			new[] { "tenant-1", "tenant-2" },
+			["tenant-1", "tenant-2"],
 			null,
 			null,
 			"Adding allowed tenants");
@@ -87,7 +88,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Blocked Tenants",
 						Description: "Will have blocked tenants",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -98,7 +99,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var request = new ManageTenantAccessRequest(
 			null,
-			new[] { "tenant-bad-1", "tenant-bad-2" },
+			["tenant-bad-1", "tenant-bad-2"],
 			null,
 			"Blocking tenants");
 
@@ -123,7 +124,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Hundred Percentage",
 						Description: "Test unrestricted rollout",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -154,7 +155,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tenant Mode Cleanup",
 						Description: "Remove on/off modes",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -190,7 +191,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Combined Tenant",
 						Description: "Both allowed and percentage",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -200,7 +201,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var request = new ManageTenantAccessRequest(
-			new[] { "tenant-a" },
+			["tenant-a"],
 			null,
 			80,
 			"Combined settings");
@@ -227,7 +228,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Tenant",
 						Description: "In cache",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);

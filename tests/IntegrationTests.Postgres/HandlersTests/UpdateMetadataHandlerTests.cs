@@ -1,3 +1,4 @@
+using Knara.UtcStrict;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Old Name",
 						Description: "Description",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -53,12 +54,11 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Name",
 						Description: "Old Description",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
-
-		var saved = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -85,12 +85,11 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Name",
 						Description: "Description",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
-
-		var saved = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -117,7 +116,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Name",
 						Description: "Description",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -148,12 +147,12 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Old Name",
 						Description: "Old Description",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		var saved = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -181,12 +180,12 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached",
 						Description: "In cache",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = new ModeSet([EvaluationMode.On]) });
 
-		var saved = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-update-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-update-flag"));
@@ -228,12 +227,12 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Original Name",
 						Description: "Original Description",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		var saved = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);

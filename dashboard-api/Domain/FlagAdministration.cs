@@ -1,4 +1,5 @@
-﻿using Propel.FeatureFlags.Domain;
+﻿using Knara.UtcStrict;
+using Propel.FeatureFlags.Domain;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Domain;
 
@@ -15,7 +16,12 @@ public record FlagAdministration(
 		ArgumentNullException.ThrowIfNull(initial);
 
 		description = description ?? string.Empty;
-		var retentionPolicy = scope == Scope.Global ? RetentionPolicy.GlobalPolicy : RetentionPolicy.OneMonthRetentionPolicy;
+		var retentionPolicy = scope == Scope.Global ? new RetentionPolicy(IsPermanent: true,
+								ExpirationDate: UtcDateTime.MaxValue,
+								FlagLockPolicy: new FlagLockPolicy(new[] { EvaluationMode.Off }))
+			: new RetentionPolicy(IsPermanent: false,
+									ExpirationDate: RetentionPolicy.ExpiresIn90Days,
+									FlagLockPolicy: new FlagLockPolicy(new[] { EvaluationMode.Off }));
 		var tags = new Dictionary<string, string>();
 		var changeHistory = new List<AuditTrail> { initial };
 

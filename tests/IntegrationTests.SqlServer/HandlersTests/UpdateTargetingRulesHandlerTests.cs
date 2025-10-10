@@ -1,3 +1,4 @@
+using Knara.UtcStrict;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Targeting Flag",
 						Description: "Will have rules",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -31,8 +32,8 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var rules = new List<TargetingRuleRequest>
 		{
-			new("country", TargetingOperator.Contains, new List<string> { "US", "CA" }, "variation-a"),
-			new("plan", TargetingOperator.Contains, new List<string> { "premium" }, "variation-b")
+			new("country", TargetingOperator.Contains, ["US", "CA"], "variation-a"),
+			new("plan", TargetingOperator.Contains, ["premium"], "variation-b")
 		};
 		var request = new UpdateTargetingRulesRequest(rules, false, "Adding targeting rules");
 
@@ -56,7 +57,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Remove Targeting",
 						Description: "Has rules to remove",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -69,7 +70,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// First add rules
 		var rules = new List<TargetingRuleRequest>
 		{
-			new("region", TargetingOperator.Contains, new List<string> { "EU" }, "variation-a")
+			new("region", TargetingOperator.Contains, ["EU"], "variation-a")
 		};
 		await handler.HandleAsync("remove-targeting-flag", headers,
 			new UpdateTargetingRulesRequest(rules, false, "Add first"), CancellationToken.None);
@@ -95,7 +96,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Targeting",
 						Description: "Check mode addition",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -106,7 +107,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var rules = new List<TargetingRuleRequest>
 		{
-			new("tier", TargetingOperator.Contains, new List<string> { "gold" }, "variation-gold")
+			new("tier", TargetingOperator.Contains, ["gold"], "variation-gold")
 		};
 		var request = new UpdateTargetingRulesRequest(rules, false, "Adding mode");
 
@@ -129,7 +130,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cleanup Targeting",
 						Description: "Remove on/off modes",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -147,7 +148,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Act - Add targeting rules
 		var rules = new List<TargetingRuleRequest>
 		{
-			new("segment", TargetingOperator.Contains, new List<string> { "beta" }, "variation-beta")
+			new("segment", TargetingOperator.Contains, ["beta"], "variation-beta")
 		};
 		var request = new UpdateTargetingRulesRequest(rules, false, "Add rules");
 		var result = await handler.HandleAsync("cleanup-targeting-flag", headers, request, CancellationToken.None);
@@ -170,7 +171,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Replace Targeting",
 						Description: "Replace rules",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -183,7 +184,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Add initial rules
 		var initialRules = new List<TargetingRuleRequest>
 		{
-			new("old-attr", TargetingOperator.Contains, new List<string> { "old" }, "variation-old")
+			new("old-attr", TargetingOperator.Contains, ["old"], "variation-old")
 		};
 		await handler.HandleAsync("replace-targeting-flag", headers,
 			new UpdateTargetingRulesRequest(initialRules, false, "Initial"), CancellationToken.None);
@@ -191,7 +192,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Act - Replace with new rules
 		var newRules = new List<TargetingRuleRequest>
 		{
-			new("new-attr", TargetingOperator.Contains, new List<string> { "new" }, "variation-new")
+			new("new-attr", TargetingOperator.Contains, ["new"], "variation-new")
 		};
 		var request = new UpdateTargetingRulesRequest(newRules, false, "Replace rules");
 		var result = await handler.HandleAsync("replace-targeting-flag", headers, request, CancellationToken.None);
@@ -213,7 +214,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Targeting",
 						Description: "In cache",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -227,7 +228,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var rules = new List<TargetingRuleRequest>
 		{
-			new("env", TargetingOperator.Contains, new List<string> { "prod" }, "variation-prod")
+			new("env", TargetingOperator.Contains, ["prod"], "variation-prod")
 		};
 		var request = new UpdateTargetingRulesRequest(rules, false, "Add with cache clear");
 
@@ -247,7 +248,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var rules = new List<TargetingRuleRequest>
 		{
-			new("attr", TargetingOperator.Contains, new List<string> { "value" }, "variation")
+			new("attr", TargetingOperator.Contains, ["value"], "variation")
 		};
 		var request = new UpdateTargetingRulesRequest(rules, false, "Add to non-existent");
 

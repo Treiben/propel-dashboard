@@ -112,6 +112,7 @@ interface FlagEditSectionProps {
         name?: string;
         description?: string;
         tags?: Record<string, string>;
+        isPermanent?: boolean;
         expirationDate?: string;
         notes?: string;
     }) => Promise<void>;
@@ -127,6 +128,7 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
     const [formData, setFormData] = useState({
         name: flag.name,
         description: flag.description || '',
+        isPermanent: flag.isPermanent,
         expirationDate: flag.expirationDate ? flag.expirationDate.slice(0, 16) : '',
         tags: Object.entries(flag.tags || {}).map(([key, value]) => `${key}:${value}`).join(', ')
     });
@@ -135,10 +137,11 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
         setFormData({
             name: flag.name,
             description: flag.description || '',
+            isPermanent: flag.isPermanent,
             expirationDate: flag.expirationDate ? flag.expirationDate.slice(0, 16) : '',
             tags: Object.entries(flag.tags || {}).map(([key, value]) => `${key}:${value}`).join(', ')
         });
-    }, [flag.key, flag.name, flag.description, flag.expirationDate, flag.tags]);
+    }, [flag.key, flag.name, flag.description, flag.isPermanent, flag.expirationDate, flag.tags]);
 
     const parseTags = (tagsString: string): Record<string, string> => {
         const tags: Record<string, string> = {};
@@ -166,6 +169,10 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
                 updates.description = formData.description;
             }
 
+            if (formData.isPermanent !== flag.isPermanent) {
+                updates.isPermanent = formData.isPermanent;
+            }
+
             if (formData.expirationDate !== (flag.expirationDate ? flag.expirationDate.slice(0, 16) : '')) {
                 updates.expirationDate = formData.expirationDate ? new Date(formData.expirationDate).toISOString() : undefined;
             }
@@ -187,6 +194,7 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
         setFormData({
             name: flag.name,
             description: flag.description || '',
+            isPermanent: flag.isPermanent,
             expirationDate: flag.expirationDate ? flag.expirationDate.slice(0, 16) : '',
             tags: Object.entries(flag.tags || {}).map(([key, value]) => `${key}:${value}`).join(', ')
         });
@@ -252,6 +260,23 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
                                 placeholder="environment:prod, team:backend, priority:high"
                             />
                             <p className={`text-xs ${theme.neutral.text[500]} mt-1`}>Comma-separated key:value pairs</p>
+                        </div>
+
+                        <div>
+                            <label className={`flex items-center gap-2 text-sm font-medium ${theme.neutral.text[700]}`}>
+                                <input
+                                    type="checkbox"
+                                    checked={formData.isPermanent}
+                                    onChange={(e) => setFormData({ ...formData, isPermanent: e.target.checked })}
+                                    disabled={operationLoading}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <Lock className="w-4 h-4" />
+                                Mark as Permanent Flag
+                            </label>
+                            <p className={`text-xs ${theme.neutral.text[500]} mt-1 ml-6`}>
+                                Permanent flags cannot be deleted and are intended for long-term use
+                            </p>
                         </div>
 
                         <div>

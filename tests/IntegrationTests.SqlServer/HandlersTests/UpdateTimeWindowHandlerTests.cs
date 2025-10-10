@@ -1,3 +1,4 @@
+using Knara.UtcStrict;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Time Window",
 						Description: "Will have time window",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -34,7 +35,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			new TimeOnly(9, 0),
 			new TimeOnly(17, 0),
 			"America/New_York",
-			new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday },
+			[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday],
 			false,
 			"Business hours only");
 
@@ -47,7 +48,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var updated = await fixture.DashboardRepository.GetByKeyAsync(
 			new FlagIdentifier("time-window-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeTrue();
-		updated.EvaluationOptions.OperationalWindow.DaysActive.Count().ShouldBe(3);
+		updated.EvaluationOptions.OperationalWindow.DaysActive.Length.ShouldBe(3);
 	}
 
 	[Fact]
@@ -58,7 +59,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Remove Window",
 						Description: "Has window to remove",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -74,7 +75,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 				new TimeOnly(9, 0),
 				new TimeOnly(17, 0),
 				"UTC",
-				new List<DayOfWeek> { DayOfWeek.Monday },
+				[DayOfWeek.Monday],
 				false,
 				"Add window"),
 			CancellationToken.None);
@@ -84,7 +85,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			TimeOnly.MinValue,
 			TimeOnly.MinValue,
 			string.Empty,
-			new List<DayOfWeek>(),
+			[],
 			true,
 			"Remove window");
 		var result = await handler.HandleAsync("remove-window-flag", headers, request, CancellationToken.None);
@@ -105,7 +106,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Window",
 						Description: "Check mode addition",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -118,7 +119,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			new TimeOnly(8, 0),
 			new TimeOnly(20, 0),
 			"Europe/London",
-			new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Friday },
+			[DayOfWeek.Monday],
 			false,
 			"Set window");
 
@@ -141,7 +142,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cleanup Window",
 						Description: "Remove on/off modes",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -161,7 +162,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			new TimeOnly(10, 0),
 			new TimeOnly(18, 0),
 			"UTC",
-			new List<DayOfWeek> { DayOfWeek.Thursday },
+			[DayOfWeek.Thursday],
 			false,
 			"Set window");
 		var result = await handler.HandleAsync("cleanup-window-flag", headers, request, CancellationToken.None);
@@ -184,7 +185,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "All Days",
 						Description: "All days active",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -197,11 +198,10 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			new TimeOnly(0, 0),
 			new TimeOnly(23, 59),
 			"UTC",
-			new List<DayOfWeek>
-			{
+			[
 				DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
 				DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
-			},
+			],
 			false,
 			"24/7 window");
 
@@ -213,7 +213,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 
 		var updated = await fixture.DashboardRepository.GetByKeyAsync(
 			new FlagIdentifier("all-days-flag", Scope.Global), CancellationToken.None);
-		updated!.EvaluationOptions.OperationalWindow.DaysActive.Count().ShouldBe(7);
+		updated!.EvaluationOptions.OperationalWindow.DaysActive.Length.ShouldBe(7);
 	}
 
 	[Fact]
@@ -224,7 +224,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Window",
 						Description: "In cache",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -240,7 +240,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			new TimeOnly(12, 0),
 			new TimeOnly(14, 0),
 			"UTC",
-			new List<DayOfWeek> { DayOfWeek.Wednesday },
+			[DayOfWeek.Wednesday],
 			false,
 			"Update with cache clear");
 
@@ -262,7 +262,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 			new TimeOnly(9, 0),
 			new TimeOnly(17, 0),
 			"UTC",
-			new List<DayOfWeek> { DayOfWeek.Monday },
+			[DayOfWeek.Monday],
 			false,
 			"Non-existent flag");
 

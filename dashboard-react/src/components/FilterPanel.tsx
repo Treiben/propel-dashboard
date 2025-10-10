@@ -8,6 +8,7 @@ interface FilterState {
     expiringInDays?: number;
     scope?: Scope;
     applicationName?: string;
+    isPermanent?: boolean;
 }
 
 interface FilterPanelProps {
@@ -116,6 +117,25 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     />
                     <p className="text-xs text-gray-500 mt-1">
                         Filter flags by specific application name
+                    </p>
+                </div>
+
+                {/* Permanent Flags Checkbox */}
+                <div className="border border-gray-200 rounded-md p-3 bg-amber-50">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={filters.isPermanent === true}
+                            onChange={(e) => onFiltersChange({
+                                ...filters,
+                                isPermanent: e.target.checked ? true : undefined
+                            })}
+                            className="rounded border-gray-300 text-amber-600 focus:ring-amber-500 h-4 w-4"
+                        />
+                        <span className="text-sm font-medium text-gray-900">Show Permanent Flags Only</span>
+                    </label>
+                    <p className="text-xs text-gray-600 mt-1 ml-6">
+                        When checked, only permanent flags (long-term production flags) will be shown
                     </p>
                 </div>
 

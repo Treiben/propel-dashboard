@@ -15,7 +15,7 @@ public record UpdateFlagRequest(
 	DateTimeOffset? ExpirationDate, 
 	string? Notes);
 
-public sealed class UpdateMetadataEndpoint : IEndpoint
+public sealed class UpdateAdministrationEndpoints : IEndpoint
 {
 	public void AddEndpoint(IEndpointRouteBuilder app)
 	{
@@ -90,7 +90,7 @@ public sealed class UpdateFlagHandler(
 			Name = name,
 			Description = description,
 			Tags = request.Tags ?? flag.Administration.Tags,
-			RetentionPolicy = new RetentionPolicy(isPermanent, expirationDate),
+			RetentionPolicy = new RetentionPolicy(isPermanent, expirationDate, new FlagLockPolicy([..flag.EvaluationOptions.ModeSet.Modes])),
 			ChangeHistory =
 			[
 				.. flag.Administration.ChangeHistory,

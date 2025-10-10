@@ -60,6 +60,7 @@ interface FlagDetailsProps {
         name?: string;
         description?: string;
         tags?: Record<string, string>;
+        isPermanent?: boolean;
         expirationDate?: string;
         notes?: string;
     }) => Promise<void>;
@@ -287,6 +288,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
         name?: string;
         description?: string;
         tags?: Record<string, string>;
+        isPermanent?: boolean;
         expirationDate?: string;
         notes?: string;
     }) => {
@@ -359,6 +361,9 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     const shouldShowTargetingRulesIndicator = flag.modes?.includes(EvaluationMode.TargetingRules) || targetingRules.length > 0;
     const shouldShowVariationIndicator = checkForCustomVariations(flag);
 
+    // Flag is deletable only when NOT locked
+    const canDelete = !flag.isLocked;
+
     return (
         <div className={`bg-white rounded-lg shadow-sm ${theme.neutral.border[200]} border p-6`}>
             <div className="flex justify-between items-start mb-4">
@@ -394,7 +399,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                                 </button>
                             )}
 
-                            {!flag.isPermanent && (
+                            {canDelete && (
                                 <button
                                     onClick={() => onDelete(flag.key)}
                                     className={`p-2 ${theme.danger.text[600]} hover:bg-red-50 rounded-md transition-colors border border-transparent hover:border-red-200`}

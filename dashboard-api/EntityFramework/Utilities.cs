@@ -29,7 +29,10 @@ public static class Mapper
 	public static FlagAdministration MapMetadataToDomain(Entities.FeatureFlag entity) => new(
 			Name: entity.Name,
 			Description: entity.Description ?? string.Empty,
-			RetentionPolicy: new RetentionPolicy(entity.Metadata.IsPermanent, entity.Metadata.ExpirationDate),
+			RetentionPolicy: new RetentionPolicy(
+				entity.Metadata.IsPermanent,
+				entity.Metadata.ExpirationDate,
+				new FlagLockPolicy([.. Parser.ParseEvaluationModes(entity.EvaluationModes).Modes])),
 			Tags: JsonSerializer.Deserialize<Dictionary<string, string>>(entity.Metadata.Tags) ?? [],
 			ChangeHistory: [.. entity.AuditTrail
 				.OrderByDescending(t => t.Timestamp)

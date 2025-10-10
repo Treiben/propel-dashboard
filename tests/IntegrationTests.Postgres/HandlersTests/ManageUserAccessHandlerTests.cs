@@ -1,3 +1,4 @@
+using Knara.UtcStrict;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "User Percentage",
 						Description: "Will have percentage",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -52,7 +53,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Allowed Users",
 						Description: "Will have allowed users",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -62,7 +63,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var request = new ManageUserAccessRequest(
-			new[] { "user-1", "user-2", "user-3" }, 
+			["user-1", "user-2", "user-3"], 
 			null, 
 			null, 
 			"Adding allowed users");
@@ -88,7 +89,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Blocked Users",
 						Description: "Will have blocked users",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -99,7 +100,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var request = new ManageUserAccessRequest(
 			null, 
-			new[] { "user-blocked-1", "user-blocked-2" }, 
+			["user-blocked-1", "user-blocked-2"], 
 			null, 
 			"Blocking users");
 
@@ -124,7 +125,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Hundred User Percentage",
 						Description: "Testing unrestricted user access",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -155,7 +156,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "User Mode Cleanup",
 						Description: "Remove on/off modese",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -191,7 +192,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Combined User",
 						Description: "Both allowed and percentage",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -201,7 +202,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
 		var request = new ManageUserAccessRequest(
-			new[] { "user-alpha", "user-beta" }, 
+			["user-alpha", "user-beta"], 
 			null, 
 			90, 
 			"Combined settings");
@@ -229,7 +230,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached User",
 						Description: "In cache",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);

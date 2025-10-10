@@ -38,6 +38,8 @@ public record GetFeatureFlagRequest
 	public Scope? Scope { get; init; }
 
 	public string? ApplicationName { get; init; }
+
+	public bool? IsPermanent {get; init; }
 }
 
 public sealed class GetFlagEndpoints : IEndpoint
@@ -124,7 +126,8 @@ public sealed class GetFilteredFlagsHandler(IDashboardRepository repository, ILo
 					EvaluationModes: request.Modes,
 					Tags: request.BuildTagDictionary(),
 					Scope: request.Scope,
-					ApplicationName: request.ApplicationName);
+					ApplicationName: request.ApplicationName,
+					PermanentFlagsOnly: request.IsPermanent);
 			}
 
 			var result = await repository.GetPagedAsync(
@@ -164,10 +167,11 @@ public static class GetFlagsRequestExtensions
 		return (request.Modes != null && request.Modes.Length > 0) ||
 			   (request.TagKeys != null && request.TagKeys.Length > 0) ||
 			   (request.Tags != null && request.Tags.Length > 0) ||
-			   (request.TagKeys != null && request.TagKeys.Length > 0) ||
-				request.Scope != null ||
-				!string.IsNullOrWhiteSpace(request.ApplicationName);
+			   request.Scope != null ||
+			   !string.IsNullOrWhiteSpace(request.ApplicationName) ||
+			   request.IsPermanent.HasValue; // Add this line
 	}
+	
 	public static Dictionary<string, string>? BuildTagDictionary(this GetFeatureFlagRequest request)
 	{
 		var tags = new Dictionary<string, string>();

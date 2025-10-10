@@ -44,11 +44,12 @@ public sealed class DeleteFlagHandler(
 			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
-			if (flag!.Administration.RetentionPolicy.IsPermanent)
+			if (flag!.Administration.RetentionPolicy.IsLocked)
 			{
 				return HttpProblemFactory.BadRequest(
 					"Cannot Delete Permanent Flag",
-					$"The feature flag '{key}' is marked as permanent and cannot be deleted. To delete this flag, you must first remove the permanent retention policy through the flag's settings.",
+					$"The feature flag '{key}' is marked as permanent, therefore it cannot be deleted. " +
+					$"To delete this flag, you must first remove the permanent retention policy through the flag's settings.",
 					logger);
 			}
 

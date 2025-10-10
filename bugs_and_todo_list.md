@@ -111,19 +111,9 @@
 
 - ~~Add api support for variations and default variation~~
 
-6. Bring back IsPermanent flag
-- Add api support
-- Add UI support
-- Description of permanent flag
-	- a flag that is permanent cannot be deleted from the system. It can be disabled, but not deleted.
-	- Permanent flags are typically used for critical features that should always be available in the system, even if they are not currently in use. 
-	- This ensures that important features are not accidentally removed or lost, and can be easily re-enabled when needed.
-- Characteristics of permanent flag
-	- Cannot be deleted
-	- Can be disabled
-	- Never expires (no expiration date)
-	- IsPermenent is set to true by default on creation from dashboard
-	- IsPermenent is can be flipped to false (not permanent) after creation (expiration date can be set then or defaults in 1 month))
+~~6. Bring back IsPermanent flag~~
+~~- Add api support~~
+~~- Add UI support~~
 
 8. Security: add user authentication and authorization
 - Add user authentication and authorization to API

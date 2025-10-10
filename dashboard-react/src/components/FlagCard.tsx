@@ -28,6 +28,9 @@ export const FlagCard: React.FC<FlagCardProps> = ({
     // Get percentage from userAccess or tenantAccess
     const percentage = flag.userAccess?.rolloutPercentage || flag.tenantAccess?.rolloutPercentage || 0;
 
+    // Flag is deletable only when NOT locked
+    const canDelete = !flag.isLocked;
+
     return (
         <div
             onClick={onClick}
@@ -68,7 +71,7 @@ export const FlagCard: React.FC<FlagCardProps> = ({
                     {/* Status badge and delete button */}
                     <div className="flex items-start gap-2 flex-shrink-0">
                         <StatusBadge flag={flag} />
-                        {!flag.isPermanent && (
+                        {canDelete && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();

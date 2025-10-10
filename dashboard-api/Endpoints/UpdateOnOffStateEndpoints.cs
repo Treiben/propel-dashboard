@@ -76,9 +76,12 @@ public sealed class ToggleFlagHandler(
 				Schedule = Knara.UtcStrict.UtcSchedule.Unscheduled
 			};
 
+			var retentionPolicy = flag.Administration.RetentionPolicy with { FlagLockPolicy = new FlagLockPolicy([onOffMode]) };
+
 			// add change history
 			var metadata = flag.Administration with
 			{
+				RetentionPolicy = retentionPolicy,
 				ChangeHistory =
 				[
 					.. flag.Administration.ChangeHistory,

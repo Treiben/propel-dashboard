@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Knara.UtcStrict;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
@@ -48,7 +49,7 @@ public class CreateFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Existing",
 						Description: "Already exists",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -86,7 +87,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "To Delete",
 						Description: "Will be deleted",
-						RetentionPolicy: RetentionPolicy.OneMonthRetentionPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: false, ExpirationDate: RetentionPolicy.ExpiresIn90Days, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -114,7 +115,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Permanent Flag",
 						Description: "Cannot be deleted",
-						RetentionPolicy: RetentionPolicy.GlobalPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -163,7 +164,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached",
 						Description: "In cache",
-						RetentionPolicy: RetentionPolicy.OneMonthRetentionPolicy,
+						RetentionPolicy: new RetentionPolicy(IsPermanent: false, ExpirationDate: RetentionPolicy.ExpiresIn90Days, new FlagLockPolicy([EvaluationMode.On])),
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
@@ -183,6 +184,35 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
 		cached.ShouldBeNull();
+	}
+
+	[Fact]
+	public async Task Should_NotDelete_Because_FlagIsPermanent()
+	{
+		// Arrange
+		var identifier = new FlagIdentifier("perm-flag", Scope.Application, applicationName: "test", applicationVersion: "1.0.0.0");
+		var flag = new FeatureFlag(identifier,
+			new FlagAdministration(Name: "Permanent",
+						Description: "In cache",
+						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: RetentionPolicy.ExpiresIn90Days, new FlagLockPolicy([EvaluationMode.On])),
+						Tags: [],
+						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
+			FlagEvaluationOptions.DefaultOptions);
+
+		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+
+
+		var cacheKey = new ApplicationCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);
+		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "perm-flag"));
+
+		var handler = fixture.Services.GetRequiredService<DeleteFlagHandler>();
+		var headers = new FlagRequestHeaders("Application", "test", "1.0.0.0");
+
+		// Act
+		var result = await handler.HandleAsync("perm-flag", headers, CancellationToken.None);
+
+		// Assert
+		result.ShouldBeOfType<ProblemHttpResult>();
 	}
 
 	public Task InitializeAsync() => Task.CompletedTask;

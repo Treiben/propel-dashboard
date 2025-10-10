@@ -73,6 +73,7 @@ const FeatureFlagManager = () => {
         expiringInDays?: number;
         scope?: Scope;
         applicationName?: string;
+        isPermanent?: boolean; // Add this line
     }>({
         modes: [],
         tagKeys: [''],
@@ -257,6 +258,10 @@ const FeatureFlagManager = () => {
             params.applicationName = filters.applicationName;
         }
 
+        if (filters.isPermanent !== undefined) { // Add this block
+            params.isPermanent = filters.isPermanent;
+        }
+
         const tagKeys: string[] = [];
         const tags: string[] = [];
 
@@ -293,6 +298,7 @@ const FeatureFlagManager = () => {
             expiringInDays: undefined,
             scope: undefined,
             applicationName: undefined,
+            isPermanent: undefined, // Add this line
         });
         await filterFlags({ page: 1, pageSize: pageSize });
         setShowFilters(false);

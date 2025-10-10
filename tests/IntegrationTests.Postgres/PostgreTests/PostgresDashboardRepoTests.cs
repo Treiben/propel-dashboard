@@ -16,7 +16,7 @@ public class GetAsync_WithDashboardRepository(PostgresTestsFixture fixture) : IC
 		var metadata = new FlagAdministration(Name:"Comprehensive Test Flag",
 			Description: "Complete field mapping test with all possible values",
 			Tags: new Dictionary<string, string> { { "category", "testing" }, { "priority", "high" }, { "env", "staging" } },
-			RetentionPolicy: new RetentionPolicy(IsPermanent: false, DateTimeOffset.UtcNow.AddDays(45)),
+			RetentionPolicy: new RetentionPolicy(IsPermanent: false, DateTimeOffset.UtcNow.AddDays(45), FlagLockPolicy: new FlagLockPolicy([EvaluationMode.On])),
 			ChangeHistory: [new AuditTrail(DateTimeOffset.UtcNow.AddDays(-5), "test-creator", "flag-created", "Initial creation with full details")]
 		);
 
@@ -198,7 +198,7 @@ public class GetAllAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: "Test description",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: [],
 			ChangeHistory: [AuditTrail.FlagCreated("test-user")]);
 
@@ -266,7 +266,7 @@ public class GetPagedAsync_WithDashboardRepository(PostgresTestsFixture fixture)
 		var metadata = new FlagAdministration(
 					Name: name,
 					Description: "Test description",
-					RetentionPolicy: RetentionPolicy.GlobalPolicy,
+					RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 					Tags: [],
 					ChangeHistory: [AuditTrail.FlagCreated("test-user")]);
 
@@ -294,7 +294,7 @@ public class CreateAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 		var metadata = new FlagAdministration(
 			Name: "Create Test Flag",
 			Description:"Test flag creation",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: [],
 			ChangeHistory: [AuditTrail.FlagCreated("test-creator")]);
 		
@@ -330,7 +330,7 @@ public class CreateAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 		var metadata = new FlagAdministration(
 				Name: "Complex Create Flag",
 				Description: "Testing complex flag creation",
-				RetentionPolicy: RetentionPolicy.GlobalPolicy,
+				RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 				Tags: new Dictionary<string, string> { { "env", "staging" }, { "team", "devops" } },
 				ChangeHistory: [AuditTrail.FlagCreated("test-creator")]);
 
@@ -448,7 +448,7 @@ public class UpdateAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 
 		var updatedFlag = originalFlag with { Administration = new FlagAdministration(Name: "Updated Name", 
 				Description: "Updated Description", 
-				RetentionPolicy: RetentionPolicy.GlobalPolicy, 
+				RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])), 
 				Tags: originalFlag.Administration.Tags, 
 				ChangeHistory: [.. originalFlag.Administration.ChangeHistory, AuditTrail.FlagModified("updater", "Updated for test")]) };
 
@@ -469,7 +469,7 @@ public class UpdateAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: "Test description",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: new Dictionary<string, string> { { "env", "staging" }, { "team", "devops" } },
 			ChangeHistory: [AuditTrail.FlagCreated("test-creator")]);
 
@@ -497,7 +497,7 @@ public class DeleteAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 		await fixture.DashboardRepository.CreateAsync(flag);
 
 		// Act
-		var result = await fixture.DashboardRepository.DeleteAsync(flagIdentifier, "deleter", "Test deletion");
+		_ = await fixture.DashboardRepository.DeleteAsync(flagIdentifier, "deleter", "Test deletion");
 
 		// Assert
 		//result.ShouldBeTrue();
@@ -510,7 +510,7 @@ public class DeleteAsync_WithDashboardRepository(PostgresTestsFixture fixture) :
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: "Test description",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: new Dictionary<string, string> { { "env", "staging" }, { "team", "devops" } },
 			ChangeHistory: [AuditTrail.FlagCreated("test-creator")]);
 
@@ -538,7 +538,7 @@ public class FeatureFlagRepositoryComprehensiveTests(PostgresTestsFixture fixtur
 		var metadata = new FlagAdministration(
 				Name: "Min/Max DateTime Test Flag",
 				Description: "Testing min/max datetime boundary values",
-				RetentionPolicy: RetentionPolicy.GlobalPolicy,
+				RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 				Tags: new Dictionary<string, string> { { "env", "staging" }, { "team", "devops" } },
 				ChangeHistory: [new AuditTrail(new UtcDateTime(DateTime.MinValue.AddYears(1970)), "system", "flag-created", "Created with min datetime")]);
 
@@ -576,7 +576,7 @@ public class FeatureFlagRepositoryComprehensiveTests(PostgresTestsFixture fixtur
 		var metadata = new FlagAdministration(
 								Name: "Minimal Nullable Flag",
 								Description: "Testing null/default values for optional fields",
-								RetentionPolicy: RetentionPolicy.GlobalPolicy,
+								RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 								Tags: [],
 								ChangeHistory: [AuditTrail.FlagCreated("test-user")]
 							);
@@ -650,7 +650,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(PostgresTestsFixture fi
 		var updatedMetadata = new FlagAdministration(
 			Name: "Updated Metadata Name",
 			Description: "Updated metadata description",
-			RetentionPolicy: new RetentionPolicy(IsPermanent: false, DateTimeOffset.UtcNow.AddDays(30)),
+			RetentionPolicy: new RetentionPolicy(IsPermanent: false, DateTimeOffset.UtcNow.AddDays(30), FlagLockPolicy: new FlagLockPolicy([EvaluationMode.On])),
 			Tags: new Dictionary<string, string> { { "updated", "true" }, { "version", "2.0" } },
 			ChangeHistory: [.. originalFlag.Administration.ChangeHistory, AuditTrail.FlagModified("metadata-updater", "Metadata updated")]
 		);
@@ -684,7 +684,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(PostgresTestsFixture fi
 		var metadata = new FlagAdministration(
 			Name: "Config Preserve Flag",
 			Description: "Testing configuration preservation",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: [],
 			ChangeHistory: [AuditTrail.FlagCreated("creator")]
 		);
@@ -733,7 +733,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(PostgresTestsFixture fi
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: "Test description",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: [],
 			ChangeHistory: [AuditTrail.FlagCreated("test-creator")]
 		);
@@ -789,7 +789,7 @@ public class FlagExistsAsync_WithDashboardRepository(PostgresTestsFixture fixtur
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: "Test description",
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: [],
 			ChangeHistory: [AuditTrail.FlagCreated("test-creator")]
 		);
@@ -908,7 +908,7 @@ public class FindAsync_WithDashboardRepository(PostgresTestsFixture fixture) : I
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: description,
-			RetentionPolicy: RetentionPolicy.GlobalPolicy,
+			RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
 			Tags: [],
 			ChangeHistory: [AuditTrail.FlagCreated("test-creator")]
 		);
