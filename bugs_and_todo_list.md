@@ -87,26 +87,26 @@
 
 ## NEW FEATURES
 
-1. ~~Propel icon and proper page title~~
+~~1. Propel icon and proper page title~~
 
 - ~~Add propel icon and find a good page title to dashboard~~
 
-2. ~~Search by flag name or flag key~~
+~~2. Search by flag name or flag key~~
 
 - ~~Add search box to search flags by flag name or flag key~~
 
 - ~~Add api support for search by flag name or flag key~~
 
-3. ~~Add filtering by application name and scope (global or application)~~
+~~3. Add filtering by application name and scope (global or application)~~
 - ~~Add filtering by application name and scope (global or application) to UI~~
 
 - ~~Add api support for filtering by application name and scope (global or application)~~
 
-4. E2E test with Sql Server backend
-- Add e2e test with Sql Server backend to github actions
-- Add sql server test db to github actions
+~~4. E2E test with Sql Server backend~~
+~~- Add e2e test with Sql Server backend to github actions~~
+~~- Add sql server test db to github actions~~
 
-5. ~~Add Variations and Default Variation to flag card~~
+~~5. Add Variations and Default Variation to flag card~~
 - ~~Add variations and default variation to flag card in UI~~
 
 - ~~Add api support for variations and default variation~~
@@ -114,6 +114,8 @@
 ~~6. Bring back IsPermanent flag~~
 ~~- Add api support~~
 ~~- Add UI support~~
+
+7. Add flag expired indicator to flag card (red exclamation mark))
 
 8. Security: add user authentication and authorization
 - Add user authentication and authorization to API
