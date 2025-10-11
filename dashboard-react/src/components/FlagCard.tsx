@@ -1,4 +1,4 @@
-import { Lock, PlayCircle, Trash2, Timer } from 'lucide-react';
+import { Lock, PlayCircle, Trash2, Timer, Flag } from 'lucide-react';
 import type { FeatureFlagDto } from '../services/apiService';
 import { parseTargetingRules, Scope } from '../services/apiService';
 import { StatusBadge } from './StatusBadge';
@@ -30,6 +30,9 @@ export const FlagCard: React.FC<FlagCardProps> = ({
 
     // Flag is deletable only when NOT locked
     const canDelete = !flag.isLocked;
+
+    // Check if flag is expired
+    const isExpired = flag.expirationDate && new Date(flag.expirationDate) < new Date();
 
     return (
         <div
@@ -71,6 +74,11 @@ export const FlagCard: React.FC<FlagCardProps> = ({
                     {/* Status badge and delete button */}
                     <div className="flex items-start gap-2 flex-shrink-0">
                         <StatusBadge flag={flag} />
+                        {isExpired && (
+                            <div className="p-1" title={`Expired on ${new Date(flag.expirationDate!).toLocaleDateString()}`}>
+                                <Flag className="w-3 h-3 text-red-600 fill-red-600" />
+                            </div>
+                        )}
                         {canDelete && (
                             <button
                                 onClick={(e) => {

@@ -115,7 +115,7 @@
 ~~- Add api support~~
 ~~- Add UI support~~
 
-7. Add flag expired indicator to flag card (red exclamation mark))
+~~7. Add flag expired indicator to flag card (red exclamation mark))~~
 
 8. Security: add user authentication and authorization
 - Add user authentication and authorization to API
