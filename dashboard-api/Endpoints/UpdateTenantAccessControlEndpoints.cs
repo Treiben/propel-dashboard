@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
@@ -36,9 +36,8 @@ public sealed class UpdateTenantAccessControlEndpoints : IEndpoint
 }
 
 public sealed class ManageTenantAccessHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		IFlagResolverService flagResolver,
 		ICacheInvalidationService cacheInvalidationService,
 		ILogger<ManageTenantAccessHandler> logger)
 {
@@ -50,12 +49,12 @@ public sealed class ManageTenantAccessHandler(
 	{
 		try
 		{
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			var flagWithUpdatedTenants = CreateFlagWithUpdatedTenantAccess(request, flag!);
 
-			var updatedFlag = await repository.UpdateAsync(flagWithUpdatedTenants, cancellationToken);
+			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedTenants, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} tenant rollout percentage set to {Percentage}% by {User})",

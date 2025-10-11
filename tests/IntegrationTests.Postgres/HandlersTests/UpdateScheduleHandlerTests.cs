@@ -26,7 +26,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateScheduleHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -40,7 +40,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("update-schedule-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeTrue();
 		updated.EvaluationOptions.Schedule.EnableOn.DateTime.ShouldNotBe(DateTime.MinValue.ToUniversalTime());
@@ -60,7 +60,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateScheduleHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -78,7 +78,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("remove-schedule-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeFalse();
 	}
@@ -96,7 +96,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateScheduleHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -110,7 +110,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("mode-schedule-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeTrue();
 	}
@@ -128,7 +128,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateScheduleHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -147,7 +147,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("mode-cleanup-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
@@ -167,7 +167,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-schedule-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-schedule-flag"));

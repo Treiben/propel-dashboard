@@ -27,7 +27,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -39,7 +39,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("user-percentage-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(60);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.UserRolloutPercentage]).ShouldBeTrue();
@@ -58,7 +58,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -74,7 +74,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("allowed-users-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-1");
 		updated.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-2");
@@ -94,7 +94,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -110,7 +110,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("blocked-users-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.Blocked.ShouldContain("user-blocked-1");
 		updated.EvaluationOptions.UserAccessControl.Blocked.ShouldContain("user-blocked-2");
@@ -130,7 +130,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -142,7 +142,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("hundred-user-percentage-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(100);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.UserRolloutPercentage]).ShouldBeFalse();
@@ -161,7 +161,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -178,7 +178,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("user-mode-cleanup-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
@@ -197,7 +197,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -213,7 +213,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("combined-user-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-alpha");
 		updated.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-beta");
@@ -235,7 +235,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-user-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-user-flag"));

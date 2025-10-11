@@ -26,7 +26,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
 		var handler = fixture.Services.GetRequiredService<UpdateTimeWindowHandler>();
@@ -45,7 +45,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("time-window-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeTrue();
 		updated.EvaluationOptions.OperationalWindow.DaysActive.Length.ShouldBe(3);
@@ -64,7 +64,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTimeWindowHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -93,7 +93,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("remove-window-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeFalse();
 	}
@@ -111,7 +111,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTimeWindowHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -129,7 +129,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("mode-window-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeTrue();
 	}
@@ -147,7 +147,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTimeWindowHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -170,7 +170,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("cleanup-window-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
@@ -190,7 +190,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTimeWindowHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -211,7 +211,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("all-days-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.OperationalWindow.DaysActive.Length.ShouldBe(7);
 	}
@@ -229,7 +229,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-window-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-window-flag"));

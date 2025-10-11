@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
 
@@ -40,9 +40,8 @@ public sealed class UpdateAdministrationEndpoints : IEndpoint
 }
 
 public sealed class UpdateFlagHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		IFlagResolverService flagResolver,
 		ICacheInvalidationService cacheInvalidationService,
 		ILogger<UpdateFlagHandler> logger)
 {
@@ -54,12 +53,12 @@ public sealed class UpdateFlagHandler(
 
 		try
 		{	
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			var flagWithUpdatedMeta = CreateFlagWithUpdatedMetadata(request, flag!, currentUserService.UserName!);
 
-			var updatedFlag = await repository.UpdateMetadataAsync(flagWithUpdatedMeta!, cancellationToken);
+			var updatedFlag = await administrationService.UpdateMetadataAsync(flagWithUpdatedMeta!, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} updated by {User}", key, currentUserService.UserName);

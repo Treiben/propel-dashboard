@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Clients;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.FlagEvaluators;
@@ -42,7 +43,7 @@ public sealed class EvaluateFlagEndpoints : IEndpoint
 
 public sealed class FlagEvaluationHandler(
 	IEvaluatorsSet evaluationManager,
-	IFlagResolverService flagResolver,
+	IAdministrationService administrationService,
 	ILogger<FlagEvaluationHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -54,7 +55,7 @@ public sealed class FlagEvaluationHandler(
 		Dictionary<string, object>? attributes = null,
 		CancellationToken cancellationToken = default)
 	{
-		var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+		var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 		if (!isValid) return result;
 
 		try

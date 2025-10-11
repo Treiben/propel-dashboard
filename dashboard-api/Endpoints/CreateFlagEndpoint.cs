@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
@@ -41,7 +41,7 @@ public sealed class CreateFlagEndpoint : IEndpoint
 }
 
 public sealed class CreateGlobalFlagHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
 		ILogger<CreateGlobalFlagHandler> logger)
 {
@@ -51,7 +51,7 @@ public sealed class CreateGlobalFlagHandler(
 		{
 			var identifier = new FlagIdentifier(request.Key, Scope.Global);
 
-			var flagExists = await repository.FlagExistsAsync(identifier, cancellationToken);
+			var flagExists = await administrationService.FlagExistsAsync(identifier, cancellationToken);
 			if (flagExists)
 			{
 				return HttpProblemFactory.Conflict(
@@ -68,7 +68,7 @@ public sealed class CreateGlobalFlagHandler(
 
 			var globalFlag = new FeatureFlag(identifier, metadata, FlagEvaluationOptions.DefaultOptions);
 
-			var flag = await repository.CreateAsync(globalFlag, cancellationToken);
+			var flag = await administrationService.CreateAsync(globalFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} created successfully by {User}",
 				identifier.Key, currentUserService.UserName);

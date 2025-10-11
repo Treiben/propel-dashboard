@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 
@@ -34,7 +35,7 @@ public sealed class SearchFlagEndpoints : IEndpoint
 }
 
 
-public sealed class SearchFeatureFlagsHandler(IDashboardRepository repository, ILogger<SearchFeatureFlagsHandler> logger)
+public sealed class SearchFeatureFlagsHandler(IAdministrationService administrationService, ILogger<SearchFeatureFlagsHandler> logger)
 {
 	public async Task<IResult> HandleAsync(SearchFeatureFlagRequest request, CancellationToken cancellationToken)
 	{
@@ -59,7 +60,7 @@ public sealed class SearchFeatureFlagsHandler(IDashboardRepository repository, I
 				});
 			}
 
-			var flags = await repository.FindAsync(criteria, cancellationToken);
+			var flags = await administrationService.FindAsync(criteria, cancellationToken);
 			var responses = flags.Select(f => new FeatureFlagResponse(f)).ToList();
 			return Results.Ok(responses);
 		}

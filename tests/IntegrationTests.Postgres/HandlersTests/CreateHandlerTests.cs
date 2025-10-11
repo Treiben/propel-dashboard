@@ -32,7 +32,7 @@ public class CreateFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Created<FeatureFlagResponse>>();
 
-		var flag = await fixture.DashboardRepository.GetByKeyAsync(
+		var flag = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("test-flag", Scope.Global), CancellationToken.None);
 
 		flag.ShouldNotBeNull();
@@ -54,7 +54,7 @@ public class CreateFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var request = new CreateGlobalFeatureFlagRequest
 		{
@@ -92,7 +92,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<DeleteFlagHandler>();
 		var headers = new FlagRequestHeaders("Application", "test", "1.0.0.0");
@@ -103,7 +103,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<NoContent>();
 
-		var deleted = await fixture.DashboardRepository.GetByKeyAsync(identifier, CancellationToken.None);
+		var deleted = await fixture.AdministrationService.GetByKeyAsync(identifier, CancellationToken.None);
 		deleted.ShouldBeNull();
 	}
 
@@ -120,13 +120,13 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]), 
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		// Mark as permanent
-		var stored = await fixture.DashboardRepository.GetByKeyAsync(
+		var stored = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("permanent-flag", Scope.Global), CancellationToken.None);
 
-		await fixture.DashboardRepository.UpdateAsync(stored, CancellationToken.None);
+		await fixture.AdministrationService.UpdateAsync(stored, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<DeleteFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -169,7 +169,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
 		var cacheKey = new ApplicationCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);
@@ -199,7 +199,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
 		var cacheKey = new ApplicationCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);

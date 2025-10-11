@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.SqlServer;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.SqlServer.Initialization;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 using Propel.FeatureFlags.Infrastructure;
 using Testcontainers.MsSql;
 
@@ -13,8 +13,7 @@ public class SqlServerTestsFixture : IAsyncLifetime
 {
 	private readonly MsSqlContainer _container;
 	public IServiceProvider Services { get; private set; } = null!;
-	public IFeatureFlagRepository FeatureFlagRepository => Services.GetRequiredService<IFeatureFlagRepository>();
-	public IDashboardRepository DashboardRepository => Services.GetRequiredService<IDashboardRepository>();
+	public IAdministrationService AdministrationService => Services.GetRequiredService<IAdministrationService>();
 
 	public SqlServerTestsFixture()
 	{
@@ -39,7 +38,9 @@ public class SqlServerTestsFixture : IAsyncLifetime
 		services.AddLogging();
 
 		// Add the DbContext with test container connection string
-		services.AddSqlServerDbContext(connectionString);
+		services.AddSqlServerProvider(connectionString);
+		services.AddSqlServerMigrations(connectionString);
+		services.AddScoped<IAdministrationService, AdministrationService>();
 
 		Services = services.BuildServiceProvider();
 

@@ -26,7 +26,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
 		var handler = fixture.Services.GetRequiredService<ToggleFlagHandler>();
@@ -41,7 +41,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		var response = ((Ok<FeatureFlagResponse>)result).Value;
 		response.ShouldNotBeNull();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("toggle-on-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeTrue();
 	}
@@ -59,7 +59,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
 		var handler = fixture.Services.GetRequiredService<ToggleFlagHandler>();
@@ -72,7 +72,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("toggle-off-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeTrue();
 	}
@@ -90,7 +90,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ToggleFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -119,7 +119,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ToggleFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -131,7 +131,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("access-control-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(100);
 		updated.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(100);
@@ -150,7 +150,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = new ModeSet([EvaluationMode.On]) });
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ToggleFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -162,7 +162,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("access-off-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(0);
 		updated.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(0);
@@ -181,7 +181,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-toggle-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-toggle-flag"));

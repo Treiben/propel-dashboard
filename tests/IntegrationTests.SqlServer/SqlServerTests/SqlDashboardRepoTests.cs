@@ -56,10 +56,10 @@ public class GetAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : I
 			});
 		var flag = new FeatureFlag(flagIdentifier, metadata, configuration);
 
-		await fixture.DashboardRepository.CreateAsync(flag);
+		await fixture.AdministrationService.CreateAsync(flag);
 
 		// Act
-		var result = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var result = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 
 		// Assert - Comprehensive field mapping verification
 		result.ShouldNotBeNull();
@@ -149,7 +149,7 @@ public class GetAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : I
 		var flagIdentifier = new FlagIdentifier("non-existent-dashboard-flag", Scope.Global);
 
 		// Act
-		var result = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var result = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 
 		// Assert
 		result.ShouldBeNull();
@@ -166,11 +166,11 @@ public class GetAllAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		var flag1 = CreateTestFlag("zebra-flag", "Zebra Flag");
 		var flag2 = CreateTestFlag("alpha-flag", "Alpha Flag");
 
-		await fixture.DashboardRepository.CreateAsync(flag1);
-		await fixture.DashboardRepository.CreateAsync(flag2);
+		await fixture.AdministrationService.CreateAsync(flag1);
+		await fixture.AdministrationService.CreateAsync(flag2);
 
 		// Act
-		var results = await fixture.DashboardRepository.GetAllAsync();
+		var results = await fixture.AdministrationService.GetAllAsync();
 
 		// Assert
 		results.ShouldNotBeEmpty();
@@ -186,7 +186,7 @@ public class GetAllAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		await fixture.ClearAllData();
 
 		// Act
-		var results = await fixture.DashboardRepository.GetAllAsync();
+		var results = await fixture.AdministrationService.GetAllAsync();
 
 		// Assert
 		results.ShouldBeEmpty();
@@ -224,11 +224,11 @@ public class GetPagedAsync_WithDashboardRepository(SqlServerTestsFixture fixture
 		for (int i = 1; i <= 5; i++)
 		{
 			var flag = CreateTestFlag($"flag-{i:D2}", $"Flag {i}");
-			await fixture.DashboardRepository.CreateAsync(flag);
+			await fixture.AdministrationService.CreateAsync(flag);
 		}
 
 		// Act
-		var result = await fixture.DashboardRepository.GetPagedAsync(1, 3);
+		var result = await fixture.AdministrationService.GetPagedAsync(1, 3);
 
 		// Assert
 		result.Items.Count.ShouldBe(3);
@@ -247,13 +247,13 @@ public class GetPagedAsync_WithDashboardRepository(SqlServerTestsFixture fixture
 		var appFlag = CreateTestFlag("app-flag", "App Flag", Scope.Application, "test-app");
 		var globalFlag = CreateTestFlag("global-flag", "Global Flag", Scope.Global);
 
-		await fixture.DashboardRepository.CreateAsync(appFlag);
-		await fixture.DashboardRepository.CreateAsync(globalFlag);
+		await fixture.AdministrationService.CreateAsync(appFlag);
+		await fixture.AdministrationService.CreateAsync(globalFlag);
 
 		var filter = new FeatureFlagFilter(Scope: Scope.Application);
 
 		// Act
-		var result = await fixture.DashboardRepository.GetPagedAsync(1, 10, filter);
+		var result = await fixture.AdministrationService.GetPagedAsync(1, 10, filter);
 
 		// Assert
 		result.Items.Count.ShouldBe(1);
@@ -309,11 +309,11 @@ public class CreateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		var flag = new FeatureFlag(identifier, metadata, configuration);
 
 		// Act
-		var result = await fixture.DashboardRepository.CreateAsync(flag);
+		var result = await fixture.AdministrationService.CreateAsync(flag);
 
 		// Assert
 		result.ShouldNotBeNull();
-		var retrieved = await fixture.DashboardRepository.GetByKeyAsync(identifier);
+		var retrieved = await fixture.AdministrationService.GetByKeyAsync(identifier);
 		retrieved.ShouldNotBeNull();
 		retrieved.Administration.Name.ShouldBe("Create Test Flag");
 
@@ -358,12 +358,12 @@ public class CreateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		var flag = new FeatureFlag(identifier, metadata, configuration);
 
 		// Act
-		var result = await fixture.DashboardRepository.CreateAsync(flag);
+		var result = await fixture.AdministrationService.CreateAsync(flag);
 
 		// Assert
 		result.ShouldNotBeNull();
 
-		var retrieved = await fixture.DashboardRepository.GetByKeyAsync(identifier);
+		var retrieved = await fixture.AdministrationService.GetByKeyAsync(identifier);
 
 		retrieved.ShouldNotBeNull();
 		//verify all metadata fields mapped correctly
@@ -444,7 +444,7 @@ public class UpdateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		await fixture.ClearAllData();
 		var flagIdentifier = new FlagIdentifier("update-test-flag", Scope.Global);
 		var originalFlag = CreateTestFlag(flagIdentifier, "Original Name");
-		await fixture.DashboardRepository.CreateAsync(originalFlag);
+		await fixture.AdministrationService.CreateAsync(originalFlag);
 
 		var updatedFlag = originalFlag with
 		{
@@ -456,11 +456,11 @@ public class UpdateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		};
 
 		// Act
-		var result = await fixture.DashboardRepository.UpdateAsync(updatedFlag);
+		var result = await fixture.AdministrationService.UpdateAsync(updatedFlag);
 
 		// Assert
 		result.ShouldNotBeNull();
-		var retrieved = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var retrieved = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 		retrieved.ShouldNotBeNull();
 		retrieved.Administration.Name.ShouldBe("Updated Name");
 		retrieved.Administration.ChangeHistory.Count.ShouldBe(2);
@@ -497,14 +497,14 @@ public class DeleteAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 		await fixture.ClearAllData();
 		var flagIdentifier = new FlagIdentifier("delete-test-flag", Scope.Global);
 		var flag = CreateTestFlag(flagIdentifier, "Delete Test Flag");
-		await fixture.DashboardRepository.CreateAsync(flag);
+		await fixture.AdministrationService.CreateAsync(flag);
 
 		// Act
-		_ = await fixture.DashboardRepository.DeleteAsync(flagIdentifier, "deleter", "Test deletion");
+		_ = await fixture.AdministrationService.DeleteAsync(flagIdentifier, "deleter", "Test deletion");
 
 		// Assert
 		//result.ShouldBeTrue();
-		var retrieved = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var retrieved = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 		retrieved.ShouldBeNull();
 	}
 
@@ -556,10 +556,10 @@ public class FeatureFlagRepositoryComprehensiveTests(SqlServerTestsFixture fixtu
 
 		var flag = new FeatureFlag(flagIdentifier, metadata, configuration);
 
-		await fixture.DashboardRepository.CreateAsync(flag);
+		await fixture.AdministrationService.CreateAsync(flag);
 
 		// Act
-		var result = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var result = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 
 		// Assert - Verify min/max datetime handling
 		result.ShouldNotBeNull();
@@ -603,10 +603,10 @@ public class FeatureFlagRepositoryComprehensiveTests(SqlServerTestsFixture fixtu
 
 		var flag = new FeatureFlag(flagIdentifier, metadata, configuration);
 
-		await fixture.DashboardRepository.CreateAsync(flag);
+		await fixture.AdministrationService.CreateAsync(flag);
 
 		// Act
-		var result = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var result = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 
 		// Assert - Verify default/null value handling
 		result.ShouldNotBeNull();
@@ -648,7 +648,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(SqlServerTestsFixture f
 		await fixture.ClearAllData();
 		var flagIdentifier = new FlagIdentifier("metadata-update-flag", Scope.Global);
 		var originalFlag = CreateTestFlag(flagIdentifier, "Original Name");
-		await fixture.DashboardRepository.CreateAsync(originalFlag);
+		await fixture.AdministrationService.CreateAsync(originalFlag);
 
 		var updatedMetadata = new FlagAdministration(
 			Name: "Updated Metadata Name",
@@ -661,11 +661,11 @@ public class UpdateMetadataAsync_WithDashboardRepository(SqlServerTestsFixture f
 		var updatedFlag = originalFlag with { Administration = updatedMetadata };
 
 		// Act
-		var result = await fixture.DashboardRepository.UpdateMetadataAsync(updatedFlag);
+		var result = await fixture.AdministrationService.UpdateMetadataAsync(updatedFlag);
 
 		// Assert
 		result.ShouldNotBeNull();
-		var retrieved = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var retrieved = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 		retrieved.ShouldNotBeNull();
 		retrieved.Administration.Name.ShouldBe("Updated Metadata Name");
 		retrieved.Administration.Description.ShouldBe("Updated metadata description");
@@ -703,7 +703,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(SqlServerTestsFixture f
 		);
 
 		var originalFlag = new FeatureFlag(flagIdentifier, metadata, originalConfig);
-		await fixture.DashboardRepository.CreateAsync(originalFlag);
+		await fixture.AdministrationService.CreateAsync(originalFlag);
 
 		var updatedMetadata = metadata with
 		{
@@ -715,10 +715,10 @@ public class UpdateMetadataAsync_WithDashboardRepository(SqlServerTestsFixture f
 		var updatedFlag = originalFlag with { Administration = updatedMetadata };
 
 		// Act
-		await fixture.DashboardRepository.UpdateMetadataAsync(updatedFlag);
+		await fixture.AdministrationService.UpdateMetadataAsync(updatedFlag);
 
 		// Assert
-		var retrieved = await fixture.DashboardRepository.GetByKeyAsync(flagIdentifier);
+		var retrieved = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
 		retrieved.ShouldNotBeNull();
 		retrieved.Administration.Name.ShouldBe("Updated Name Only");
 		retrieved.Administration.Tags["changed"].ShouldBe("yes");
@@ -764,10 +764,10 @@ public class FlagExistsAsync_WithDashboardRepository(SqlServerTestsFixture fixtu
 		await fixture.ClearAllData();
 		var flagIdentifier = new FlagIdentifier("exists-test-flag", Scope.Global);
 		var flag = CreateTestFlag(flagIdentifier, "Exists Test Flag");
-		await fixture.DashboardRepository.CreateAsync(flag);
+		await fixture.AdministrationService.CreateAsync(flag);
 
 		// Act
-		var result = await fixture.DashboardRepository.FlagExistsAsync(flagIdentifier);
+		var result = await fixture.AdministrationService.FlagExistsAsync(flagIdentifier);
 
 		// Assert
 		result.ShouldBeTrue();
@@ -781,7 +781,7 @@ public class FlagExistsAsync_WithDashboardRepository(SqlServerTestsFixture fixtu
 		var flagIdentifier = new FlagIdentifier("non-existent-flag", Scope.Application, "test-app");
 
 		// Act
-		var result = await fixture.DashboardRepository.FlagExistsAsync(flagIdentifier);
+		var result = await fixture.AdministrationService.FlagExistsAsync(flagIdentifier);
 
 		// Assert
 		result.ShouldBeFalse();
@@ -823,14 +823,14 @@ public class FindAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : 
 		var flag2 = CreateTestFlag("search-flag-2", "Another Flag", "Different content");
 		var flag3 = CreateTestFlag("different-key", "Search Test Flag", "Another description");
 
-		await fixture.DashboardRepository.CreateAsync(flag1);
-		await fixture.DashboardRepository.CreateAsync(flag2);
-		await fixture.DashboardRepository.CreateAsync(flag3);
+		await fixture.AdministrationService.CreateAsync(flag1);
+		await fixture.AdministrationService.CreateAsync(flag2);
+		await fixture.AdministrationService.CreateAsync(flag3);
 
 		var criteria = new FindFlagCriteria(Name: "sEaRcH TeSt");
 
 		// Act
-		var results = await fixture.DashboardRepository.FindAsync(criteria);
+		var results = await fixture.AdministrationService.FindAsync(criteria);
 
 		// Assert
 		results.ShouldNotBeEmpty();
@@ -848,14 +848,14 @@ public class FindAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : 
 		var flag2 = CreateTestFlag("search-flag-2", "Another Flag", "Different content");
 		var flag3 = CreateTestFlag("different-key", "Search Test Flag", "Another description");
 
-		await fixture.DashboardRepository.CreateAsync(flag1);
-		await fixture.DashboardRepository.CreateAsync(flag2);
-		await fixture.DashboardRepository.CreateAsync(flag3);
+		await fixture.AdministrationService.CreateAsync(flag1);
+		await fixture.AdministrationService.CreateAsync(flag2);
+		await fixture.AdministrationService.CreateAsync(flag3);
 
 		var criteria = new FindFlagCriteria(Key: "sEaRcH-FlAg-2");
 
 		// Act
-		var results = await fixture.DashboardRepository.FindAsync(criteria);
+		var results = await fixture.AdministrationService.FindAsync(criteria);
 
 		// Assert
 		results.ShouldNotBeEmpty();
@@ -874,14 +874,14 @@ public class FindAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : 
 		var flag2 = CreateTestFlag("search-flag-2", "Another Flag", "Different content");
 		var flag3 = CreateTestFlag("different-key", "Search Test Flag", "Another description");
 
-		await fixture.DashboardRepository.CreateAsync(flag1);
-		await fixture.DashboardRepository.CreateAsync(flag2);
-		await fixture.DashboardRepository.CreateAsync(flag3);
+		await fixture.AdministrationService.CreateAsync(flag1);
+		await fixture.AdministrationService.CreateAsync(flag2);
+		await fixture.AdministrationService.CreateAsync(flag3);
 
 		var criteria = new FindFlagCriteria(Description: "DeScRiPtIoN");
 
 		// Act
-		var results = await fixture.DashboardRepository.FindAsync(criteria);
+		var results = await fixture.AdministrationService.FindAsync(criteria);
 
 		// Assert
 		results.ShouldNotBeEmpty();
@@ -894,12 +894,12 @@ public class FindAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : 
 		// Arrange
 		await fixture.ClearAllData();
 		var flag = CreateTestFlag("test-flag", "Test Flag", "Test description");
-		await fixture.DashboardRepository.CreateAsync(flag);
+		await fixture.AdministrationService.CreateAsync(flag);
 
 		var criteria = new FindFlagCriteria { Name = "NonExistentName" };
 
 		// Act
-		var results = await fixture.DashboardRepository.FindAsync(criteria);
+		var results = await fixture.AdministrationService.FindAsync(criteria);
 
 		// Assert
 		results.ShouldBeEmpty();

@@ -10,12 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Endpoints\Shared\FeatureFlagExtensions.cs" />
+    <Compile Remove="Healthchecks\PostgresHealthCheck.cs" />
+    <Compile Remove="Healthchecks\RedisHealthCheck.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
@@ -37,9 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="EntityFramework\Postgres\Migrations\" />
-    <Folder Include="EntityFramework\SqlServer\Migrations\" />
-    <Folder Include="Healthchecks\" />
+    <Folder Include="EntityFramework\Migrations\PostgreSql\Migrations\" />
+    <Folder Include="EntityFramework\Migrations\SqlServer\Migrations\" />
   </ItemGroup>
 
 </Project>

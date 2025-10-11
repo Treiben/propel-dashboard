@@ -1,6 +1,6 @@
 using Propel.FeatureFlags.Dashboard.Api;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations;
 using Propel.FeatureFlags.Dashboard.Api.Healthchecks;
 using Propel.FeatureFlags.Infrastructure;
 
@@ -15,11 +15,11 @@ builder.Services.AddHttpContextAccessor();
 // Configure dashboard-specific services
 builder.ConfigureFeatureFlags(options =>
 {
-	options.Cache = new CacheOptions            // Configure caching (optional, but recommended for performance and scalability)
+	options.Cache = new CacheOptions // Configure caching (optional, but recommended for performance and scalability)
 	{
 		EnableInMemoryCache = false,
-		EnableDistributedCache = false,
-		Connection = builder.Configuration.GetConnectionString("RedisConnection")!,
+		EnableDistributedCache = true,
+		Connection = builder.Configuration.GetConnectionString("Redis")!,
 	};
 
 	options.SqlConnection = builder.Configuration.GetConnectionString("DefaultConnection")!;

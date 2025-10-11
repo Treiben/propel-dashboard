@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using Propel.FeatureFlags.Dashboard.Api;
-using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.SqlServer.Initialization;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.Infrastructure;
 using Propel.FeatureFlags.Infrastructure.Cache;
@@ -24,7 +24,7 @@ public class HandlersTestsFixture : IAsyncLifetime
 	private readonly RedisContainer _redisContainer;
 
 	public IServiceProvider Services {get; private set; } = null!;
-	public IDashboardRepository DashboardRepository => Services.GetRequiredService<IDashboardRepository>();
+	public IAdministrationService AdministrationService => Services.GetRequiredService<IAdministrationService>();
 
 	public IFeatureFlagCache Cache => Services.GetRequiredService<IFeatureFlagCache>();
 
@@ -65,35 +65,48 @@ public class HandlersTestsFixture : IAsyncLifetime
 			options.SerializerOptions.Converters.Add(new EnumJsonConverter<TargetingOperator>());
 		});
 
+		ConfigureFeatureFlags(services, options =>
+		{
+			options.SqlConnection = sqlConnectionString;
+			options.Cache = new CacheOptions
+			{
+				EnableInMemoryCache = false,
+				EnableDistributedCache = true,
+				Connection = _redisContainer.GetConnectionString()
+			};
+		});
+		Services = services.BuildServiceProvider();
+		// Apply migrations to initialize the database schema
+		await ApplyMigrationsAsync();
+	}
+
+	public void ConfigureFeatureFlags(IServiceCollection services, Action<PropelConfiguration> configure)
+	{
+		PropelConfiguration propelConfig = new();
+		configure.Invoke(propelConfig);
+
+		services.AddSingleton(propelConfig);
+
+		services.RegisterEvaluators();
+
+		var cacheOptions = propelConfig.Cache;
+		if (cacheOptions.EnableDistributedCache == true)
+		{
+			services.AddRedisCache(cacheOptions.Connection);
+		}
+
 		var mockCurrentUserService = new Mock<ICurrentUserService>();
 		mockCurrentUserService.Setup(s => s.UserName).Returns("integration-test-user");
 		mockCurrentUserService.Setup(s => s.UserId).Returns("integration-test-user-id");
 
 		services.AddSingleton<ICurrentUserService>(mockCurrentUserService.Object);
 
-		// Configure dashboard-specific services
-		var options = new PropelConfiguration
-		{
-			SqlConnection = sqlConnectionString,
-			Cache = new CacheOptions
-			{
-				EnableInMemoryCache = false,
-				EnableDistributedCache = false,
-				Connection = _redisContainer.GetConnectionString()
-			}
-		};
-		services.AddSingleton(options);
+		services.AddDatabaseProvider(propelConfig)
+				.AddDashboardServices();
 
-		services.AddRedisCache(options.Cache.Connection);
-		services.AddDatabase(options);
-
-		services.RegisterEvaluators();
-		services.AddDashboardServices();
-
-		Services = services.BuildServiceProvider();
-		// Apply migrations to initialize the database schema
-		await ApplyMigrationsAsync();
+		services.AddDatabaseMigrationsProvider(propelConfig);
 	}
+
 	public async Task DisposeAsync()
 	{
 		await _sqlContainer.DisposeAsync();

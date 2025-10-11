@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 using System.Text.Json;
 
@@ -37,9 +37,8 @@ public sealed class ToggleFlagEndpoint : IEndpoint
 }
 
 public sealed class ToggleFlagHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		IFlagResolverService flagResolver,
 		ICacheInvalidationService cacheInvalidationService,
 		ILogger<ToggleFlagHandler> logger)
 {
@@ -51,7 +50,7 @@ public sealed class ToggleFlagHandler(
 		var onOffMode = request.EvaluationMode;
 		try
 		{
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			// Check if the flag is already in the requested state
@@ -90,7 +89,7 @@ public sealed class ToggleFlagHandler(
 			};
 			var flagWithUpdatedModes = flag with { Administration = metadata, EvaluationOptions = config };
 
-			var updatedFlag = await repository.UpdateAsync(flagWithUpdatedModes, cancellationToken);
+			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedModes, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			var action = Enum.GetName(onOffMode);

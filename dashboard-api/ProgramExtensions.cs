@@ -3,8 +3,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Propel.FeatureFlags.Clients;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.FlagEvaluators;
 using Propel.FeatureFlags.Infrastructure;
@@ -34,6 +36,8 @@ public static class ProgramExtensions
 		var propelConfig = builder.Configuration.GetSection("Propel").Get<PropelConfiguration>() ?? new();
 		configure.Invoke(propelConfig);
 
+		builder.Services.AddSingleton(propelConfig);
+
 		builder.Services.RegisterEvaluators();
 
 		var cacheOptions = propelConfig.Cache;
@@ -42,11 +46,12 @@ public static class ProgramExtensions
 			builder.Services.AddRedisCache(cacheOptions.Connection);
 		}
 
-		builder.Services.AddDatabase(propelConfig);
+		builder.Services.AddDashboardHealthchecks(propelConfig)
+			.AddDatabaseProvider(propelConfig)
+			.AddDashboardServices();
 
-		builder.Services.AddDashboardServices();
-
-		builder.Services.AddDashboardHealthchecks(propelConfig);
+		if (builder.Environment.IsDevelopment())
+			builder.Services.AddDatabaseMigrationsProvider(propelConfig);
 	}
 
 	public static IServiceCollection RegisterEvaluators(this IServiceCollection services)
@@ -67,7 +72,7 @@ public static class ProgramExtensions
 	public static IServiceCollection AddDashboardServices(this IServiceCollection services)
 	{
 		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
-		services.TryAddScoped<IFlagResolverService, FlagResolverService>();
+		services.TryAddScoped<IAdministrationService, AdministrationService>();
 		services.TryAddScoped<ICacheInvalidationService, CacheInvalidationService>();
 
 		services.AddValidators();
@@ -116,29 +121,50 @@ public static class ProgramExtensions
 		var healthChecksBuilder = services.AddHealthChecks();
 
 		// Add liveness check (always available)
-		healthChecksBuilder.AddCheck("self", () => HealthCheckResult.Healthy("Application is running"), tags: ["liveness"]);
+		healthChecksBuilder.AddCheck("self",
+			() => HealthCheckResult.Healthy("Application is running"),
+			tags: ["live"]);
+		healthChecksBuilder.AddCheck("infrastructure",
+			() => HealthCheckResult.Healthy("Health checks are running"),
+			tags: ["ready"]);
 
-		// Add PostgreSQL health check only if connection string is available
-		var sqlConnection = propelConfig.SqlConnection ?? string.Empty;
-		if (!string.IsNullOrEmpty(sqlConnection))
+		// Add database health check only if connection string is available
+		if (!string.IsNullOrWhiteSpace(propelConfig.SqlConnection))
 		{
-			healthChecksBuilder.AddNpgSql(
-				connectionString: sqlConnection,
-				healthQuery: "SELECT 1;",
-				name: "postgres",
-				failureStatus: HealthStatus.Unhealthy,
-				tags: ["database", "postgres", "readiness"]);
+			var databaseProvider = ProviderDetector.DetectProvider(propelConfig.SqlConnection);
+
+			if (databaseProvider is DatabaseProvider.PostgreSQL)
+			{
+				healthChecksBuilder.AddNpgSql(
+					connectionString: propelConfig.SqlConnection,
+					healthQuery: "SELECT 1 FROM feature_flags;",
+					name: "postgreSql",
+					failureStatus: HealthStatus.Unhealthy,
+					tags: ["database", "postgres", "ready"]);
+			}
+
+			if (databaseProvider is DatabaseProvider.SqlServer)
+			{
+				healthChecksBuilder.AddSqlServer(
+					connectionString: propelConfig.SqlConnection,
+					healthQuery: "SELECT 1 FROM FeatureFlags;",
+					name: "sqlServer",
+					failureStatus: HealthStatus.Unhealthy,
+					tags: ["database", "sql server", "ready"]);
+			}
 		}
 
-		// Add Redis health check only if connection string is available
-		var redisConnection = propelConfig.Cache.Connection ?? string.Empty;
-		if (!string.IsNullOrEmpty(redisConnection))
+		// Add redis cache health check only if connection string is available
+		if (propelConfig.Cache.EnableDistributedCache == true && !string.IsNullOrWhiteSpace(propelConfig.Cache.Connection))
 		{
-			healthChecksBuilder.AddRedis(
-				redisConnectionString: redisConnection,
-				name: "redis",
-				failureStatus: HealthStatus.Degraded,
-				tags: ["cache", "redis", "readiness"]);
+			if (!string.IsNullOrEmpty(propelConfig.Cache.Connection))
+			{
+				healthChecksBuilder.AddRedis(
+					redisConnectionString: propelConfig.Cache.Connection,
+					name: "redis",
+					failureStatus: HealthStatus.Degraded,
+					tags: ["cache", "redis", "ready"]);
+			}
 		}
 
 		return services;

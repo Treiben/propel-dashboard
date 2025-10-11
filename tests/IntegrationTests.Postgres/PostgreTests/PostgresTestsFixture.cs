@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Postgres.Initialization;
-using Propel.FeatureFlags.Infrastructure;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 using Testcontainers.PostgreSql;
 
 namespace FeatureFlags.IntegrationTests.Postgres.PostgreTests;
@@ -13,8 +12,7 @@ public class PostgresTestsFixture : IAsyncLifetime
 {
 	private readonly PostgreSqlContainer _container;
 	public IServiceProvider Services { get; private set; } = null!;
-	public IFeatureFlagRepository FeatureFlagRepository => Services.GetRequiredService<IFeatureFlagRepository>();
-	public IDashboardRepository DashboardRepository => Services.GetRequiredService<IDashboardRepository>();
+	public IAdministrationService AdministrationService => Services.GetRequiredService<IAdministrationService>();
 
 	public PostgresTestsFixture()
 	{
@@ -39,7 +37,9 @@ public class PostgresTestsFixture : IAsyncLifetime
 		services.AddLogging();
 
 		// Add the DbContext with test container connection string
-		services.AddPostgresDbContext(connectionString);
+		services.AddPostgreSqlProvider(connectionString);
+		services.AddPostgreSqlMigrations(connectionString);
+		services.AddScoped<IAdministrationService, AdministrationService>();
 
 		Services = services.BuildServiceProvider();
 
@@ -76,7 +76,7 @@ public class PostgresTestsFixture : IAsyncLifetime
 	private async Task ApplyMigrationsAsync()
 	{
 		using var scope = Services.CreateScope();
-		var dbContext = scope.ServiceProvider.GetRequiredService<PostgresMigrationDbContext>();
+		var dbContext = scope.ServiceProvider.GetRequiredService<PostgreSqlMigrationDbContext>();
 		
 		// Apply all pending migrations
 		await dbContext.Database.MigrateAsync();

@@ -31,8 +31,8 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						Tags: new() { { "env", "production" }, { "team", "backend" } },
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = EvaluationMode.UserTargeted });
-		_ = await fixture.DashboardRepository.CreateAsync(flag1, CancellationToken.None);
-		_ = await fixture.DashboardRepository.CreateAsync(flag2, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag1, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag2, CancellationToken.None);
 
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();
@@ -74,7 +74,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						])
 			});
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();
 		//---------------------------------------
@@ -118,7 +118,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						])
 			});
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();
 		//---------------------------------------
@@ -162,7 +162,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						])
 			});
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();
 		//---------------------------------------
@@ -196,7 +196,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = EvaluationMode.UserTargeted });
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();
 		var request = new GetFeatureFlagRequest
@@ -229,7 +229,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = EvaluationMode.UserTargeted });
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();
 		var request = new GetFeatureFlagRequest
@@ -264,7 +264,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 							ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 				FlagEvaluationOptions.DefaultOptions with { ModeSet = EvaluationMode.UserTargeted });
 
-			_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+			_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 		}
 
 		var handler = fixture.Services.GetRequiredService<GetFilteredFlagsHandler>();

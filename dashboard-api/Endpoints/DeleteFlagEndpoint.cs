@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
 
@@ -31,8 +31,7 @@ public sealed class DeleteFlagEndpoint : IEndpoint
 }
 
 public sealed class DeleteFlagHandler(
-	IDashboardRepository repository,
-	IFlagResolverService flagResolver,
+	IAdministrationService administrationService,
 	ICacheInvalidationService cacheInvalidationService,
 	ICurrentUserService currentUserService,
 	ILogger<DeleteFlagHandler> logger)
@@ -41,7 +40,7 @@ public sealed class DeleteFlagHandler(
 	{
 		try
 		{
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			if (flag!.Administration.RetentionPolicy.IsLocked)
@@ -53,7 +52,7 @@ public sealed class DeleteFlagHandler(
 					logger);
 			}
 
-			var deleteResult = await repository.DeleteAsync(flag.Identifier,
+			var deleteResult = await administrationService.DeleteAsync(flag.Identifier,
 				currentUserService.UserName, "Flag deleted from dashboard", cancellationToken);
 
 			if (!deleteResult)

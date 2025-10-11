@@ -26,7 +26,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTargetingRulesHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -43,7 +43,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("targeting-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TargetingRules.Count.ShouldBe(2);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeTrue();
@@ -62,7 +62,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTargetingRulesHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -82,7 +82,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("remove-targeting-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TargetingRules.ShouldBeEmpty();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeFalse();
@@ -101,7 +101,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTargetingRulesHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -117,7 +117,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("mode-targeting-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeTrue();
 	}
@@ -135,7 +135,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTargetingRulesHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -156,7 +156,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("cleanup-targeting-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
@@ -176,7 +176,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateTargetingRulesHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -200,7 +200,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("replace-targeting-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TargetingRules.Count.ShouldBe(1);
 		updated.EvaluationOptions.TargetingRules[0].Attribute.ShouldBe("new-attr");
@@ -219,7 +219,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-targeting-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-targeting-flag"));

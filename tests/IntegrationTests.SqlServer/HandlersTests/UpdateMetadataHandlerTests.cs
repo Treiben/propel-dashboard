@@ -26,7 +26,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
@@ -41,7 +41,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var response = ((Ok<FeatureFlagResponse>)result).Value;
 		response.Name.ShouldBe("New Name");
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("update-name-flag", Scope.Global), CancellationToken.None);
 		updated!.Administration.Name.ShouldBe("New Name");
 	}
@@ -59,7 +59,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -73,7 +73,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		var response = ((Ok<FeatureFlagResponse>)result).Value;
 		response.Description.ShouldBe("New Description");
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("update-desc-flag", Scope.Global), CancellationToken.None);
 		updated!.Administration.Description.ShouldBe("New Description");
 	}
@@ -90,7 +90,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -103,7 +103,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("update-tags-flag", Scope.Global), CancellationToken.None);
 		updated!.Administration.Tags["env"].ShouldBe("production");
 		updated.Administration.Tags["team"].ShouldBe("backend");
@@ -122,7 +122,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -135,7 +135,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("update-expiration-flag", Scope.Global), CancellationToken.None);
 		updated!.Administration.RetentionPolicy.ShouldNotBeNull();
 	}
@@ -152,7 +152,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						Tags: [],
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -165,7 +165,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("update-multiple-flag", Scope.Global), CancellationToken.None);
 		updated!.Administration.Name.ShouldBe("New Name");
 		updated.Administration.Description.ShouldBe("New Description");
@@ -185,7 +185,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = new ModeSet([EvaluationMode.On]) });
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-update-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-update-flag"));
@@ -232,7 +232,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		_ = await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -244,7 +244,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("preserve-flag", Scope.Global), CancellationToken.None);
 		updated!.Administration.Name.ShouldBe("Original Name");
 		updated.Administration.Description.ShouldBe("Only description updated");

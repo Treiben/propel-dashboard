@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
@@ -38,9 +38,8 @@ public sealed class UpdateTargetingRulesEndpoint : IEndpoint
 }
 
 public sealed class UpdateTargetingRulesHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		IFlagResolverService flagResolver,
 		ICacheInvalidationService cacheInvalidationService,
 		ILogger<UpdateTargetingRulesHandler> logger)
 {
@@ -52,12 +51,12 @@ public sealed class UpdateTargetingRulesHandler(
 	{
 		try
 		{
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			var flagWithUpdatedRules = CreateFlagWithUpdatedRules(request, flag!);
 
-			var updatedFlag = await repository.UpdateAsync(flagWithUpdatedRules, cancellationToken);
+			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedRules, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} targeting rules updated by {User}",

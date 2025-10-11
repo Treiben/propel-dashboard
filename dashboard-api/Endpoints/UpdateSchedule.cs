@@ -3,8 +3,8 @@ using Knara.UtcStrict;
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 using System.Text.Json;
 
@@ -38,9 +38,8 @@ public sealed class UpdateScheduleEndpoint : IEndpoint
 }
 
 public sealed class UpdateScheduleHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		IFlagResolverService flagResolver,
 		ICacheInvalidationService cacheInvalidationService,
 		ILogger<UpdateScheduleHandler> logger)
 {
@@ -53,14 +52,14 @@ public sealed class UpdateScheduleHandler(
 
 		try
 		{
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			bool isScheduleRemoval = request.EnableOn == null && request.DisableOn == null;
 
 			var flagWithUpdatedSchedule = CreateFlagWithUpdatedSchedule(request, flag!, currentUserService.UserName!);
 
-			var updatedFlag = await repository.UpdateAsync(flagWithUpdatedSchedule, cancellationToken);
+			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedSchedule, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			var scheduleInfo = isScheduleRemoval

@@ -9,7 +9,7 @@ public static class HealthCheckExtensions
         // Liveness probe - returns 200 if the application is running
         app.MapHealthChecks("api/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
-            Predicate = check => check.Tags.Contains("liveness"),
+            Predicate = check => check.Tags.Contains("live"),
             ResponseWriter = async (context, report) =>
             {
                 context.Response.ContentType = "application/json";
@@ -32,7 +32,7 @@ public static class HealthCheckExtensions
         // Readiness probe - returns 200 if the application is ready to handle requests
         app.MapHealthChecks("api/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
-            Predicate = check => check.Tags.Contains("readiness"),
+            Predicate = check => check.Tags.Contains("ready"),
             ResponseWriter = async (context, report) =>
             {
                 context.Response.ContentType = "application/json";

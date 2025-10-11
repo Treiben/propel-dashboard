@@ -3,8 +3,8 @@ using Knara.UtcStrict;
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints;
@@ -43,9 +43,8 @@ public sealed class UpdateTimeWindowEndpoint : IEndpoint
 }
 
 public sealed class UpdateTimeWindowHandler(
-		IDashboardRepository repository,
+		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		IFlagResolverService flagResolver,
 		ICacheInvalidationService cacheInvalidationService,
 		ILogger<UpdateTimeWindowHandler> logger)
 {
@@ -57,12 +56,12 @@ public sealed class UpdateTimeWindowHandler(
 	{
 		try
 		{
-			var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
+			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
 			var flagWithUpdatedWindow = CreateFlagWithUpdatedTimeWindow(request, flag!);
 
-			var updatedFlag = await repository.UpdateAsync(flagWithUpdatedWindow, cancellationToken);
+			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedWindow, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} time window updated by {User}",

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Domain;
@@ -51,13 +52,13 @@ public sealed class GetFlagEndpoints : IEndpoint
 				[FromHeader(Name = "X-Scope")] string scope,
 				[FromHeader(Name = "X-Application-Name")] string? applicationName,
 				[FromHeader(Name = "X-Application-Version")] string? applicationVersion,
-				IFlagResolverService flagResolver,
+				IAdministrationService administrationService,
 				ILogger<GetFlagEndpoints> logger,
 				CancellationToken cancellationToken) =>
 			{
 				try
 				{
-					var (isValid, result, flag) = await flagResolver.ValidateAndResolveFlagAsync(key, 
+					var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, 
 							new FlagRequestHeaders(scope, applicationName, applicationVersion), 
 							cancellationToken);
 
@@ -77,13 +78,13 @@ public sealed class GetFlagEndpoints : IEndpoint
 		.Produces<FeatureFlagResponse>();
 
 		app.MapGet("/api/feature-flags/all",
-			async (IDashboardRepository repository,
+			async (IAdministrationService administrationService,
 					ILogger<GetFlagEndpoints> logger,
 					CancellationToken cancellationToken) =>
 			{
 				try
 				{
-					var flags = await repository.GetAllAsync(cancellationToken);
+					var flags = await administrationService.GetAllAsync(cancellationToken);
 					var flagDtos = flags.Select(f => new FeatureFlagResponse(f)).ToList();
 					return Results.Ok(flagDtos);
 				}
@@ -113,7 +114,7 @@ public sealed class GetFlagEndpoints : IEndpoint
 }
 
 
-public sealed class GetFilteredFlagsHandler(IDashboardRepository repository, ILogger<GetFilteredFlagsHandler> logger)
+public sealed class GetFilteredFlagsHandler(IAdministrationService administrationService, ILogger<GetFilteredFlagsHandler> logger)
 {
 	public async Task<IResult> HandleAsync(GetFeatureFlagRequest request, CancellationToken cancellationToken)
 	{
@@ -130,7 +131,7 @@ public sealed class GetFilteredFlagsHandler(IDashboardRepository repository, ILo
 					PermanentFlagsOnly: request.IsPermanent);
 			}
 
-			var result = await repository.GetPagedAsync(
+			var result = await administrationService.GetPagedAsync(
 				request.Page ?? 1,
 				request.PageSize ?? 10,
 				filter,

@@ -26,7 +26,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -38,7 +38,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("tenant-percentage-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(75);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantRolloutPercentage]).ShouldBeTrue();
@@ -57,7 +57,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -73,7 +73,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("allowed-tenants-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.Allowed.ShouldContain("tenant-1");
 		updated.EvaluationOptions.TenantAccessControl.Allowed.ShouldContain("tenant-2");
@@ -93,7 +93,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -109,7 +109,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("blocked-tenants-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.Blocked.ShouldContain("tenant-bad-1");
 		updated.EvaluationOptions.TenantAccessControl.Blocked.ShouldContain("tenant-bad-2");
@@ -129,7 +129,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -141,7 +141,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("hundred-percentage-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(100);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantRolloutPercentage]).ShouldBeFalse();
@@ -160,7 +160,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -177,7 +177,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("tenant-mode-cleanup-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
@@ -196,7 +196,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();
 		var headers = new FlagRequestHeaders("Global", null, null);
@@ -212,7 +212,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		// Assert
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
-		var updated = await fixture.DashboardRepository.GetByKeyAsync(
+		var updated = await fixture.AdministrationService.GetByKeyAsync(
 			new FlagIdentifier("combined-tenant-flag", Scope.Global), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.Allowed.ShouldContain("tenant-a");
 		updated.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(80);
@@ -233,7 +233,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions);
 
-		await fixture.DashboardRepository.CreateAsync(flag, CancellationToken.None);
+		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 		var cacheKey = new GlobalCacheKey("cached-tenant-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-tenant-flag"));
