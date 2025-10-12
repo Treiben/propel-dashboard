@@ -57,7 +57,8 @@ public static class PostgreSqlConfigurations
 				.IsRequired();
 
 			builder.Property(e => e.Notes)
-				.HasColumnName("notes");
+				.HasColumnName("notes")
+				.HasMaxLength(1000);
 
 			// Create index on the foreign key columns (without FK constraint)
 			builder.HasIndex(e => new { e.FlagKey, e.ApplicationName, e.ApplicationVersion });

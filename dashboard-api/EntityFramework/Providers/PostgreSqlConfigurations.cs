@@ -53,7 +53,8 @@ public static class PostgreSqlConfigurations
 				.IsRequired();
 
 			builder.Property(e => e.Notes)
-				.HasColumnName("notes");
+				.HasColumnName("notes")
+				.HasMaxLength(1000);
 		}
 	}
 
