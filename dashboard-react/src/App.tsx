@@ -4,6 +4,7 @@ import Login from './Login';
 import UserManagement from './UserManagement';
 import { apiService } from './services/apiService';
 import { config } from './config/environment';
+import { Header } from './components/Header';
 import './index.css';
 
 interface UserInfo {
@@ -55,58 +56,18 @@ function App() {
         return <Login onLoginSuccess={handleLoginSuccess} />;
     }
 
-    const isAdmin = user.role === 'Admin';
-
     return (
         <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <div className="flex-shrink-0 flex items-center">
-                                <h1 className="text-xl font-bold text-gray-900">Propel Dashboard</h1>
-                            </div>
-                            <div className="ml-6 flex space-x-8">
-                                <button
-                                    onClick={() => setCurrentView('flags')}
-                                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${currentView === 'flags'
-                                            ? 'border-blue-500 text-gray-900'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                        }`}
-                                >
-                                    Feature Flags
-                                </button>
-                                {isAdmin && (
-                                    <button
-                                        onClick={() => setCurrentView('users')}
-                                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${currentView === 'users'
-                                                ? 'border-blue-500 text-gray-900'
-                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                            }`}
-                                    >
-                                        Users
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <span className="text-sm text-gray-700">
-                                {user.username} ({user.role})
-                            </span>
-                            <button
-                                onClick={handleLogout}
-                                className="px-3 py-2 text-sm text-gray-700 hover:text-gray-900"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Header 
+                user={user}
+                currentView={currentView}
+                onViewChange={setCurrentView}
+                onLogout={handleLogout}
+            />
 
             <main>
                 {currentView === 'flags' && <FeatureFlagManager />}
-                {currentView === 'users' && isAdmin && <UserManagement />}
+                {currentView === 'users' && user.role === 'Admin' && <UserManagement />}
             </main>
         </div>
     );

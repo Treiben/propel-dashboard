@@ -1,19 +1,32 @@
 ﻿import { useState } from 'react';
-import { Menu, X, Info, HelpCircle } from 'lucide-react';
+import { Menu, X, Info, HelpCircle, LogOut } from 'lucide-react';
 import { PropelIcon } from './PropelIcon';
 
 interface HeaderProps {
     title?: string;
     subtitle?: string;
+    user?: {
+        username: string;
+        role: string;
+    } | null;
+    currentView?: 'flags' | 'users';
+    onViewChange?: (view: 'flags' | 'users') => void;
+    onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
     title = "Propel Feature Flags",
-    subtitle = "Manage feature releases, rollouts, and targeting strategies"
+    subtitle = "Manage feature releases, rollouts, and targeting strategies",
+    user,
+    currentView = 'flags',
+    onViewChange,
+    onLogout
 }) => {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [showAboutModal, setShowAboutModal] = useState(false);
     const [showFlagsInfoModal, setShowFlagsInfoModal] = useState(false);
+
+    const isAdmin = user?.role === 'Admin';
 
     return (
         <>
@@ -33,23 +46,69 @@ export const Header: React.FC<HeaderProps> = ({
                             </div>
                         </div>
 
-                        {/* Right: Navigation */}
-                        <nav className="hidden md:flex items-center gap-6">
+                        {/* Center: Navigation (only show if user is logged in) */}
+                        {user && onViewChange && (
+                            <nav className="hidden md:flex items-center gap-1">
+                                <button
+                                    onClick={() => onViewChange('flags')}
+                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                        currentView === 'flags'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    Feature Flags
+                                </button>
+                                {isAdmin && (
+                                    <button
+                                        onClick={() => onViewChange('users')}
+                                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                            currentView === 'users'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        Users
+                                    </button>
+                                )}
+                            </nav>
+                        )}
+
+                        {/* Right: User info and actions */}
+                        <div className="hidden md:flex items-center gap-4">
                             <button
                                 onClick={() => setShowFlagsInfoModal(true)}
                                 className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
                             >
                                 <HelpCircle className="w-4 h-4" />
-                                Feature Flags Guide
+                                <span className="text-sm">Guide</span>
                             </button>
                             <button
                                 onClick={() => setShowAboutModal(true)}
                                 className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
                             >
                                 <Info className="w-4 h-4" />
-                                About
+                                <span className="text-sm">About</span>
                             </button>
-                        </nav>
+                            
+                            {user && (
+                                <>
+                                    <div className="h-6 w-px bg-gray-300"></div>
+                                    <span className="text-sm text-gray-700">
+                                        {user.username} <span className="text-gray-500">({user.role})</span>
+                                    </span>
+                                    {onLogout && (
+                                        <button
+                                            onClick={onLogout}
+                                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition-colors"
+                                        >
+                                            <LogOut className="w-4 h-4" />
+                                            Logout
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
 
                         {/* Mobile menu button */}
                         <button
@@ -69,6 +128,40 @@ export const Header: React.FC<HeaderProps> = ({
                     {showMobileMenu && (
                         <div className="md:hidden border-t border-gray-200 py-4">
                             <div className="space-y-3">
+                                {user && onViewChange && (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                onViewChange('flags');
+                                                setShowMobileMenu(false);
+                                            }}
+                                            className={`flex items-center gap-2 w-full text-left py-2 px-3 rounded-lg transition-colors ${
+                                                currentView === 'flags'
+                                                    ? 'bg-blue-100 text-blue-700 font-medium'
+                                                    : 'text-gray-700 hover:bg-gray-100'
+                                            }`}
+                                        >
+                                            Feature Flags
+                                        </button>
+                                        {isAdmin && (
+                                            <button
+                                                onClick={() => {
+                                                    onViewChange('users');
+                                                    setShowMobileMenu(false);
+                                                }}
+                                                className={`flex items-center gap-2 w-full text-left py-2 px-3 rounded-lg transition-colors ${
+                                                    currentView === 'users'
+                                                        ? 'bg-blue-100 text-blue-700 font-medium'
+                                                        : 'text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                Users
+                                            </button>
+                                        )}
+                                        <div className="border-t border-gray-200 my-2"></div>
+                                    </>
+                                )}
+                                
                                 <button
                                     onClick={() => {
                                         setShowFlagsInfoModal(true);
@@ -89,6 +182,25 @@ export const Header: React.FC<HeaderProps> = ({
                                     <Info className="w-4 h-4" />
                                     About
                                 </button>
+                                
+                                {user && onLogout && (
+                                    <>
+                                        <div className="border-t border-gray-200 my-2"></div>
+                                        <div className="px-3 py-2 text-sm text-gray-600">
+                                            {user.username} ({user.role})
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                onLogout();
+                                                setShowMobileMenu(false);
+                                            }}
+                                            className="flex items-center gap-2 w-full text-left text-red-600 hover:text-red-700 transition-colors py-2 px-3"
+                                        >
+                                            <LogOut className="w-4 h-4" />
+                                            Logout
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}

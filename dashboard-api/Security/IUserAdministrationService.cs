@@ -36,10 +36,17 @@ public sealed class UserAdministrationService(IDatabaseProvider provider) : IUse
 
 	public async Task DeleteAsync(string username, CancellationToken cancellationToken = default)
 	{
-		var user = await provider.Context.Users.FirstOrDefaultAsync(u => u.Username == username, cancellationToken: cancellationToken)
-			?? throw new InvalidOperationException("User not found");
-		provider.Context.Users.Remove(user);
-		await provider.Context.SaveChangesAsync(cancellationToken);
+		try
+		{
+			var user = await provider.Context.Users.FirstOrDefaultAsync(u => u.Username == username, cancellationToken: cancellationToken)
+				?? throw new InvalidOperationException("User not found");
+			provider.Context.Users.Remove(user);
+			await provider.Context.SaveChangesAsync(cancellationToken);
+		}
+		catch (Exception ex)
+		{
+			throw new InvalidOperationException("Error deleting user", ex);
+		}
 	}
 
 	public async Task<User?> GetActiveUserAsync(string username, CancellationToken cancellationToken = default) =>

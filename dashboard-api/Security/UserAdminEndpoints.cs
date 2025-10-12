@@ -49,7 +49,7 @@ public sealed class AdminEndpoint : IEndpoint
 		.WithTags("Authorization", "User Login", "Dashboard Api")
 		.Produces<LoginResponse>();
 
-		epRoutBuilder.MapGet("/api/auth/users",
+		epRoutBuilder.MapGet("/api/admin/users",
 			async (IUserAdministrationService userAdministrationService,
 				IConfiguration config,
 				CancellationToken cancellationToken) =>
@@ -62,7 +62,7 @@ public sealed class AdminEndpoint : IEndpoint
 		.WithTags("Administration", "Users", "Dashboard Api")
 		.Produces<List<User>>();
 
-		epRoutBuilder.MapPost("/api/auth/users",
+		epRoutBuilder.MapPost("/api/admin/users",
 			async (CreateUserRequest request,
 				IUserAdministrationService userAdministrationService,
 				IConfiguration config,
@@ -88,7 +88,7 @@ public sealed class AdminEndpoint : IEndpoint
 		.WithTags("Administration", "Users", "Dashboard Api")
 		.Produces<User>();
 
-		epRoutBuilder.MapPut("/api/auth/users/{username}",
+		epRoutBuilder.MapPut("/api/admin/users/{username}",
 			async (string username,
 				UpdateUserRequest request,
 				IUserAdministrationService userAdministrationService,
@@ -127,7 +127,7 @@ public sealed class AdminEndpoint : IEndpoint
 		.WithTags("Administration", "Users", "Dashboard Api")
 		.Produces<User>();
 
-		epRoutBuilder.MapDelete("/api/auth/users/{username}",
+		epRoutBuilder.MapDelete("/api/admin/users/{username}",
 			async (string username,
 				IUserAdministrationService userAdministrationService,
 				IConfiguration config,

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { apiService } from './services/apiService';
 
 interface User {
-    id: number;
     username: string;
     role: string;
     isActive: boolean;
@@ -23,7 +22,7 @@ export default function UserManagement() {
 
     const loadUsers = async () => {
         try {
-            const response = await apiService.get('/api/auth/users');
+            const response = await apiService.get('/admin/users');
             setUsers(response);
         } catch (err) {
             setError('Failed to load users');
@@ -39,7 +38,7 @@ export default function UserManagement() {
         }
 
         try {
-            await apiService.post('/api/auth/users', newUser);
+            await apiService.post('/admin/users', newUser);
             setShowAddModal(false);
             setNewUser({ username: '', password: '', role: 'Viewer' });
             setError('');
@@ -49,29 +48,29 @@ export default function UserManagement() {
         }
     };
 
-    const handleToggleActive = async (userId: number, currentStatus: boolean) => {
+    const handleToggleActive = async (username: string, currentStatus: boolean) => {
         try {
-            await apiService.put(`/api/auth/users/${userId}`, { isActive: !currentStatus });
+            await apiService.put(`/admin/users/${username}`, { isActive: !currentStatus });
             await loadUsers();
         } catch (err) {
             setError('Failed to update user');
         }
     };
 
-    const handleChangeRole = async (userId: number, newRole: string) => {
+    const handleChangeRole = async (username: string, newRole: string) => {
         try {
-            await apiService.put(`/api/auth/users/${userId}`, { role: newRole });
+            await apiService.put(`/admin/users/${username}`, { role: newRole });
             await loadUsers();
         } catch (err) {
             setError('Failed to update user role');
         }
     };
 
-    const handleDeleteUser = async (userId: number) => {
+    const handleDeleteUser = async (username: string) => {
         if (!confirm('Are you sure you want to delete this user?')) return;
 
         try {
-            await apiService.delete(`/api/auth/users/${userId}`);
+            await apiService.delete(`/admin/users/${username}`);
             await loadUsers();
         } catch (err) {
             setError('Failed to delete user');
@@ -117,14 +116,14 @@ export default function UserManagement() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         {users.map(user => (
-                            <tr key={user.id}>
+                            <tr key={user.username}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {user.username}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                     <select
                                         value={user.role}
-                                        onChange={(e) => handleChangeRole(user.id, e.target.value)}
+                                        onChange={(e) => handleChangeRole(user.username, e.target.value)}
                                         className="border border-gray-300 rounded px-2 py-1"
                                     >
                                         <option value="Admin">Admin</option>
@@ -143,13 +142,13 @@ export default function UserManagement() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
                                     <button
-                                        onClick={() => handleToggleActive(user.id, user.isActive)}
+                                        onClick={() => handleToggleActive(user.username, user.isActive)}
                                         className="text-blue-600 hover:text-blue-900"
                                     >
                                         {user.isActive ? 'Deactivate' : 'Activate'}
                                     </button>
                                     <button
-                                        onClick={() => handleDeleteUser(user.id)}
+                                        onClick={() => handleDeleteUser(user.username)}
                                         className="text-red-600 hover:text-red-900"
                                     >
                                         Delete

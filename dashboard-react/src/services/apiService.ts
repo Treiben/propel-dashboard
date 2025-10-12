@@ -206,7 +206,6 @@ export interface LoginResponse {
 }
 
 export interface UserDto {
-	id: number;
 	username: string;
 	role: string;
 	isActive: boolean;
@@ -570,14 +569,14 @@ export const apiService = {
 					body: JSON.stringify(request)
 				}),
 
-			update: (id: number, request: UpdateUserRequest) =>
-				apiRequest<UserDto>(`/auth/users/${id}`, {
+			update: (username: string, request: UpdateUserRequest) =>
+				apiRequest<UserDto>(`/auth/users/${username}`, {
 					method: 'PUT',
 					body: JSON.stringify(request)
 				}),
 
-			delete: (id: number) =>
-				apiRequest<void>(`/auth/users/${id}`, { method: 'DELETE' })
+			delete: (username: string) =>
+				apiRequest<void>(`/auth/users/${username}`, { method: 'DELETE' })
 		}
 	},
 
