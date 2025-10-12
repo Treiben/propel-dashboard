@@ -63,6 +63,7 @@ interface TargetingRulesSectionProps {
 	onUpdateTargetingRules: (targetingRules?: TargetingRule[], removeTargetingRules?: boolean) => Promise<void>;
 	onClearTargetingRules: () => Promise<void>;
 	operationLoading: boolean;
+	readOnly?: boolean; // Add readOnly prop
 }
 
 interface TargetingRuleForm {
@@ -132,7 +133,8 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 	flag,
 	onUpdateTargetingRules,
 	onClearTargetingRules,
-	operationLoading
+	operationLoading,
+	readOnly = false // Default to false
 }) => {
 	const [editingTargetingRules, setEditingTargetingRules] = useState(false);
 	const [targetingRulesForm, setTargetingRulesForm] = useState<TargetingRuleForm[]>([]);
@@ -166,6 +168,8 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 	}, [flag.key, flag.targetingRules]);
 
 	const handleTargetingRulesSubmit = async () => {
+		if (readOnly) return;
+		
 		try {
 			const targetingRules: TargetingRule[] = targetingRulesForm
 				.filter(rule => {
@@ -208,6 +212,8 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 	};
 
 	const handleClearTargetingRules = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onClearTargetingRules();
 		} catch (error) {
@@ -285,32 +291,34 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 					<h4 className={`font-medium ${theme.neutral.text[900]}`}>Custom Targeting Rules</h4>
 					<InfoTooltip content="Advanced conditional logic for complex feature targeting. Create rules based on user attributes (userId, country, plan, etc.). Variation determines which feature version users get when rules match." />
 				</div>
-				<div className="flex gap-2">
-					<button
-						onClick={() => setEditingTargetingRules(true)}
-						disabled={operationLoading}
-						className={`text-sm flex items-center gap-1 disabled:opacity-50 ${schedulingStyles.buttonText} ${schedulingStyles.buttonHover}`}
-						data-testid="manage-targeting-rules-button"
-					>
-						<Target className="w-4 h-4" />
-						Configure Rules
-					</button>
-					{hasTargetingRules && (
+				{!readOnly && (
+					<div className="flex gap-2">
 						<button
-							onClick={handleClearTargetingRules}
+							onClick={() => setEditingTargetingRules(true)}
 							disabled={operationLoading}
-							className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
-							title="Clear All Targeting Rules"
-							data-testid="clear-targeting-rules-button"
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${schedulingStyles.buttonText} ${schedulingStyles.buttonHover}`}
+							data-testid="manage-targeting-rules-button"
 						>
-							<X className="w-4 h-4" />
-							Clear
+							<Target className="w-4 h-4" />
+							Configure Rules
 						</button>
-					)}
-				</div>
+						{hasTargetingRules && (
+							<button
+								onClick={handleClearTargetingRules}
+								disabled={operationLoading}
+								className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
+								title="Clear All Targeting Rules"
+								data-testid="clear-targeting-rules-button"
+							>
+								<X className="w-4 h-4" />
+								Clear
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			{editingTargetingRules ? (
+			{editingTargetingRules && !readOnly ? (
 				<div className={`${schedulingStyles.bg} ${schedulingStyles.border} border rounded-lg p-4`}>
 					<div className="space-y-4">
 						<div className="flex justify-between items-center">

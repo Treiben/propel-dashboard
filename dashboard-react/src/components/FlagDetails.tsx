@@ -41,6 +41,7 @@ import { ApiError } from '../services/apiService';
 
 interface FlagDetailsProps {
     flag: FeatureFlagDto;
+    readOnly?: boolean; // Add readOnly prop
     onToggle: (flag: FeatureFlagDto) => Promise<void>;
     onUpdateUserAccess: (allowedUsers?: string[], blockedUsers?: string[], percentage?: number) => Promise<void>;
     onUpdateTenantAccess: (allowedTenants?: string[], blockedTenants?: string[], percentage?: number) => Promise<void>;
@@ -64,7 +65,7 @@ interface FlagDetailsProps {
         expirationDate?: string;
         notes?: string;
     }) => Promise<void>;
-    onDelete: (key: string) => void;
+    onDelete?: (key: string) => void; // Make optional for read-only mode
     onEvaluateFlag?: (key: string, userId?: string, tenantId?: string, attributes?: Record<string, any>) => Promise<EvaluationResult>;
     evaluationResult?: EvaluationResult;
     evaluationLoading?: boolean;
@@ -88,6 +89,7 @@ const ErrorAlert: React.FC<{ message: string; onDismiss: () => void }> = ({ mess
 
 export const FlagDetails: React.FC<FlagDetailsProps> = ({
     flag,
+    readOnly = false, // Default to false
     onToggle,
     onUpdateUserAccess,
     onUpdateTenantAccess,
@@ -144,6 +146,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleToggle = async () => {
+        if (readOnly) return;
         try {
             setOperationLoading(true);
             await onToggle(flag);
@@ -155,6 +158,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleUpdateUserAccessWrapper = async (allowedUsers?: string[], blockedUsers?: string[], percentage?: number) => {
+        if (readOnly) return;
         setOperationLoading(true);
         setUserAccessError(null);
         try {
@@ -168,6 +172,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleClearUserAccessWrapper = async () => {
+        if (readOnly) return;
         setOperationLoading(true);
         setUserAccessError(null);
         try {
@@ -181,6 +186,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleUpdateTenantAccessWrapper = async (allowedTenants?: string[], blockedTenants?: string[], percentage?: number) => {
+        if (readOnly) return;
         setOperationLoading(true);
         setTenantAccessError(null);
         try {
@@ -194,6 +200,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleClearTenantAccessWrapper = async () => {
+        if (readOnly) return;
         setOperationLoading(true);
         setTenantAccessError(null);
         try {
@@ -207,6 +214,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleUpdateTargetingRulesWrapper = async (targetingRules?: TargetingRule[], removeTargetingRules?: boolean) => {
+        if (readOnly) return;
         setOperationLoading(true);
         setTargetingRulesError(null);
         try {
@@ -220,6 +228,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleClearTargetingRulesWrapper = async () => {
+        if (readOnly) return;
         setOperationLoading(true);
         setTargetingRulesError(null);
         try {
@@ -233,6 +242,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleScheduleWrapper = async (flag: FeatureFlagDto, enableOn: string, disableOn?: string) => {
+        if (readOnly) return;
         setOperationLoading(true);
         setScheduleError(null);
         try {
@@ -246,6 +256,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleClearScheduleWrapper = async () => {
+        if (readOnly) return;
         setOperationLoading(true);
         setScheduleError(null);
         try {
@@ -259,6 +270,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleUpdateTimeWindowWrapper = async (flag: FeatureFlagDto, timeWindowData: any) => {
+        if (readOnly) return;
         setOperationLoading(true);
         setTimeWindowError(null);
         try {
@@ -272,6 +284,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleClearTimeWindowWrapper = async () => {
+        if (readOnly) return;
         setOperationLoading(true);
         setTimeWindowError(null);
         try {
@@ -292,6 +305,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
         expirationDate?: string;
         notes?: string;
     }) => {
+        if (readOnly) return;
         setOperationLoading(true);
         setFlagEditError(null);
         try {
@@ -305,6 +319,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleUpdateVariationsWrapper = async (variations: Record<string, any>, defaultVariation: string) => {
+        if (readOnly) return;
         setVariationError(null);
         try {
             await onUpdateVariations?.(variations, defaultVariation);
@@ -315,6 +330,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     };
 
     const handleClearVariationsWrapper = async () => {
+        if (readOnly) return;
         setVariationError(null);
         try {
             await onClearVariations?.();
@@ -361,8 +377,8 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
     const shouldShowTargetingRulesIndicator = flag.modes?.includes(EvaluationMode.TargetingRules) || targetingRules.length > 0;
     const shouldShowVariationIndicator = checkForCustomVariations(flag);
 
-    // Flag is deletable only when NOT locked
-    const canDelete = !flag.isLocked;
+    // Flag is deletable only when NOT locked AND not read-only AND onDelete is provided
+    const canDelete = !flag.isLocked && !readOnly && onDelete !== undefined;
 
     return (
         <div className={`bg-white rounded-lg shadow-sm ${theme.neutral.border[200]} border p-6`}>
@@ -373,12 +389,15 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                         <div className="flex items-center gap-1">
                             <button
                                 onClick={handleToggle}
-                                disabled={operationLoading}
-                                className={`p-2 rounded-md transition-colors font-medium shadow-sm ${isEnabled
-                                    ? `${theme.warning[100]} ${theme.warning.text[700]} hover:bg-amber-200 ${theme.warning.border[300]} border`
-                                    : `${theme.success[100]} ${theme.success.text[700]} ${theme.success.hover.bg700} hover:bg-green-200 ${theme.success.border[300]} border`
-                                    }`}
-                                title={isEnabled ? 'Disable Flag' : 'Enable Flag'}
+                                disabled={operationLoading || readOnly}
+                                className={`p-2 rounded-md transition-colors font-medium shadow-sm ${
+                                    readOnly 
+                                        ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border border-gray-200'
+                                        : isEnabled
+                                            ? `${theme.warning[100]} ${theme.warning.text[700]} hover:bg-amber-200 ${theme.warning.border[300]} border`
+                                            : `${theme.success[100]} ${theme.success.text[700]} ${theme.success.hover.bg700} hover:bg-green-200 ${theme.success.border[300]} border`
+                                }`}
+                                title={readOnly ? 'Read-only mode' : isEnabled ? 'Disable Flag' : 'Enable Flag'}
                             >
                                 {operationLoading ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -550,6 +569,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 flag={flag}
                 onUpdateFlag={handleUpdateFlagWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             {scheduleError && <ErrorAlert message={scheduleError} onDismiss={() => setScheduleError(null)} />}
@@ -558,6 +578,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 onSchedule={handleScheduleWrapper}
                 onClearSchedule={handleClearScheduleWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             {timeWindowError && <ErrorAlert message={timeWindowError} onDismiss={() => setTimeWindowError(null)} />}
@@ -566,6 +587,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 onUpdateTimeWindow={handleUpdateTimeWindowWrapper}
                 onClearTimeWindow={handleClearTimeWindowWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             {userAccessError && <ErrorAlert message={userAccessError} onDismiss={() => setUserAccessError(null)} />}
@@ -574,6 +596,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 onUpdateUserAccess={handleUpdateUserAccessWrapper}
                 onClearUserAccess={handleClearUserAccessWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             {tenantAccessError && <ErrorAlert message={tenantAccessError} onDismiss={() => setTenantAccessError(null)} />}
@@ -582,6 +605,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 onUpdateTenantAccess={handleUpdateTenantAccessWrapper}
                 onClearTenantAccess={handleClearTenantAccessWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             {targetingRulesError && <ErrorAlert message={targetingRulesError} onDismiss={() => setTargetingRulesError(null)} />}
@@ -590,6 +614,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 onUpdateTargetingRules={handleUpdateTargetingRulesWrapper}
                 onClearTargetingRules={handleClearTargetingRulesWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             {variationError && <ErrorAlert message={variationError} onDismiss={() => setVariationError(null)} />}
@@ -598,6 +623,7 @@ export const FlagDetails: React.FC<FlagDetailsProps> = ({
                 onUpdateVariations={handleUpdateVariationsWrapper}
                 onClearVariations={handleClearVariationsWrapper}
                 operationLoading={operationLoading}
+                readOnly={readOnly}
             />
 
             <FlagMetadata flag={flag} />

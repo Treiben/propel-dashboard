@@ -117,12 +117,14 @@ interface FlagEditSectionProps {
         notes?: string;
     }) => Promise<void>;
     operationLoading: boolean;
+    readOnly?: boolean; // Add readOnly prop
 }
 
 export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
     flag,
     onUpdateFlag,
-    operationLoading
+    operationLoading,
+    readOnly = false // Default to false
 }) => {
     const [editing, setEditing] = useState(false);
     const [formData, setFormData] = useState({
@@ -158,6 +160,8 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
     };
 
     const handleSubmit = async () => {
+        if (readOnly) return;
+        
         try {
             const updates: any = {};
 
@@ -205,17 +209,19 @@ export const FlagEditSection: React.FC<FlagEditSectionProps> = ({
         <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center">
                 <h4 className={`font-medium ${theme.neutral.text[900]}`}>Flag Details</h4>
-                <button
-                    onClick={() => setEditing(true)}
-                    disabled={operationLoading}
-                    className={`${theme.neutral.text[600]} ${theme.neutral.hover.text700} text-sm flex items-center gap-1 disabled:opacity-50`}
-                >
-                    <Edit3 className="w-4 h-4" />
-                    Edit
-                </button>
+                {!readOnly && (
+                    <button
+                        onClick={() => setEditing(true)}
+                        disabled={operationLoading}
+                        className={`${theme.neutral.text[600]} ${theme.neutral.hover.text700} text-sm flex items-center gap-1 disabled:opacity-50`}
+                    >
+                        <Edit3 className="w-4 h-4" />
+                        Edit
+                    </button>
+                )}
             </div>
 
-            {editing ? (
+            {editing && !readOnly ? (
                 <div className={`${theme.neutral[50]} ${theme.neutral.border[200]} border rounded-lg p-4`}>
                     <div className="space-y-3">
                         <div>

@@ -56,6 +56,9 @@ function App() {
         return <Login onLoginSuccess={handleLoginSuccess} />;
     }
 
+    const isAdmin = user.role === 'Admin';
+    const isViewer = user.role === 'Viewer';
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Header 
@@ -66,8 +69,8 @@ function App() {
             />
 
             <main>
-                {currentView === 'flags' && <FeatureFlagManager />}
-                {currentView === 'users' && user.role === 'Admin' && <UserManagement />}
+                {currentView === 'flags' && <FeatureFlagManager readOnly={isViewer} />}
+                {currentView === 'users' && isAdmin && <UserManagement />}
             </main>
         </div>
     );

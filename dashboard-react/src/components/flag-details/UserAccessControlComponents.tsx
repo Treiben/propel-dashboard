@@ -60,6 +60,7 @@ interface UserAccessSectionProps {
 	onUpdateUserAccess: (allowedUsers?: string[], blockedUsers?: string[], rolloutPercentage?: number) => Promise<void>;
 	onClearUserAccess: () => Promise<void>;
 	operationLoading: boolean;
+	readOnly?: boolean; // Add readOnly prop
 }
 
 const InfoTooltip: React.FC<{ content: string; className?: string }> = ({ content, className = "" }) => {
@@ -174,7 +175,8 @@ export const UserAccessSection: React.FC<UserAccessSectionProps> = ({
 	flag,
 	onUpdateUserAccess,
 	onClearUserAccess,
-	operationLoading
+	operationLoading,
+	readOnly = false // Default to false
 }) => {
 	const [editingUserAccess, setEditingUserAccess] = useState(false);
 	const [userAccessData, setUserAccessData] = useState({
@@ -199,6 +201,8 @@ export const UserAccessSection: React.FC<UserAccessSectionProps> = ({
 	}, [flag.key, flag.userAccess?.rolloutPercentage]);
 
 	const handleUserAccessSubmit = async () => {
+		if (readOnly) return;
+		
 		try {
 			let finalAllowedUsers = flag.userAccess?.allowed || [];
 			let finalBlockedUsers = flag.userAccess?.blocked || [];
@@ -227,6 +231,8 @@ export const UserAccessSection: React.FC<UserAccessSectionProps> = ({
 	};
 
 	const handleClearUserAccess = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onClearUserAccess();
 		} catch (error) {
@@ -254,32 +260,34 @@ export const UserAccessSection: React.FC<UserAccessSectionProps> = ({
 					<h4 className={`font-medium ${theme.neutral.text[900]}`}>User Access Control</h4>
 					<InfoTooltip content="Control user access with percentage rollouts for A/B testing, canary releases, and gradual feature deployment." />
 				</div>
-				<div className="flex gap-2">
-					<button
-						onClick={() => setEditingUserAccess(true)}
-						disabled={operationLoading}
-						className={`text-sm flex items-center gap-1 disabled:opacity-50 ${userAccessStyles.buttonText} ${theme.success.hover.text800}`}
-						data-testid="manage-users-button"
-					>
-						<Users className="w-4 h-4" />
-						Manage Users
-					</button>
-					{hasUserAccessControl && (
+				{!readOnly && (
+					<div className="flex gap-2">
 						<button
-							onClick={handleClearUserAccess}
+							onClick={() => setEditingUserAccess(true)}
 							disabled={operationLoading}
-							className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
-							title="Clear User Access Control"
-							data-testid="clear-user-access-button"
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${userAccessStyles.buttonText} ${theme.success.hover.text800}`}
+							data-testid="manage-users-button"
 						>
-							<X className="w-4 h-4" />
-							Clear
+							<Users className="w-4 h-4" />
+							Manage Users
 						</button>
-					)}
-				</div>
+						{hasUserAccessControl && (
+							<button
+								onClick={handleClearUserAccess}
+								disabled={operationLoading}
+								className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
+								title="Clear User Access Control"
+								data-testid="clear-user-access-button"
+							>
+								<X className="w-4 h-4" />
+								Clear
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			{editingUserAccess ? (
+			{editingUserAccess && !readOnly ? (
 				<div className={`${userAccessStyles.bg} ${userAccessStyles.border} border rounded-lg p-4`}>
 					<div className="space-y-4">
 						<div>

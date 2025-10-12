@@ -15,7 +15,6 @@ export const TenantAccessControlStatusIndicator: React.FC<TenantAccessControlSta
 
 	const allowedCount = flag.tenantAccess?.allowed?.length || 0;
 	const blockedCount = flag.tenantAccess?.blocked?.length || 0;
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const rolloutPercentage = flag.tenantAccess?.rolloutPercentage || 0;
 
 	const targetingStyles = getSectionClasses('targeting');
@@ -61,6 +60,7 @@ interface TenantAccessSectionProps {
 	onUpdateTenantAccess: (allowedTenants?: string[], blockedTenants?: string[], rolloutPercentage?: number) => Promise<void>;
 	onClearTenantAccess: () => Promise<void>;
 	operationLoading: boolean;
+	readOnly?: boolean; // Add readOnly prop
 }
 
 const InfoTooltip: React.FC<{ content: string; className?: string }> = ({ content, className = "" }) => {
@@ -175,7 +175,8 @@ export const TenantAccessSection: React.FC<TenantAccessSectionProps> = ({
 	flag,
 	onUpdateTenantAccess,
 	onClearTenantAccess,
-	operationLoading
+	operationLoading,
+	readOnly = false // Default to false
 }) => {
 	const [editingTenantAccess, setEditingTenantAccess] = useState(false);
 	const [tenantAccessData, setTenantAccessData] = useState({
@@ -200,6 +201,8 @@ export const TenantAccessSection: React.FC<TenantAccessSectionProps> = ({
 	}, [flag.key, flag.tenantAccess?.rolloutPercentage]);
 
 	const handleTenantAccessSubmit = async () => {
+		if (readOnly) return;
+		
 		try {
 			let finalAllowedTenants = flag.tenantAccess?.allowed || [];
 			let finalBlockedTenants = flag.tenantAccess?.blocked || [];
@@ -228,6 +231,8 @@ export const TenantAccessSection: React.FC<TenantAccessSectionProps> = ({
 	};
 
 	const handleClearTenantAccess = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onClearTenantAccess();
 		} catch (error) {
@@ -255,32 +260,34 @@ export const TenantAccessSection: React.FC<TenantAccessSectionProps> = ({
 					<h4 className={`font-medium ${theme.neutral.text[900]}`}>Tenant Access Control</h4>
 					<InfoTooltip content="Manage multi-tenant rollouts with percentage controls for enterprise deployments and tenant-specific feature access." />
 				</div>
-				<div className="flex gap-2">
-					<button
-						onClick={() => setEditingTenantAccess(true)}
-						disabled={operationLoading}
-						className={`text-sm flex items-center gap-1 disabled:opacity-50 ${targetingStyles.buttonText} ${theme.info.hover?.text700 || 'hover:text-sky-700'}`}
-						data-testid="manage-tenants-button"
-					>
-						<Building className="w-4 h-4" />
-						Manage Tenants
-					</button>
-					{hasTenantAccessControl && (
+				{!readOnly && (
+					<div className="flex gap-2">
 						<button
-							onClick={handleClearTenantAccess}
+							onClick={() => setEditingTenantAccess(true)}
 							disabled={operationLoading}
-							className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
-							title="Clear Tenant Access Control"
-							data-testid="clear-tenant-access-button"
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${targetingStyles.buttonText} ${theme.info.hover?.text700 || 'hover:text-sky-700'}`}
+							data-testid="manage-tenants-button"
 						>
-							<X className="w-4 h-4" />
-							Clear
+							<Building className="w-4 h-4" />
+							Manage Tenants
 						</button>
-					)}
-				</div>
+						{hasTenantAccessControl && (
+							<button
+								onClick={handleClearTenantAccess}
+								disabled={operationLoading}
+								className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
+								title="Clear Tenant Access Control"
+								data-testid="clear-tenant-access-button"
+							>
+								<X className="w-4 h-4" />
+								Clear
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			{editingTenantAccess ? (
+			{editingTenantAccess && !readOnly ? (
 				<div className={`${targetingStyles.bg} ${targetingStyles.border} border rounded-lg p-4`}>
 					<div className="space-y-4">
 						<div>

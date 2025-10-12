@@ -56,6 +56,7 @@ interface TimeWindowSectionProps {
 	}) => Promise<void>;
 	onClearTimeWindow: () => Promise<void>;
 	operationLoading: boolean;
+	readOnly?: boolean; // Add readOnly prop
 }
 
 // BUG FIX #10: Make tooltip wider and more readable
@@ -91,7 +92,8 @@ export const TimeWindowSection: React.FC<TimeWindowSectionProps> = ({
 	flag,
 	onUpdateTimeWindow,
 	onClearTimeWindow,
-	operationLoading
+	operationLoading,
+	readOnly = false // Default to false
 }) => {
 	const [editingTimeWindow, setEditingTimeWindow] = useState(false);
 	const [timeWindowData, setTimeWindowData] = useState({
@@ -114,6 +116,8 @@ export const TimeWindowSection: React.FC<TimeWindowSectionProps> = ({
 	}, [flag.key, flag.timeWindow?.startOn, flag.timeWindow?.stopOn, flag.timeWindow?.timeZone, flag.timeWindow?.daysActive]);
 
 	const handleTimeWindowSubmit = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onUpdateTimeWindow(flag, timeWindowData);
 			setEditingTimeWindow(false);
@@ -123,6 +127,8 @@ export const TimeWindowSection: React.FC<TimeWindowSectionProps> = ({
 	};
 
 	const handleClearTimeWindow = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onClearTimeWindow();
 		} catch (error) {
@@ -146,30 +152,32 @@ export const TimeWindowSection: React.FC<TimeWindowSectionProps> = ({
 					<h4 className={`font-medium ${theme.neutral.text[900]}`}>Time Window</h4>
 					<InfoTooltip content="Restrict flag activation to specific hours and days. Ideal for business hours, maintenance windows, and region-specific operations." />
 				</div>
-				<div className="flex gap-2">
-					<button
-						onClick={() => setEditingTimeWindow(true)}
-						disabled={operationLoading}
-						className={`text-sm flex items-center gap-1 disabled:opacity-50 ${schedulingStyles.buttonText} ${schedulingStyles.buttonHover}`}
-					>
-						<Clock className="w-4 h-4" />
-						Configure
-					</button>
-					{components.hasTimeWindow && (
+				{!readOnly && (
+					<div className="flex gap-2">
 						<button
-							onClick={handleClearTimeWindow}
+							onClick={() => setEditingTimeWindow(true)}
 							disabled={operationLoading}
-							className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
-							title="Clear Time Window"
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${schedulingStyles.buttonText} ${schedulingStyles.buttonHover}`}
 						>
-							<X className="w-4 h-4" />
-							Clear
+							<Clock className="w-4 h-4" />
+							Configure
 						</button>
-					)}
-				</div>
+						{components.hasTimeWindow && (
+							<button
+								onClick={handleClearTimeWindow}
+								disabled={operationLoading}
+								className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
+								title="Clear Time Window"
+							>
+								<X className="w-4 h-4" />
+								Clear
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			{editingTimeWindow ? (
+			{editingTimeWindow && !readOnly ? (
 				<div className={`${schedulingStyles.bg} ${schedulingStyles.border} border rounded-lg p-4`}>
 					<div className="space-y-4">
 						<div className="grid grid-cols-3 gap-4">

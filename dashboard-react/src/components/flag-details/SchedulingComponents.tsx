@@ -74,6 +74,7 @@ interface SchedulingSectionProps {
 	onSchedule: (flag: FeatureFlagDto, enableOn: string, disableOn?: string) => Promise<void>;
 	onClearSchedule: () => Promise<void>;
 	operationLoading: boolean;
+	readOnly?: boolean; // Add readOnly prop
 }
 
 // BUG FIX #10: Make tooltip wider and more readable
@@ -109,7 +110,8 @@ export const SchedulingSection: React.FC<SchedulingSectionProps> = ({
 	flag,
 	onSchedule,
 	onClearSchedule,
-	operationLoading
+	operationLoading,
+	readOnly = false // Default to false
 }) => {
 	const [editingSchedule, setEditingSchedule] = useState(false);
 	const [scheduleData, setScheduleData] = useState({
@@ -128,6 +130,8 @@ export const SchedulingSection: React.FC<SchedulingSectionProps> = ({
 	}, [flag.key, flag.schedule?.enableOnUtc, flag.schedule?.disableOnUtc]);
 
 	const handleScheduleSubmit = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onSchedule(
 				flag,
@@ -141,6 +145,8 @@ export const SchedulingSection: React.FC<SchedulingSectionProps> = ({
 	};
 
 	const handleClearSchedule = async () => {
+		if (readOnly) return;
+		
 		try {
 			await onClearSchedule();
 		} catch (error) {
@@ -155,32 +161,34 @@ export const SchedulingSection: React.FC<SchedulingSectionProps> = ({
 					<h4 className={`font-medium ${theme.neutral.text[900]}`}>Scheduling</h4>
 					<InfoTooltip content="Automatically enable/disable flags at specific dates and times. Perfect for coordinated releases, marketing campaigns, and planned rollouts." />
 				</div>
-				<div className="flex gap-2">
-					<button
-						onClick={() => setEditingSchedule(true)}
-						disabled={operationLoading}
-						className={`text-sm flex items-center gap-1 disabled:opacity-50 ${schedulingStyles.buttonText} ${schedulingStyles.buttonHover}`}
-						data-testid="edit-schedule-button"
-					>
-						<Calendar className="w-4 h-4" />
-						Schedule
-					</button>
-					{components.isScheduled && (
+				{!readOnly && (
+					<div className="flex gap-2">
 						<button
-							onClick={handleClearSchedule}
+							onClick={() => setEditingSchedule(true)}
 							disabled={operationLoading}
-							className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
-							title="Clear Schedule"
-							data-testid="clear-schedule-button"
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${schedulingStyles.buttonText} ${schedulingStyles.buttonHover}`}
+							data-testid="edit-schedule-button"
 						>
-							<X className="w-4 h-4" />
-							Clear
+							<Calendar className="w-4 h-4" />
+							Schedule
 						</button>
-					)}
-				</div>
+						{components.isScheduled && (
+							<button
+								onClick={handleClearSchedule}
+								disabled={operationLoading}
+								className={`${theme.danger.text[600]} ${theme.danger.hover.text800} text-sm flex items-center gap-1 disabled:opacity-50`}
+								title="Clear Schedule"
+								data-testid="clear-schedule-button"
+							>
+								<X className="w-4 h-4" />
+								Clear
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			{editingSchedule ? (
+			{editingSchedule && !readOnly ? (
 				<div className={`${schedulingStyles.bg} ${schedulingStyles.border} border rounded-lg p-4`}>
 					<div className="space-y-3">
 						<div>

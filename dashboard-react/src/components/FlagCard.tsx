@@ -9,7 +9,7 @@ interface FlagCardProps {
     flag: FeatureFlagDto;
     isSelected: boolean;
     onClick: () => void;
-    onDelete: (key: string) => void;
+    onDelete?: (key: string) => void; // Make optional for read-only mode
 }
 
 export const FlagCard: React.FC<FlagCardProps> = ({
@@ -28,8 +28,8 @@ export const FlagCard: React.FC<FlagCardProps> = ({
     // Get percentage from userAccess or tenantAccess
     const percentage = flag.userAccess?.rolloutPercentage || flag.tenantAccess?.rolloutPercentage || 0;
 
-    // Flag is deletable only when NOT locked
-    const canDelete = !flag.isLocked;
+    // Flag is deletable only when NOT locked AND onDelete is provided (not read-only)
+    const canDelete = !flag.isLocked && onDelete !== undefined;
 
     // Check if flag is expired
     const isExpired = flag.expirationDate && new Date(flag.expirationDate) < new Date();

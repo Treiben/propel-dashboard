@@ -27,7 +27,12 @@ import { PaginationControls } from './components/PaginationControls';
 import { CreateFlagModal } from './components/CreateFlagModal';
 import { DeleteConfirmationModal } from './components/DeleteConfirmationModal';
 
-const FeatureFlagManager = () => {
+// Add props interface
+interface FeatureFlagManagerProps {
+    readOnly?: boolean;
+}
+
+const FeatureFlagManager = ({ readOnly = false }: FeatureFlagManagerProps) => {
     const {
         flags,
         loading,
@@ -73,7 +78,7 @@ const FeatureFlagManager = () => {
         expiringInDays?: number;
         scope?: Scope;
         applicationName?: string;
-        isPermanent?: boolean; // Add this line
+        isPermanent?: boolean;
     }>({
         modes: [],
         tagKeys: [''],
@@ -90,6 +95,7 @@ const FeatureFlagManager = () => {
 
     // Handler functions
     const quickToggle = async (flag: FeatureFlagDto) => {
+        if (readOnly) return;
         const scopeHeaders = getScopeHeaders(flag);
         const isCurrentlyEnabled = flag.modes?.includes(EvaluationMode.On);
         const mode = isCurrentlyEnabled ? EvaluationMode.Off : EvaluationMode.On;
@@ -97,11 +103,13 @@ const FeatureFlagManager = () => {
     };
 
     const handleScheduleFlag = async (flag: FeatureFlagDto, enableOn: string, disableOn?: string) => {
+        if (readOnly) return;
         const scopeHeaders = getScopeHeaders(flag);
         await scheduleFlag(flag.key, { enableOn, disableOn }, scopeHeaders);
     };
 
     const handleClearSchedule = async (flag: FeatureFlagDto) => {
+        if (readOnly) return;
         const scopeHeaders = getScopeHeaders(flag);
         await scheduleFlag(flag.key, {
             enableOn: undefined,
@@ -115,6 +123,7 @@ const FeatureFlagManager = () => {
         timeZone: string;
         daysActive: string[];
     }) => {
+        if (readOnly) return;
         const scopeHeaders = getScopeHeaders(flag);
         const daysActiveNumbers = timeWindowData.daysActive
             .map(day => getDayOfWeekNumber(day))
@@ -130,6 +139,7 @@ const FeatureFlagManager = () => {
     };
 
     const handleClearTimeWindow = async (flag: FeatureFlagDto) => {
+        if (readOnly) return;
         const scopeHeaders = getScopeHeaders(flag);
         await setTimeWindow(flag.key, {
             startOn: '00:00:00',
@@ -141,7 +151,7 @@ const FeatureFlagManager = () => {
     };
 
     const handleUpdateTargetingRulesWrapper = async (targetingRules?: TargetingRule[], removeTargetingRules?: boolean) => {
-        if (!selectedFlag) return;
+        if (readOnly || !selectedFlag) return;
 
         const scopeHeaders = getScopeHeaders(selectedFlag);
         const request: UpdateTargetingRulesRequest = {
@@ -153,11 +163,10 @@ const FeatureFlagManager = () => {
     };
 
     const handleUpdateVariations = async (variations: Record<string, any>, defaultVariation: string) => {
-        if (!selectedFlag) return;
+        if (readOnly || !selectedFlag) return;
 
         const scopeHeaders = getScopeHeaders(selectedFlag);
-        
-        // Convert variations object to array format expected by API
+
         const variationsArray = Object.entries(variations).map(([key, value]) => ({
             key,
             value: typeof value === 'string' ? value : JSON.stringify(value)
@@ -173,7 +182,7 @@ const FeatureFlagManager = () => {
     };
 
     const handleClearVariations = async () => {
-        if (!selectedFlag) return;
+        if (readOnly || !selectedFlag) return;
 
         const scopeHeaders = getScopeHeaders(selectedFlag);
         const request: UpdateVariationsRequest = {
@@ -192,12 +201,14 @@ const FeatureFlagManager = () => {
         tags?: Record<string, string>;
         notes?: string;
     }) => {
+        if (readOnly) return;
         const scopeHeaders = getScopeHeaders(flag);
         const updateRequest: UpdateFlagRequest = { ...updates };
         await updateFlag(flag.key, updateRequest, scopeHeaders);
     };
 
     const handleDeleteFlag = async (flagKey: string) => {
+        if (readOnly) return;
         try {
             setDeletingFlag(true);
             const flag = flags.find(f => f.key === flagKey) || searchResults.find(f => f.key === flagKey);
@@ -220,6 +231,7 @@ const FeatureFlagManager = () => {
     };
 
     const handleCreateFlag = async (request: CreateFeatureFlagRequest): Promise<void> => {
+        if (readOnly) return;
         await createFlag(request);
         setShowCreateForm(false);
     };
@@ -258,7 +270,7 @@ const FeatureFlagManager = () => {
             params.applicationName = filters.applicationName;
         }
 
-        if (filters.isPermanent !== undefined) { // Add this block
+        if (filters.isPermanent !== undefined) {
             params.isPermanent = filters.isPermanent;
         }
 
@@ -298,7 +310,7 @@ const FeatureFlagManager = () => {
             expiringInDays: undefined,
             scope: undefined,
             applicationName: undefined,
-            isPermanent: undefined, // Add this line
+            isPermanent: undefined,
         });
         await filterFlags({ page: 1, pageSize: pageSize });
         setShowFilters(false);
@@ -330,8 +342,26 @@ const FeatureFlagManager = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            
+
             <div className="max-w-[1600px] mx-auto p-8">
+                {/* Read-only banner */}
+                {readOnly && (
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-sm text-yellow-700">
+                                    You are in <strong>view-only mode</strong>. Contact an administrator to make changes to feature flags.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Action Bar */}
                 <div className="flex justify-end items-center mb-6">
                     <div className="flex gap-3">
@@ -349,13 +379,16 @@ const FeatureFlagManager = () => {
                             <Filter className="w-4 h-4" />
                             Filters
                         </button>
-                        <button
-                            onClick={() => setShowCreateForm(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Create Flag
-                        </button>
+                        {/* Hide Create button for viewers */}
+                        {!readOnly && (
+                            <button
+                                onClick={() => setShowCreateForm(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Create Flag
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -406,7 +439,7 @@ const FeatureFlagManager = () => {
                                             flag={flag}
                                             isSelected={selectedFlag?.key === flag.key}
                                             onClick={() => selectFlag(flag)}
-                                            onDelete={(key) => setShowDeleteConfirm(key)}
+                                            onDelete={readOnly ? undefined : (key) => setShowDeleteConfirm(key)}
                                         />
                                     ))
                                 ) : (
@@ -431,7 +464,7 @@ const FeatureFlagManager = () => {
                                         flag={flag}
                                         isSelected={selectedFlag?.key === flag.key}
                                         onClick={() => selectFlag(flag)}
-                                        onDelete={(key) => setShowDeleteConfirm(key)}
+                                        onDelete={readOnly ? undefined : (key) => setShowDeleteConfirm(key)}
                                     />
                                 ))
                             )}
@@ -459,8 +492,10 @@ const FeatureFlagManager = () => {
                                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Flag Details</h2>
                                 <FlagDetails
                                     flag={selectedFlag}
+                                    readOnly={readOnly}
                                     onToggle={quickToggle}
                                     onUpdateUserAccess={(allowedUsers, blockedUsers, percentage) => {
+                                        if (readOnly) return Promise.resolve(selectedFlag);
                                         const scopeHeaders = getScopeHeaders(selectedFlag);
                                         const request: ManageUserAccessRequest = {};
                                         if (allowedUsers !== undefined) request.allowed = allowedUsers;
@@ -469,6 +504,7 @@ const FeatureFlagManager = () => {
                                         return updateUserAccess(selectedFlag.key, request, scopeHeaders);
                                     }}
                                     onUpdateTenantAccess={(allowedTenants, blockedTenants, percentage) => {
+                                        if (readOnly) return Promise.resolve(selectedFlag);
                                         const scopeHeaders = getScopeHeaders(selectedFlag);
                                         const request: ManageTenantAccessRequest = {};
                                         if (allowedTenants !== undefined) request.allowed = allowedTenants;
@@ -484,7 +520,7 @@ const FeatureFlagManager = () => {
                                     onUpdateTimeWindow={handleUpdateTimeWindow}
                                     onClearTimeWindow={handleClearTimeWindow}
                                     onUpdateFlag={handleUpdateFlag}
-                                    onDelete={(key) => setShowDeleteConfirm(key)}
+                                    onDelete={readOnly ? undefined : (key) => setShowDeleteConfirm(key)}
                                     onEvaluateFlag={handleEvaluateFlag}
                                     evaluationResult={selectedFlag ? evaluationResults[selectedFlag.key] : undefined}
                                     evaluationLoading={selectedFlag ? evaluationLoading[selectedFlag.key] || false : false}
@@ -500,20 +536,25 @@ const FeatureFlagManager = () => {
                     </div>
                 </div>
 
-                <CreateFlagModal
-                    isOpen={showCreateForm}
-                    onClose={() => setShowCreateForm(false)}
-                    onSubmit={handleCreateFlag}
-                />
+                {/* Only show modals if not read-only */}
+                {!readOnly && (
+                    <>
+                        <CreateFlagModal
+                            isOpen={showCreateForm}
+                            onClose={() => setShowCreateForm(false)}
+                            onSubmit={handleCreateFlag}
+                        />
 
-                <DeleteConfirmationModal
-                    isOpen={!!showDeleteConfirm}
-                    flagKey={showDeleteConfirm || ''}
-                    flagName={flags.find(f => f.key === showDeleteConfirm)?.name || searchResults.find(f => f.key === showDeleteConfirm)?.name || ''}
-                    isDeleting={deletingFlag}
-                    onConfirm={() => showDeleteConfirm && handleDeleteFlag(showDeleteConfirm)}
-                    onCancel={() => setShowDeleteConfirm(null)}
-                />
+                        <DeleteConfirmationModal
+                            isOpen={!!showDeleteConfirm}
+                            flagKey={showDeleteConfirm || ''}
+                            flagName={flags.find(f => f.key === showDeleteConfirm)?.name || searchResults.find(f => f.key === showDeleteConfirm)?.name || ''}
+                            isDeleting={deletingFlag}
+                            onConfirm={() => showDeleteConfirm && handleDeleteFlag(showDeleteConfirm)}
+                            onCancel={() => setShowDeleteConfirm(null)}
+                        />
+                    </>
+                )}
             </div>
         </div>
     );

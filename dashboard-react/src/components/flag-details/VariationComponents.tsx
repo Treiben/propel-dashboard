@@ -8,6 +8,7 @@ interface VariationSectionProps {
 	onUpdateVariations?: (variations: Record<string, any>, defaultVariation: string) => Promise<void>;
 	onClearVariations?: () => Promise<void>;
 	operationLoading: boolean;
+	readOnly?: boolean; // Add readOnly prop
 }
 
 interface VariationForm {
@@ -90,7 +91,8 @@ export const VariationSection: React.FC<VariationSectionProps> = ({
 	flag,
 	onUpdateVariations,
 	onClearVariations,
-	operationLoading
+	operationLoading,
+	readOnly = false // Default to false
 }) => {
 	const [editingVariations, setEditingVariations] = useState(false);
 	const [variationsForm, setVariationsForm] = useState<VariationForm[]>([]);
@@ -126,7 +128,7 @@ export const VariationSection: React.FC<VariationSectionProps> = ({
 	}, [flag.key, flag.variations]);
 
 	const handleVariationsSubmit = async () => {
-		if (!onUpdateVariations) return;
+		if (!onUpdateVariations || readOnly) return;
 
 		try {
 			const variations: Record<string, any> = {};
@@ -145,7 +147,7 @@ export const VariationSection: React.FC<VariationSectionProps> = ({
 	};
 
 	const handleClearVariations = async () => {
-		if (!onClearVariations) return;
+		if (!onClearVariations || readOnly) return;
 
 		try {
 			await onClearVariations();
@@ -203,33 +205,34 @@ export const VariationSection: React.FC<VariationSectionProps> = ({
 					<h4 className="font-medium text-gray-900">Variations</h4>
 					<InfoTooltip content="Custom variations define different feature values returned when the flag is enabled. Users can receive different variations based on targeting rules or hash-based selection." />
 				</div>
-				<div className="flex gap-2">
-					<button
-						onClick={() => setEditingVariations(true)
-						}
-						disabled={operationLoading}
-						className={`text-sm flex items-center gap-1 disabled:opacity-50 ${variationStyles.buttonText} ${variationStyles.buttonHover}`}
-						data-testid="edit-variations-button"
-					>
-						<Palette className="w-4 h-4" />
-						Configure Variations
-					</button>
-					{hasVariations && (
+				{!readOnly && (
+					<div className="flex gap-2">
 						<button
-							onClick={handleClearVariations}
+							onClick={() => setEditingVariations(true)}
 							disabled={operationLoading}
-							className="text-red-600 hover:text-red-800 text-sm flex items-center gap-1 disabled:opacity-50"
-							title="Clear All Variations"
-							data-testid="clear-variations-button"
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${variationStyles.buttonText} ${variationStyles.buttonHover}`}
+							data-testid="edit-variations-button"
 						>
-							<X className="w-4 h-4" />
-							Clear
+							<Palette className="w-4 h-4" />
+							Configure Variations
 						</button>
-					)}
-				</div>
+						{hasVariations && (
+							<button
+								onClick={handleClearVariations}
+								disabled={operationLoading}
+								className="text-red-600 hover:text-red-800 text-sm flex items-center gap-1 disabled:opacity-50"
+								title="Clear All Variations"
+								data-testid="clear-variations-button"
+							>
+								<X className="w-4 h-4" />
+								Clear
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
-			{editingVariations ? (
+			{editingVariations && !readOnly ? (
 				<div className={`${variationStyles.bg} ${variationStyles.border} border rounded-lg p-4`}>
 					<div className="space-y-4">
 						<div className="flex justify-between items-center">
@@ -366,10 +369,10 @@ export const VariationSection: React.FC<VariationSectionProps> = ({
 							</div>
 							<div className="flex items-center gap-2">
 								<span className="font-medium">Default:</span>
-									<span className={`text-xs ${schedulingStyles.bg} ${schedulingStyles.text} px-2 py-1 rounded font-mono`}>
+								<span className={`text-xs ${schedulingStyles.bg} ${schedulingStyles.text} px-2 py-1 rounded font-mono`}>
 									{defaultVariation}
 								</span>
-									<span className={`${schedulingStyles.textPrimary}`}>
+								<span className={`${schedulingStyles.textPrimary}`}>
 									→ {formatVariationValue(variations[defaultVariation])}
 								</span>
 							</div>
