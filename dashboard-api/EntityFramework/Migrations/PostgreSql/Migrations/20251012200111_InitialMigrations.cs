@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,7 +56,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
                     action = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     actor = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     timestamp = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
-                    notes = table.Column<string>(type: "text", nullable: true)
+                    notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -78,6 +78,22 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_feature_flags_metadata", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "feature-flags-users",
+                columns: table => new
+                {
+                    username = table.Column<string>(name: "user-name", type: "character varying(255)", maxLength: 255, nullable: false),
+                    password = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    role = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false, defaultValue: "Viewer"),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW()"),
+                    last_login_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_feature-flags-users", x => x.username);
                 });
 
             migrationBuilder.CreateIndex(
@@ -103,6 +119,9 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
 
             migrationBuilder.DropTable(
                 name: "feature_flags_metadata");
+
+            migrationBuilder.DropTable(
+                name: "feature-flags-users");
         }
     }
 }

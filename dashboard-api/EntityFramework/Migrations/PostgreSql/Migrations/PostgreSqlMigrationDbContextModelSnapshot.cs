@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
@@ -12,11 +11,9 @@ using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql.Migrations
 {
     [DbContext(typeof(PostgreSqlMigrationDbContext))]
-    [Migration("20251010201413_InitialCreate")]
-    partial class InitialCreate
+    partial class PostgreSqlMigrationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,7 +211,8 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
                         .HasColumnName("flag_key");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("notes");
 
                     b.Property<DateTimeOffset>("Timestamp")
@@ -283,6 +281,48 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
                         .IsUnique();
 
                     b.ToTable("feature_flags_metadata", (string)null);
+                });
+
+            modelBuilder.Entity("Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities.User", b =>
+                {
+                    b.Property<string>("Username")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("user-name");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("password");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasDefaultValue("Viewer")
+                        .HasColumnName("role");
+
+                    b.HasKey("Username");
+
+                    b.ToTable("feature-flags-users", (string)null);
                 });
 #pragma warning restore 612, 618
         }
