@@ -11,6 +11,7 @@ public class SqlServerMigrationDbContext(DbContextOptions<SqlServerMigrationDbCo
 		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.FeatureFlagConfiguration());
 		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.FeatureFlagMetadataConfiguration());
 		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.FeatureFlagAuditConfiguration());
+		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.UserConfiguration());
 	}
 }
 

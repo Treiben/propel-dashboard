@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Propel.FeatureFlags.Dashboard.Api;
-using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations;
 using Propel.FeatureFlags.Dashboard.Api.Healthchecks;
+using Propel.FeatureFlags.Dashboard.Api.Security;
 using Propel.FeatureFlags.Infrastructure;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,7 @@ builder.Services.AddHttpContextAccessor();
 // Configure dashboard-specific services
 builder.ConfigureFeatureFlags(options =>
 {
-	options.Cache = new CacheOptions // Configure caching (optional, but recommended for performance and scalability)
+	options.Cache = new CacheOptions
 	{
 		EnableInMemoryCache = false,
 		EnableDistributedCache = true,
@@ -31,17 +34,16 @@ builder.Services.AddCors(options =>
 	options.AddPolicy("AllowFrontend", policy =>
 	{
 		policy.WithOrigins(
-				"http://localhost:3000",  // React dev server
-				"https://localhost:3000", // React dev server HTTPS
-				"http://localhost:5173",  // Vite default port
-				"https://localhost:5173"  // Vite default port HTTPS
+				"http://localhost:3000",
+				"https://localhost:3000",
+				"http://localhost:5173",
+				"https://localhost:5173"
 			)
 			.AllowAnyMethod()
 			.AllowAnyHeader()
 			.AllowCredentials();
 	});
 
-	// Allow all origins for development (less secure, use only for dev)
 	options.AddPolicy("AllowAll", policy =>
 	{
 		policy.AllowAnyOrigin()
@@ -50,35 +52,66 @@ builder.Services.AddCors(options =>
 	});
 });
 
-// Configure authentication and authorization
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+// Configure JWT authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(options =>
+	{
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = builder.Configuration["Jwt:Issuer"],
+			ValidAudience = builder.Configuration["Jwt:Audience"],
+			IssuerSigningKey = new SymmetricSecurityKey(
+				Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ??
+					throw new InvalidOperationException("JWT secret not configured")))
+		};
+	});
+
+// Configure authorization policies
 builder.Services.AddAuthorizationBuilder()
 	.AddPolicy("ApiScope", policy =>
 	{
 		policy.RequireAuthenticatedUser();
 		policy.RequireClaim("scope", "propel-dashboard-api");
 	})
-	.AddFallbackPolicy("RequiresReadRights", AuthorizationPolicies.HasReadActionPolicy);
+	.AddPolicy("AdminOnly", policy =>
+	{
+		policy.RequireAuthenticatedUser();
+		policy.RequireRole("Admin");
+	})
+	.AddPolicy("CanWrite", policy =>
+	{
+		policy.RequireAuthenticatedUser();
+		policy.RequireClaim("scope", "write");
+	})
+	.AddFallbackPolicy("RequiresAuth", policy =>
+	{
+		policy.RequireAuthenticatedUser();
+	});
 
 var app = builder.Build();
 
-// Apply database migrations on startup (development only)
+// Apply database migrations and seed default admin
 if (app.Environment.IsDevelopment())
 {
 	await app.MigrateDatabaseAsync();
+	await app.SeedDefaultAdminAsync();
 }
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 app.UseHttpsRedirection();
 
-// Use CORS - must be before UseAuthentication and UseAuthorization
+// CORS must be before Authentication/Authorization
 if (app.Environment.IsDevelopment())
 {
-	app.UseCors("AllowAll"); // More permissive for development
+	app.UseCors("AllowAll");
 }
 else
 {
-	app.UseCors("AllowFrontend"); // Restricted for production
+	app.UseCors("AllowFrontend");
 }
 
 app.UseStatusCodePages();

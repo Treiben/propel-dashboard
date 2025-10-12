@@ -253,4 +253,43 @@ public static class PostgreSqlConfigurations
 			builder.Property(e => e.Tags).HasColumnType("jsonb");
 		}
 	}
+
+	public class UserConfiguration : IEntityTypeConfiguration<User>
+	{
+		public void Configure(EntityTypeBuilder<User> builder)
+		{
+			builder.ToTable("feature-flags-users");
+			builder.HasKey(u => u.Username);
+
+			builder.Property(e => e.Username)
+					.HasColumnName("user-name")
+					.HasMaxLength(255)
+					.IsRequired();
+
+			builder.Property(e => e.Password)
+					.HasColumnName("password")
+					.HasMaxLength(255)
+					.IsRequired();
+
+			builder.Property(e => e.Role)
+					.HasColumnName("role")
+					.HasMaxLength(255)
+					.IsRequired()
+					.HasDefaultValue("Viewer");
+
+			builder.Property(e => e.CreatedAt)
+					.HasColumnName("created_at")
+					.HasDefaultValueSql("NOW()") // PostgreSQL function
+					.IsRequired();
+
+			builder.Property(e => e.LastLoginAt)
+					.HasColumnName("last_login_at")
+					.IsRequired(false);
+
+			builder.Property(e => e.IsActive)
+					.HasColumnName("is_active")
+					.HasDefaultValue(false)
+					.IsRequired();
+		}
+	}
 }

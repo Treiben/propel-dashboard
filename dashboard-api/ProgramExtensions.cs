@@ -4,9 +4,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Propel.FeatureFlags.Clients;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
-using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
+using Propel.FeatureFlags.Dashboard.Api.Security;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.FlagEvaluators;
 using Propel.FeatureFlags.Infrastructure;
@@ -73,6 +73,7 @@ public static class ProgramExtensions
 	{
 		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
 		services.TryAddScoped<IAdministrationService, AdministrationService>();
+		services.TryAddScoped<IUserAdministrationService, UserAdministrationService>();
 		services.TryAddScoped<ICacheInvalidationService, CacheInvalidationService>();
 
 		services.AddValidators();

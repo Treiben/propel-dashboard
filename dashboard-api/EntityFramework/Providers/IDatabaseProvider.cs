@@ -11,9 +11,9 @@ public interface IDatabaseProvider
 	Task<FeatureFlag> UpdateAsync(FeatureFlag flag, CancellationToken cancellationToken = default);
 	Task<FeatureFlag> UpdateMetadataAsync(FeatureFlag flag, CancellationToken cancellationToken = default);
 	Task<bool> DeleteAsync(FlagIdentifier identifier, string userid, string notes, CancellationToken cancellationToken = default);
-	string BuildFilterQuery(int page, int pageSize, FeatureFlagFilter filter);
-	string BuildCountQuery(FeatureFlagFilter filter);
-	(string whereClause, Dictionary<string, object> parameters) BuildFilterConditions(FeatureFlagFilter filter);
+	string BuildFilterQuery(int page, int pageSize, FeatureFlagFilter? filter);
+	string BuildCountQuery(FeatureFlagFilter? filter);
+	(string whereClause, Dictionary<string, object> parameters) BuildFilterConditions(FeatureFlagFilter? filter);
 }
 
 public abstract class DashboardDbContext(DbContextOptions options) : DbContext(options)
@@ -21,4 +21,5 @@ public abstract class DashboardDbContext(DbContextOptions options) : DbContext(o
 	public DbSet<Entities.FeatureFlag> FeatureFlags { get; set; } = null!;
 	public DbSet<Entities.FeatureFlagMetadata> FeatureFlagMetadata { get; set; } = null!;
 	public DbSet<Entities.FeatureFlagAudit> FeatureFlagAudit { get; set; } = null!;
+	public DbSet<Entities.User> Users { get; set; } = null!;
 }

@@ -13,6 +13,7 @@ public class PostgreSqlDbContext(DbContextOptions<PostgreSqlDbContext> options) 
 		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.FeatureFlagConfiguration());
 		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.FeatureFlagMetadataConfiguration());
 		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.FeatureFlagAuditConfiguration());
+		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.UserConfiguration());
 	}
 }
 
@@ -219,7 +220,7 @@ END $$;";
 		_ = await Context.Database.ExecuteSqlRawAsync(sql, cancellationToken);
 		return true;
 	}
-	public string BuildFilterQuery(int page, int pageSize, FeatureFlagFilter filter)
+	public string BuildFilterQuery(int page, int pageSize, FeatureFlagFilter? filter)
 	{
 		var sql = $@"
 			WITH latest_audit AS ( 
@@ -259,7 +260,7 @@ END $$;";
 
 		if (filter != null)
 		{
-			var (whereClause, parameters) = BuildFilterConditions(filter);
+			var (whereClause, _) = BuildFilterConditions(filter);
 			sql += $" {whereClause} ";
 		}
 
@@ -269,7 +270,7 @@ END $$;";
 			FETCH NEXT {pageSize} ROWS ONLY";
 	}
 
-	public string BuildCountQuery(FeatureFlagFilter filter)
+	public string BuildCountQuery(FeatureFlagFilter? filter)
 	{
 		var sql = $@"SELECT COUNT(*) 
 		FROM feature_flags ff 
@@ -279,14 +280,14 @@ END $$;";
 
 		if (filter != null)
 		{
-			var (whereClause, parameters) = BuildFilterConditions(filter);
+			var (whereClause, _) = BuildFilterConditions(filter);
 			return sql += $@"{whereClause}";
 		}
 
 		return sql;
 	}
 
-	public (string whereClause, Dictionary<string, object> parameters) BuildFilterConditions(FeatureFlagFilter filter)
+	public (string whereClause, Dictionary<string, object> parameters) BuildFilterConditions(FeatureFlagFilter? filter)
 	{
 		var conditions = new List<string>();
 		var parameters = new Dictionary<string, object>();

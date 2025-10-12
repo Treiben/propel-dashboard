@@ -276,4 +276,44 @@ public static class SqlServerConfigurations
 				.IsUnique();
 		}
 	}
+
+	public class UserConfiguration : IEntityTypeConfiguration<User>
+	{
+		public void Configure(EntityTypeBuilder<User> builder)
+		{
+			builder.ToTable("FeatureFlagsUsers");
+			builder.HasKey(u => u.Username);
+
+			builder.Property(e => e.Username)
+				.HasColumnName("UserName")  // Fixed: Username maps to UserName column
+				.HasMaxLength(255)
+				.IsRequired();
+
+			builder.Property(e => e.Password)  // Fixed: PasswordHash property (not Username again!)
+				.HasColumnName("Password")
+				.IsRequired();
+
+			builder.Property(e => e.Role)
+				.HasColumnName("Role")
+				.HasMaxLength(255)
+				.IsRequired()
+				.HasDefaultValue("Viewer");
+
+			builder.Property(e => e.CreatedAt)
+				.HasColumnName("CreatedAt")
+				.HasColumnType("DATETIMEOFFSET")
+				.HasDefaultValueSql("GETUTCDATE()")
+				.IsRequired();
+
+			builder.Property(e => e.LastLoginAt)
+				.HasColumnName("LastLoginAt")
+				.HasColumnType("DATETIMEOFFSET")
+				.IsRequired(false);
+
+			builder.Property(e => e.IsActive)
+				.HasColumnName("IsActive")
+				.HasDefaultValue(true)  // Changed to true - users should be active by default
+				.IsRequired();
+		}
+	}
 }

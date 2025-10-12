@@ -13,6 +13,7 @@ public class SqlServerDbContext(DbContextOptions<SqlServerDbContext> options) : 
 		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.FeatureFlagConfiguration());
 		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.FeatureFlagMetadataConfiguration());
 		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.FeatureFlagAuditConfiguration());
+		modelBuilder.ApplyConfiguration(new SqlServerConfigurations.UserConfiguration());
 	}
 }
 
@@ -201,7 +202,7 @@ public class SqlServerProvider(SqlServerDbContext context) : IDatabaseProvider
 		return deletedRows > 0;
 	}
 
-	public string BuildFilterQuery(int page, int pageSize, FeatureFlagFilter filter)
+	public string BuildFilterQuery(int page, int pageSize, FeatureFlagFilter? filter)
 	{
 		var sql = $@"
 			SELECT 
@@ -234,7 +235,7 @@ public class SqlServerProvider(SqlServerDbContext context) : IDatabaseProvider
 
 		if (filter != null)
 		{
-			var (whereClause, parameters) = BuildFilterConditions(filter);
+			var (whereClause, _) = BuildFilterConditions(filter);
 			sql += $" {whereClause} ";
 		}
 
@@ -244,7 +245,7 @@ public class SqlServerProvider(SqlServerDbContext context) : IDatabaseProvider
 			FETCH NEXT {pageSize} ROWS ONLY";
 	}
 
-	public string BuildCountQuery(FeatureFlagFilter filter)
+	public string BuildCountQuery(FeatureFlagFilter? filter)
 	{
 		var sql = $@"SELECT COUNT(*) 
 		FROM FeatureFlags ff 
@@ -254,7 +255,7 @@ public class SqlServerProvider(SqlServerDbContext context) : IDatabaseProvider
 
 		if (filter != null)
 		{
-			var (whereClause, parameters) = BuildFilterConditions(filter);
+			var (whereClause, _) = BuildFilterConditions(filter);
 			return sql += $@"{whereClause}";
 		}
 

@@ -163,7 +163,7 @@ public class AdministrationService(IDatabaseProvider provider, ILogger<Administr
 				"Application name with or without version required for Application scope requests. Pass name and version in headers X-Application-Name, X-Application-Version", logger), null);
 
 		// Resolve flag
-		var identifier = new FlagIdentifier(key, parsedScope, headers.ApplicationName, headers.ApplicationVersion);
+		var identifier = new FlagIdentifier(key, parsedScope, application, version);
 		var flag = await GetByKeyAsync(identifier, cancellationToken);
 		if (flag == null)
 		{
@@ -207,7 +207,7 @@ public class AdministrationService(IDatabaseProvider provider, ILogger<Administr
 		return Convert.ToInt32(scalarResult ?? 0);
 	}
 
-	private FormattableString CreateFormattableString(string sql, Dictionary<string, object> parameters)
+	private static FormattableString CreateFormattableString(string sql, Dictionary<string, object> parameters)
 	{
 		var args = parameters.Values.ToArray();
 		var parameterizedSql = sql;

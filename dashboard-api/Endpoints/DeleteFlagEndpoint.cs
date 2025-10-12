@@ -53,7 +53,7 @@ public sealed class DeleteFlagHandler(
 			}
 
 			var deleteResult = await administrationService.DeleteAsync(flag.Identifier,
-				currentUserService.UserName, "Flag deleted from dashboard", cancellationToken);
+				currentUserService.UserName!, "Flag deleted from dashboard", cancellationToken);
 
 			if (!deleteResult)
 			{

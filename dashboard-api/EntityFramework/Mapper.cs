@@ -41,7 +41,7 @@ public static class Mapper
 				Timestamp: entity.Timestamp,
 				Actor: entity.Actor,
 				Action: entity.Action,
-				Notes: entity.Notes
+				Notes: entity.Notes!
 			);
 
 	public static FlagEvaluationOptions MapConfigurationToDomain(Entities.FeatureFlag entity)

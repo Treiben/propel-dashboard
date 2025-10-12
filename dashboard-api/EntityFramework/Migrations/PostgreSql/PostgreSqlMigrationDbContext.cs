@@ -14,6 +14,7 @@ public class PostgreSqlMigrationDbContext(DbContextOptions<PostgreSqlMigrationDb
 		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.FeatureFlagConfiguration());
 		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.FeatureFlagMetadataConfiguration());
 		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.FeatureFlagAuditConfiguration());
+		modelBuilder.ApplyConfiguration(new PostgreSqlConfigurations.UserConfiguration());
 	}
 }
 

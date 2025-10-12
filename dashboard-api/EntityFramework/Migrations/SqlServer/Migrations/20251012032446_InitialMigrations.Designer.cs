@@ -12,8 +12,8 @@ using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer;
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerMigrationDbContext))]
-    [Migration("20251011004958_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251012032446_InitialMigrations")]
+    partial class InitialMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -302,6 +302,47 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
                         {
                             t.HasCheckConstraint("CK_metadata_tags_json", "ISJSON(Tags) = 1");
                         });
+                });
+
+            modelBuilder.Entity("Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities.User", b =>
+                {
+                    b.Property<string>("Username")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("UserName");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("DATETIMEOFFSET")
+                        .HasColumnName("CreatedAt")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("IsActive");
+
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("DATETIMEOFFSET")
+                        .HasColumnName("LastLoginAt");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Password");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasDefaultValue("Viewer")
+                        .HasColumnName("Role");
+
+                    b.HasKey("Username");
+
+                    b.ToTable("FeatureFlagsUsers", (string)null);
                 });
 #pragma warning restore 612, 618
         }

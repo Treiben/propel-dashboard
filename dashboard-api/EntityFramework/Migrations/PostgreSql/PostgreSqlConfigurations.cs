@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities;
+using StackExchange.Redis;
 
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
 
@@ -259,6 +260,45 @@ public static class PostgreSqlConfigurations
 			// Create index on the foreign key columns (without FK constraint)
 			builder.HasIndex(e => new { e.FlagKey, e.ApplicationName, e.ApplicationVersion })
 				.IsUnique();
+		}
+	}
+
+	public class UserConfiguration : IEntityTypeConfiguration<User>
+	{
+		public void Configure(EntityTypeBuilder<User> builder)
+		{
+			builder.ToTable("feature-flags-users");
+			builder.HasKey(u => u.Username);
+
+			builder.Property(e => e.Username)
+					.HasColumnName("user-name")
+					.HasMaxLength(255)
+					.IsRequired();
+
+			builder.Property(e => e.Password)
+					.HasColumnName("password")
+					.HasMaxLength(255)
+					.IsRequired();
+
+			builder.Property(e => e.Role)
+					.HasColumnName("role")
+					.HasMaxLength(255)
+					.IsRequired()
+					.HasDefaultValue("Viewer");
+
+			builder.Property(e => e.CreatedAt)
+					.HasColumnName("created_at")
+					.HasDefaultValueSql("NOW()") // PostgreSQL function
+					.IsRequired();
+
+			builder.Property(e => e.LastLoginAt)
+					.HasColumnName("last_login_at")
+					.IsRequired(false);
+
+			builder.Property(e => e.IsActive)
+					.HasColumnName("is_active")
+					.HasDefaultValue(false)
+					.IsRequired();
 		}
 	}
 }

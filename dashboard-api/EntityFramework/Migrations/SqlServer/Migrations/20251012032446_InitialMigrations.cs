@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,6 +89,22 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
                     table.CheckConstraint("CK_metadata_tags_json", "ISJSON(Tags) = 1");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "FeatureFlagsUsers",
+                columns: table => new
+                {
+                    UserName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValue: "Viewer"),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "DATETIMEOFFSET", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    LastLoginAt = table.Column<DateTimeOffset>(type: "DATETIMEOFFSET", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FeatureFlagsUsers", x => x.UserName);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_FeatureFlagsAudit_FlagKey_ApplicationName_ApplicationVersion",
                 table: "FeatureFlagsAudit",
@@ -112,6 +128,9 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
 
             migrationBuilder.DropTable(
                 name: "FeatureFlagsMetadata");
+
+            migrationBuilder.DropTable(
+                name: "FeatureFlagsUsers");
         }
     }
 }

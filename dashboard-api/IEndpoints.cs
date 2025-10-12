@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
+namespace Propel.FeatureFlags.Dashboard.Api;
 
 public interface IEndpoint
 {
