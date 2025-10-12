@@ -9,7 +9,7 @@ using System.Text;
 namespace Propel.FeatureFlags.Dashboard.Api.Security;
 
 public record LoginRequest(string Username, string Password);
-public record LoginResponse(string Token = "", string UserName = "", string Role = "");
+public record LoginResponse(string Token = "", string Username = "", string Role = "");
 public record CreateUserRequest(string Username, string Password, string Role);
 public record UpdateUserRequest(string? Role, string? Password, bool? IsActive);
 public record UserDto(string Username, string Role, bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? LastLoginAt);
@@ -42,7 +42,7 @@ public sealed class AdminEndpoint : IEndpoint
 				// Generate JWT
 				var token = GenerateJwtToken(user, config);
 
-				return Results.Ok(new LoginResponse(Token: token, UserName: user.Username, Role: user.Role));
+				return Results.Ok(new LoginResponse(Token: token, Username: user.Username, Role: user.Role));
 			})
 		.AllowAnonymous()
 		.WithName("Login")
