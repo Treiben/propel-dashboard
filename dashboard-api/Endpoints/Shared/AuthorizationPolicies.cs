@@ -7,12 +7,12 @@ public static class AuthorizationPolicies
 	public static AuthorizationPolicy HasWriteActionPolicy { get; }
 		= new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
-		.RequireClaim("scope", "write")
+		.RequireClaim("scope", "write", "admin")
 		.Build();
 
 	public static AuthorizationPolicy HasReadActionPolicy { get; }
 		= new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
-		.RequireClaim("scope", "read")
+		.RequireClaim("scope", "read", "admin")
 		.Build();
 }

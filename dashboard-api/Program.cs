@@ -90,6 +90,7 @@ builder.Services.AddAuthorizationBuilder()
 	.AddFallbackPolicy("RequiresAuth", policy =>
 	{
 		policy.RequireAuthenticatedUser();
+		policy.RequireClaim("scope", "read");
 	});
 
 var app = builder.Build();
