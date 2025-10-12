@@ -1,56 +1,115 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import FeatureFlagManager from './FeatureFlagManager';
+import Login from './Login';
+import UserManagement from './UserManagement';
 import { apiService } from './services/apiService';
 import { config } from './config/environment';
 import './index.css';
 
+interface UserInfo {
+    username: string;
+    role: string;
+}
+
 function App() {
-	const [tokenReady, setTokenReady] = useState(false);
+    const [user, setUser] = useState<UserInfo | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [currentView, setCurrentView] = useState<'flags' | 'users'>('flags');
 
-	useEffect(() => {
-		// Set the JWT token for API requests
-		const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IkZ1bGxBY2Nlc3NVc2VyIiwic3ViIjoiRnVsbEFjY2Vzc1VzZXIiLCJqdGkiOiJjZDZkMzUxNiIsInNjb3BlIjpbInByb3BlbC1kYXNoYm9hcmQtYXBpIiwicmVhZCIsIndyaXRlIl0sIm5hbWUiOiJUZXN0IFVzZXIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJhdWQiOlsiaHR0cDovL2xvY2FsaG9zdDo1MDM4IiwiaHR0cHM6Ly9sb2NhbGhvc3Q6NzExMyJdLCJuYmYiOjE3NTkxNzcxMzEsImV4cCI6MTc2NzAzOTUzMSwiaWF0IjoxNzU5MTc3MTMyLCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.pfxS09l3Rq_RZCzLuhVWuYlrmVxEWOFlj5n89ywspHA"
+    useEffect(() => {
+        const token = localStorage.getItem(config.JWT_STORAGE_KEY);
+        const userStr = localStorage.getItem('propel-user');
 
-		console.log('App component mounting - setting token...');
-		console.log('Using storage key:', config.JWT_STORAGE_KEY);
+        if (token && userStr) {
+            apiService.auth.setToken(token);
+            setUser(JSON.parse(userStr));
+        }
 
-		// Clear any existing token first
-		localStorage.removeItem(config.JWT_STORAGE_KEY);
+        setLoading(false);
+    }, []);
 
-		// Set the token using both methods to ensure consistency
-		apiService.auth.setToken(token);
-		localStorage.setItem(config.JWT_STORAGE_KEY, token);
+    const handleLoginSuccess = (userInfo: UserInfo) => {
+        setUser(userInfo);
+    };
 
-		// Verify token was set with multiple checks
-		const storedTokenViaService = apiService.auth.getToken();
-		const storedTokenDirect = localStorage.getItem(config.JWT_STORAGE_KEY);
+    const handleLogout = () => {
+        localStorage.removeItem(config.JWT_STORAGE_KEY);
+        localStorage.removeItem('propel-user');
+        apiService.auth.clearToken();
+        setUser(null);
+        setCurrentView('flags');
+    };
 
-		console.log('Token verification via service:', storedTokenViaService ? 'SUCCESS' : 'FAILED');
-		console.log('Token verification direct:', storedTokenDirect ? 'SUCCESS' : 'FAILED');
-		console.log('Tokens match:', storedTokenViaService === storedTokenDirect ? 'YES' : 'NO');
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
-		// Set ready state only after token is confirmed
-		if (storedTokenViaService && storedTokenDirect && storedTokenViaService === storedTokenDirect) {
-			console.log('Token setup complete - rendering FeatureFlagManager');
-			setTokenReady(true);
-		} else {
-			console.error('Token setup failed - tokens do not match or are missing');
-		}
-	}, []);
+    if (!user) {
+        return <Login onLoginSuccess={handleLoginSuccess} />;
+    }
 
-	// Don't render FeatureFlagManager until token is ready
-	if (!tokenReady) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-					<p className="text-gray-600">Setting up authentication...</p>
-				</div>
-			</div>
-		);
-	}
+    const isAdmin = user.role === 'Admin';
 
-	return <FeatureFlagManager />;
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <nav className="bg-white shadow">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16">
+                        <div className="flex">
+                            <div className="flex-shrink-0 flex items-center">
+                                <h1 className="text-xl font-bold text-gray-900">Propel Dashboard</h1>
+                            </div>
+                            <div className="ml-6 flex space-x-8">
+                                <button
+                                    onClick={() => setCurrentView('flags')}
+                                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${currentView === 'flags'
+                                            ? 'border-blue-500 text-gray-900'
+                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        }`}
+                                >
+                                    Feature Flags
+                                </button>
+                                {isAdmin && (
+                                    <button
+                                        onClick={() => setCurrentView('users')}
+                                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${currentView === 'users'
+                                                ? 'border-blue-500 text-gray-900'
+                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                            }`}
+                                    >
+                                        Users
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <span className="text-sm text-gray-700">
+                                {user.username} ({user.role})
+                            </span>
+                            <button
+                                onClick={handleLogout}
+                                className="px-3 py-2 text-sm text-gray-700 hover:text-gray-900"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <main>
+                {currentView === 'flags' && <FeatureFlagManager />}
+                {currentView === 'users' && isAdmin && <UserManagement />}
+            </main>
+        </div>
+    );
 }
 
 export default App;

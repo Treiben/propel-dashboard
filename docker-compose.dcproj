@@ -9,6 +9,7 @@
     <DockerServiceName>dashboard-api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="App.tsx" />
     <None Include="docker-compose.yml" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>

@@ -43,7 +43,7 @@ export interface FlagSchedule {
 }
 
 export interface TimeWindow {
-	startOn?: string; // TimeOnly as string "HH:mm:ss"
+	startOn?: string;
 	stopOn?: string;
 	timeZone: string;
 	daysActive?: number[];
@@ -71,12 +71,12 @@ export interface FeatureFlagDto {
 	timeWindow?: TimeWindow;
 	userAccess?: AccessControl;
 	tenantAccess?: AccessControl;
-	targetingRules: string; // JSON string
+	targetingRules: string;
 	variations: Variations;
 	tags: Record<string, string>;
 	expirationDate?: string;
 	isPermanent: boolean;
-	isLocked: boolean; // Add this line
+	isLocked: boolean;
 	applicationName?: string;
 	applicationVersion?: string;
 	scope: Scope;
@@ -98,10 +98,10 @@ export interface GetFlagsParams {
 	modes?: EvaluationMode[];
 	expiringInDays?: number;
 	tagKeys?: string[];
-	tags?: string[]; // Format: ["key:value", "key2:value2"]
+	tags?: string[];
 	applicationName?: string;
 	scope?: Scope;
-	isPermanent?: boolean; // Add this line
+	isPermanent?: boolean;
 }
 
 export interface TargetingRule {
@@ -111,7 +111,6 @@ export interface TargetingRule {
 	variation: string;
 }
 
-// Request objects matching C# exactly
 export interface CreateFeatureFlagRequest {
 	key: string;
 	name: string;
@@ -123,7 +122,7 @@ export interface UpdateFlagRequest {
 	name?: string;
 	description?: string;
 	tags?: Record<string, string>;
-	isPermanent?: boolean; // Add this line
+	isPermanent?: boolean;
 	expirationDate?: string;
 	notes?: string;
 }
@@ -140,7 +139,7 @@ export interface UpdateScheduleRequest {
 }
 
 export interface UpdateTimeWindowRequest {
-	startOn: string; // TimeOnly as string "HH:mm:ss"
+	startOn: string;
 	endOn: string;
 	timeZone: string;
 	daysActive: number[];
@@ -183,9 +182,48 @@ export interface EvaluationResult {
 }
 
 export interface ScopeHeaders {
-	scope: string; // "Global" or "Application"
+	scope: string;
 	applicationName?: string;
 	applicationVersion?: string;
+}
+
+export interface SearchFeatureFlagRequest {
+	key?: string;
+	name?: string;
+	description?: string;
+}
+
+// Auth types
+export interface LoginRequest {
+	username: string;
+	password: string;
+}
+
+export interface LoginResponse {
+	token: string;
+	username: string;
+	role: string;
+}
+
+export interface UserDto {
+	id: number;
+	username: string;
+	role: string;
+	isActive: boolean;
+	createdAt: string;
+	lastLoginAt?: string;
+}
+
+export interface CreateUserRequest {
+	username: string;
+	password: string;
+	role: string;
+}
+
+export interface UpdateUserRequest {
+	role?: string;
+	password?: string;
+	isActive?: boolean;
 }
 
 // Helper functions
@@ -410,24 +448,21 @@ async function apiRequest<T>(
 
 			try {
 				errorData = await response.json();
-				
-				// RFC 7807 ProblemDetails format (what HttpProblemFactory returns)
+
 				if (errorData.detail) {
 					errorDetail = errorData.detail;
 					errorMessage = errorData.detail;
 				}
-				
+
 				if (errorData.title) {
 					errorTitle = errorData.title;
 				}
-				
-				// Fallback to other formats
+
 				if (!errorDetail && errorData.message) {
 					errorMessage = errorData.message;
 					errorDetail = errorData.message;
 				}
-				
-				// Validation errors format
+
 				if (errorData.errors && typeof errorData.errors === 'object') {
 					const validationMessages = Object.entries(errorData.errors)
 						.map(([field, messages]) => {
@@ -438,10 +473,9 @@ async function apiRequest<T>(
 					errorMessage = validationMessages;
 					errorDetail = validationMessages;
 				}
-				
+
 				throw new ApiError(errorMessage, response.status, errorTitle, errorDetail, errorData);
 			} catch (jsonError) {
-				// If JSON parsing fails or ApiError was thrown, re-throw or create new ApiError
 				if (jsonError instanceof ApiError) {
 					throw jsonError;
 				}
@@ -481,25 +515,70 @@ function buildQueryParams(params: GetFlagsParams): URLSearchParams {
 	if (params.scope !== undefined) {
 		searchParams.append('scope', params.scope.toString());
 	}
-	if (params.isPermanent !== undefined) { // Add this block
+	if (params.isPermanent !== undefined) {
 		searchParams.append('isPermanent', params.isPermanent.toString());
 	}
 	return searchParams;
 }
 
-// Add this interface near the other request interfaces
-export interface SearchFeatureFlagRequest {
-	key?: string;
-	name?: string;
-	description?: string;
-}
-
 // API Service
 export const apiService = {
+	// Get base URL for direct fetch calls
+	getBaseUrl: () => API_BASE_URL,
+
+	// Generic HTTP methods for direct use
+	get: <T = any>(endpoint: string): Promise<T> =>
+		apiRequest<T>(endpoint, { method: 'GET' }),
+
+	post: <T = any>(endpoint: string, body?: any): Promise<T> =>
+		apiRequest<T>(endpoint, {
+			method: 'POST',
+			body: body ? JSON.stringify(body) : undefined
+		}),
+
+	put: <T = any>(endpoint: string, body?: any): Promise<T> =>
+		apiRequest<T>(endpoint, {
+			method: 'PUT',
+			body: body ? JSON.stringify(body) : undefined
+		}),
+
+	delete: <T = any>(endpoint: string): Promise<T> =>
+		apiRequest<T>(endpoint, { method: 'DELETE' }),
+
 	auth: {
 		setToken: TokenManager.setToken,
 		removeToken: TokenManager.removeToken,
-		getToken: TokenManager.getToken
+		clearToken: TokenManager.removeToken,
+		getToken: TokenManager.getToken,
+
+		login: async (request: LoginRequest) => {
+			const response = await apiRequest<LoginResponse>('/auth/login', {
+				method: 'POST',
+				body: JSON.stringify(request)
+			});
+			// Automatically set the token after successful login
+			TokenManager.setToken(response.token);
+			return response;
+		},
+
+		users: {
+			getAll: () => apiRequest<UserDto[]>('/auth/users'),
+
+			create: (request: CreateUserRequest) =>
+				apiRequest<UserDto>('/auth/users', {
+					method: 'POST',
+					body: JSON.stringify(request)
+				}),
+
+			update: (id: number, request: UpdateUserRequest) =>
+				apiRequest<UserDto>(`/auth/users/${id}`, {
+					method: 'PUT',
+					body: JSON.stringify(request)
+				}),
+
+			delete: (id: number) =>
+				apiRequest<void>(`/auth/users/${id}`, { method: 'DELETE' })
+		}
 	},
 
 	health: {

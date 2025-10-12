@@ -136,7 +136,7 @@
 # PROPEL CLI
 
 ## NEW FEATURES
-1. Add CLI commands (maybe)
+~~1. Add CLI commands (crud commands)~~
 
 ~~2. Improve CLI migration: 
 	- embed up/down scripts per db provider
