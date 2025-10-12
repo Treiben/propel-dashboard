@@ -26,12 +26,12 @@ public sealed class UpdateTenantAccessControlEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-			.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
-			.AddEndpointFilter<ValidationFilter<ManageTenantAccessRequest>>()
-			.WithName("UpdateTenantAccessControl")
-			.WithTags("Feature Flags", "Operations", "Tenant Targeting", "Rollout Percentage", "Access Control Management", "Dashboard Api")
-			.Produces<FeatureFlagResponse>()
-			.ProducesValidationProblem();
+		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<ManageTenantAccessRequest>>()
+		.WithName("UpdateTenantAccessControl")
+		.WithTags("Feature Flags", "Operations", "Tenant Targeting", "Rollout Percentage", "Access Control Management", "Dashboard Api")
+		.Produces<FeatureFlagResponse>()
+		.ProducesValidationProblem();
 	}
 }
 
@@ -109,10 +109,7 @@ public sealed class ManageTenantAccessHandler(
 		var metadata = flag.Administration with
 		{
 			ChangeHistory = [.. flag.Administration.ChangeHistory,
-				AuditTrail.FlagModified(currentUserService.UserName!, notes: request.Notes ??  $"Updated tenant access control: " +
-					$"AllowedTenants=[{string.Join(", ", accessControl.Allowed)}], " +
-					$"BlockedTenants=[{string.Join(", ", accessControl.Blocked)}], " +
-					$"RolloutPercentage={accessControl.RolloutPercentage}%")]
+				AuditTrail.FlagModified(currentUserService.UserName!, notes: request.Notes ??  $"Updated tenant access control")]
 		};
 
 		return flag with { EvaluationOptions = configuration, Administration = metadata };
@@ -139,6 +136,10 @@ public sealed class ManageTenantAccessRequestValidator : AbstractValidator<Manag
 			.Must(c => c.Blocked!.Any(b => c.Allowed!.Contains(b)) == false)
 			.When(c => c.Blocked != null && c.Allowed != null)
 			.WithMessage("Tenants cannot be in both allowed and blocked lists");
+
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 }
 

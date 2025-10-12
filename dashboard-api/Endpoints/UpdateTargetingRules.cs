@@ -28,12 +28,12 @@ public sealed class UpdateTargetingRulesEndpoint : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-			.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
-			.AddEndpointFilter<ValidationFilter<UpdateTargetingRulesRequest>>()
-			.WithName("UpdateTargetingRules")
-			.WithTags("Feature Flags", "Operations", "Custom Targeting", "Targeting Rules", "Dashboard Api")
-			.Produces<FeatureFlagResponse>()
-			.ProducesValidationProblem();
+		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<UpdateTargetingRulesRequest>>()
+		.WithName("UpdateTargetingRules")
+		.WithTags("Feature Flags", "Operations", "Custom Targeting", "Targeting Rules", "Dashboard Api")
+		.Produces<FeatureFlagResponse>()
+		.ProducesValidationProblem();
 	}
 }
 
@@ -90,9 +90,11 @@ public sealed class UpdateTargetingRulesHandler(
 			// Remove the TargetingRules mode
 			modes.Remove(EvaluationMode.TargetingRules);
 			// Clear existing targeting rules
-			configuration = oldconfig with {
+			configuration = oldconfig with
+			{
 				ModeSet = modes.Count == 0 ? EvaluationMode.Off : new ModeSet(modes),
-				TargetingRules = [] };
+				TargetingRules = []
+			};
 			// add to change history
 			metadata = flag.Administration with
 			{
@@ -119,7 +121,7 @@ public sealed class UpdateTargetingRulesHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, request.Notes ?? "Targeting rules updated")]
+					AuditTrail.FlagModified(currentUserService.UserName!, request.Notes ?? "Targeting rules modified")]
 			};
 		}
 
@@ -142,10 +144,14 @@ public sealed class UpdateTargetingRulesRequestValidator : AbstractValidator<Upd
 
 		// Ensure no duplicate attribute-operator combinations
 		RuleFor(x => x.TargetingRules)
-			.Must(rules => rules == null || 
+			.Must(rules => rules == null ||
 				rules.GroupBy(r => new { r.Attribute, r.Operator }).All(g => g.Count() == 1))
 			.When(x => !x.RemoveTargetingRules)
 			.WithMessage("Duplicate attribute-operator combinations are not allowed");
+
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 }
 

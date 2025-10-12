@@ -26,12 +26,12 @@ public sealed class UpdateUserAccessControlEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-			.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
-			.AddEndpointFilter<ValidationFilter<ManageUserAccessRequest>>()
-			.WithName("UpdateUserAccessControl")
-			.WithTags("Feature Flags", "Operations", "User Targeting", "Rollout Percentage", "Access Control Management", "Dashboard Api")
-			.Produces<FeatureFlagResponse>()
-			.ProducesValidationProblem();
+		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<ManageUserAccessRequest>>()
+		.WithName("UpdateUserAccessControl")
+		.WithTags("Feature Flags", "Operations", "User Targeting", "Rollout Percentage", "Access Control Management", "Dashboard Api")
+		.Produces<FeatureFlagResponse>()
+		.ProducesValidationProblem();
 	}
 }
 
@@ -108,10 +108,7 @@ public sealed class ManageUserAccessHandler(
 		var metadata = flag.Administration with
 		{
 			ChangeHistory = [.. flag.Administration.ChangeHistory,
-				AuditTrail.FlagModified(currentUserService.UserName!, notes: request.Notes ??  $"Updated user access control: " +
-					$"AllowedUsers=[{string.Join(", ", accessControl.Allowed)}], " +
-					$"BlockedUsers=[{string.Join(", ", accessControl.Blocked)}], " +
-					$"RolloutPercentage={accessControl.RolloutPercentage}%")]
+				AuditTrail.FlagModified(currentUserService.UserName!, notes: request.Notes ??  $"Updated user access control")]
 		};
 
 		return flag with { EvaluationOptions = configuration, Administration = metadata };
@@ -138,6 +135,10 @@ public sealed class ManageUserAccessRequestValidator : AbstractValidator<ManageU
 			.Must(c => c.Blocked!.Any(b => c.Allowed!.Contains(b)) == false)
 			.When(c => c.Blocked != null && c.Allowed != null)
 			.WithMessage("Users cannot be in both allowed and blocked lists");
+
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 }
 

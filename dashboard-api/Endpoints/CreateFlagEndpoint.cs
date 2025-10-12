@@ -26,11 +26,11 @@ public sealed class CreateFlagEndpoint : IEndpoint
 			async (CreateGlobalFeatureFlagRequest request,
 					CreateGlobalFlagHandler createFlagHandler,
 					CancellationToken cancellationToken) =>
-		{
-			return await createFlagHandler.HandleAsync(request, cancellationToken);
-		})
-		.AddEndpointFilter<ValidationFilter<CreateGlobalFeatureFlagRequest>>()
+			{
+				return await createFlagHandler.HandleAsync(request, cancellationToken);
+			})
 		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<CreateGlobalFeatureFlagRequest>>()
 		.WithName("CreateFeatureFlag")
 		.WithTags("Feature Flags", "CRUD Operations", "Create", "Dashboard Api")
 		.Produces<FeatureFlagResponse>(StatusCodes.Status201Created)

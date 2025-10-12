@@ -27,8 +27,8 @@ public sealed class ToggleFlagEndpoint : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.AddEndpointFilter<ValidationFilter<ToggleFlagRequest>>()
 		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<ToggleFlagRequest>>()
 		.WithName("ToggleFlag")
 		.WithTags("Feature Flags", "Operations", "Toggle Control", "Dashboard Api")
 		.Produces<FeatureFlagResponse>()
@@ -118,9 +118,7 @@ public sealed class ToggleFlagRequestValidator : AbstractValidator<ToggleFlagReq
 			.WithMessage("EvaluationMode must be a valid value (Enabled or Disabled)");
 
 		RuleFor(x => x.Notes)
-			.NotEmpty()
-			.WithMessage("Reason for toggling the flag is required")
-			.MaximumLength(500)
-			.WithMessage("Reason cannot exceed 500 characters");
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 }

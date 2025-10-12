@@ -28,8 +28,8 @@ public sealed class UpdateScheduleEndpoint : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.AddEndpointFilter<ValidationFilter<UpdateScheduleRequest>>()
 		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<UpdateScheduleRequest>>()
 		.WithName("SetSchedule")
 		.WithTags("Feature Flags", "Lifecycle Management", "Operations", "Dashboard Api")
 		.Produces<FeatureFlagResponse>()
@@ -158,5 +158,9 @@ public sealed class UpdateScheduleRequestValidator : AbstractValidator<UpdateSch
 			.GreaterThan(x => x.EnableOn)
 			.When(x => x.EnableOn.HasValue && x.DisableOn.HasValue)
 			.WithMessage("Disable date must be after enable date");
+
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 }

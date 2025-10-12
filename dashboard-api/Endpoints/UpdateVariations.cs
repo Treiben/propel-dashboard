@@ -29,11 +29,12 @@ public sealed class UpdateVariationsEndpoints : IEndpoint
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), 
 						request, cancellationToken);
 			})
-			.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
-			.WithName("UpdateVariations")
-			.WithTags("Feature Flags", "Operations", "Custom Targeting", "Variations", "Dashboard Api")
-			.Produces<FeatureFlagResponse>()
-			.ProducesValidationProblem();
+		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<UpdateVariationsRequest>>()
+		.WithName("UpdateVariations")
+		.WithTags("Feature Flags", "Operations", "Custom Targeting", "Variations", "Dashboard Api")
+		.Produces<FeatureFlagResponse>()
+		.ProducesValidationProblem();
 	}
 }
 
@@ -110,5 +111,15 @@ public sealed class UpdateVariationsHandler(
 		}
 
 		return flag with { Administration = metadata, EvaluationOptions = configuration };
+	}
+}
+
+public sealed class UpdateVariationsRequestValidator : AbstractValidator<UpdateVariationsRequest>
+{
+	public UpdateVariationsRequestValidator()
+	{
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 }

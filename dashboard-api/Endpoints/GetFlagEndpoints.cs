@@ -105,8 +105,8 @@ public sealed class GetFlagEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(request, cancellationToken);
 			})
-		.AddEndpointFilter<ValidationFilter<GetFeatureFlagRequest>>()
 		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.AddEndpointFilter<ValidationFilter<GetFeatureFlagRequest>>()
 		.WithName("GetFlagsWithPageOrFilter")
 		.WithTags("Feature Flags", "CRUD Operations", "Read", "Dashboard Api", "Paging, Filtering")
 		.Produces<PagedFeatureFlagsResponse>();

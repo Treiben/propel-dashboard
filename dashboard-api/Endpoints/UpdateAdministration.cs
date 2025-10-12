@@ -30,8 +30,8 @@ public sealed class UpdateAdministrationEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.AddEndpointFilter<ValidationFilter<UpdateFlagRequest>>()
 		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.AddEndpointFilter<ValidationFilter<UpdateFlagRequest>>()
 		.WithName("UpdateFeatureFlag")
 		.WithTags("Feature Flags", "CRUD Operations", "Update", "Dashboard Api")
 		.Produces<FeatureFlagResponse>()
@@ -114,6 +114,10 @@ public sealed class UpdateFlagRequestValidator : AbstractValidator<UpdateFlagReq
 			.MaximumLength(1000)
 			.When(c => !string.IsNullOrEmpty(c.Description))
 			.WithMessage("Feature flag description cannot exceed 1000 characters");
+
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 
 		RuleFor(c => c.ExpirationDate)
 			.GreaterThan(DateTimeOffset.UtcNow)

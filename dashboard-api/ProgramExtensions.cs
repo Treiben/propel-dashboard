@@ -93,6 +93,7 @@ public static class ProgramExtensions
 		services.AddScoped<IValidator<UpdateTimeWindowRequest>, UpdateTimeWindowRequestValidator>();
 		services.AddScoped<IValidator<UpdateTargetingRulesRequest>, UpdateTargetingRulesRequestValidator>();
 		services.AddScoped<IValidator<TargetingRuleRequest>, TargetingRuleDtoValidator>();
+		services.AddScoped<IValidator<UpdateVariationsRequest>, UpdateVariationsRequestValidator>();
 
 		return services;
 	}

@@ -33,12 +33,12 @@ public sealed class UpdateTimeWindowEndpoint : IEndpoint
 		{
 			return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 		})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
-		.AddEndpointFilter<ValidationFilter<UpdateTimeWindowRequest>>()
-		.WithName("SetTimeWindow")
-		.WithTags("Feature Flags", "Lifecycle Management", "Operations", "Dashboard Api")
-		.Produces<FeatureFlagResponse>()
-		.ProducesValidationProblem();
+	.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+	.AddEndpointFilter<ValidationFilter<UpdateTimeWindowRequest>>()
+	.WithName("SetTimeWindow")
+	.WithTags("Feature Flags", "Lifecycle Management", "Operations", "Dashboard Api")
+	.Produces<FeatureFlagResponse>()
+	.ProducesValidationProblem();
 	}
 }
 
@@ -153,6 +153,10 @@ public sealed class UpdateTimeWindowRequestValidator : AbstractValidator<UpdateT
 			.Must(BeValidTimeZone)
 			.When(c => !c.RemoveTimeWindow && c.StartOn != TimeOnly.MinValue)
 			.WithMessage("Time zone is required when setting a time window and must be a time zone identifier");
+
+		RuleFor(x => x.Notes)
+			.MaximumLength(1000)
+			.WithMessage("Notes cannot exceed 1000 characters");
 	}
 
 	private static bool BeValidTimeZone(string? timeZone)

@@ -34,10 +34,10 @@ public sealed class EvaluateFlagEndpoints : IEndpoint
 					attributes: null,
 					cancellationToken);
 			})
-			.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
-			.WithName("EvaluateFeatureFlag")
-			.WithTags("Feature Flags", "Evaluations", "Dashboard Api")
-			.Produces<EvaluationResult>();
+		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.WithName("EvaluateFeatureFlag")
+		.WithTags("Feature Flags", "Evaluations", "Dashboard Api")
+		.Produces<EvaluationResult>();
 	}
 }
 
