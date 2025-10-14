@@ -10,7 +10,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.Security;
 
 public record LoginRequest(string Username, string Password);
 public record LoginResponse(string Token = "", string Username = "", string Role = "");
-public record CreateUserRequest(string Username, string Password, string Role);
+public record CreateUserRequest(string Username, string Password, string Role, bool ForcePasswordChange);
 public record UpdateUserRequest(string? Role, string? Password, bool? IsActive);
 public record UserDto(string Username, string Role, bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? LastLoginAt);
 
@@ -74,7 +74,7 @@ public sealed class AdminEndpoint : IEndpoint
 				if (await userAdministrationService.GetActiveUserAsync(request.Username, cancellationToken) is not null)
 					return Results.BadRequest("Username already exists");
 
-				var created = await userAdministrationService.CreateUserAsync(request.Username, request.Role, request.Password, cancellationToken);
+				var created = await userAdministrationService.CreateUserAsync(request.Username, request.Role, request.Password, request.ForcePasswordChange, cancellationToken);
 
 				return Results.Created($"/api/auth/users/{created.Username}", new UserDto(
 					Username: created.Username,

@@ -7,7 +7,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.Security;
 
 public interface IUserAdministrationService
 {
-	Task<User> CreateUserAsync(string username, string role, string password, CancellationToken cancellationToken = default);
+	Task<User> CreateUserAsync(string username, string role, string password, bool forcePasswordChange = true, CancellationToken cancellationToken = default);
 	Task DeleteAsync(string username, CancellationToken cancellationToken = default);
 	Task<User?> GetActiveUserAsync(string username, CancellationToken cancellationToken = default);
 	Task<List<User>> GetAllUsers(CancellationToken cancellationToken = default);
@@ -17,14 +17,19 @@ public interface IUserAdministrationService
 
 public sealed class UserAdministrationService(IDatabaseProvider provider) : IUserAdministrationService
 {
-	public async Task<User> CreateUserAsync(string username, string role, string password, CancellationToken cancellationToken = default)
+	public async Task<User> CreateUserAsync(string username, 
+											string role, 
+											string password,
+											bool forcePasswordChange = true,
+											CancellationToken cancellationToken = default)
 	{
 		var hasher = new PasswordHasher<User>();
 		var user = new User
 		{
 			Username = username,
 			Role = role,
-			IsActive = true
+			IsActive = true,
+			ForcePasswordChange = forcePasswordChange
 		};
 		user.Password = hasher.HashPassword(user, password);
 
