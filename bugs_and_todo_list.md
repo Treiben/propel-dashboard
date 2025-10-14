@@ -118,18 +118,18 @@
 ~~7. Add flag expired indicator to flag card (red exclamation mark))~~
 
 8. Security: add user authentication and authorization
-- Add user authentication and authorization to API
-- Add user authentication and authorization to UI
-- Add admin user management to UI
-- Add admin user management to API
-- Add user roles: admin (can read/write flag operations, read/write users operations), user (read/write flag operations), viewer (read only flag operations)
-- Add user roles to API
-- Add user roles to UI
-- Add user roles to database
-- Add user roles to seed data
-- Add user roles to tests
-- Add user roles to documentation
-- Add login page to UI
+- ~~Add user authentication and authorization to API~~
+- ~~Add user authentication and authorization to UI~~
+- ~~Add admin user management to UI~~
+- ~~Add admin user management to API~~
+- ~~Add user roles: admin (can read/write flag operations, read/write users operations), user (read/write flag operations), viewer (read only flag operations)~~
+- ~~Add user roles to seed data~~
+- ~~Add login page to UI~~
+- Add password change functionality to UI and API
+
+9. Add propel logo to login page
+
+10. Add deployment scripts and documentation
 
 
 
