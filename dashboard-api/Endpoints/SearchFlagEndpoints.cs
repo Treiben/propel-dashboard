@@ -27,7 +27,7 @@ public sealed class SearchFlagEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanRead)
 		.WithName("SearchFeatureFlags")
 		.WithTags("Feature Flags", "CRUD Operations", "Read", "Dashboard Api", "Search")
 		.Produces<List<FeatureFlagResponse>>();

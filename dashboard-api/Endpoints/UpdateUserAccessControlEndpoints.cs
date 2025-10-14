@@ -26,7 +26,7 @@ public sealed class UpdateUserAccessControlEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<ManageUserAccessRequest>>()
 		.WithName("UpdateUserAccessControl")
 		.WithTags("Feature Flags", "Operations", "User Targeting", "Rollout Percentage", "Access Control Management", "Dashboard Api")

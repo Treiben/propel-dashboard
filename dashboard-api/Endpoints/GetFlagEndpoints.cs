@@ -72,7 +72,7 @@ public sealed class GetFlagEndpoints : IEndpoint
 					return HttpProblemFactory.InternalServerError(ex, logger);
 				}
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanRead)
 		.WithName("GetFlag")
 		.WithTags("Feature Flags", "CRUD Operations", "Read", "Dashboard Api")
 		.Produces<FeatureFlagResponse>();
@@ -93,7 +93,7 @@ public sealed class GetFlagEndpoints : IEndpoint
 					return HttpProblemFactory.InternalServerError(ex, logger);
 				}
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanRead)
 		.WithName("GetAllFlags")
 		.WithTags("Feature Flags", "CRUD Operations", "Read", "Dashboard Api", "All Flags")
 		.Produces<List<FeatureFlagResponse>>();
@@ -105,7 +105,7 @@ public sealed class GetFlagEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasReadActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanRead)
 		.AddEndpointFilter<ValidationFilter<GetFeatureFlagRequest>>()
 		.WithName("GetFlagsWithPageOrFilter")
 		.WithTags("Feature Flags", "CRUD Operations", "Read", "Dashboard Api", "Paging, Filtering")

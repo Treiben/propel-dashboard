@@ -29,7 +29,7 @@ public sealed class CreateFlagEndpoint : IEndpoint
 			{
 				return await createFlagHandler.HandleAsync(request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<CreateGlobalFeatureFlagRequest>>()
 		.WithName("CreateFeatureFlag")
 		.WithTags("Feature Flags", "CRUD Operations", "Create", "Dashboard Api")

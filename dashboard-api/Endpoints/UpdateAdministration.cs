@@ -30,7 +30,7 @@ public sealed class UpdateAdministrationEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<UpdateFlagRequest>>()
 		.WithName("UpdateFeatureFlag")
 		.WithTags("Feature Flags", "CRUD Operations", "Update", "Dashboard Api")

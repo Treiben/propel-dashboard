@@ -28,7 +28,7 @@ public sealed class UpdateScheduleEndpoint : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<UpdateScheduleRequest>>()
 		.WithName("SetSchedule")
 		.WithTags("Feature Flags", "Lifecycle Management", "Operations", "Dashboard Api")

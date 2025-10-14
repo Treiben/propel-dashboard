@@ -33,7 +33,7 @@ public sealed class UpdateTimeWindowEndpoint : IEndpoint
 		{
 			return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 		})
-	.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+	.RequireAuthorization(AuthorizationPolicies.CanWrite)
 	.AddEndpointFilter<ValidationFilter<UpdateTimeWindowRequest>>()
 	.WithName("SetTimeWindow")
 	.WithTags("Feature Flags", "Lifecycle Management", "Operations", "Dashboard Api")

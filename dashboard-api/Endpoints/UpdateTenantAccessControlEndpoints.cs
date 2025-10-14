@@ -26,7 +26,7 @@ public sealed class UpdateTenantAccessControlEndpoints : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<ManageTenantAccessRequest>>()
 		.WithName("UpdateTenantAccessControl")
 		.WithTags("Feature Flags", "Operations", "Tenant Targeting", "Rollout Percentage", "Access Control Management", "Dashboard Api")

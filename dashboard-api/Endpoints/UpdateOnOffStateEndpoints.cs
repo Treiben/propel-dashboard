@@ -27,7 +27,7 @@ public sealed class ToggleFlagEndpoint : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<ToggleFlagRequest>>()
 		.WithName("ToggleFlag")
 		.WithTags("Feature Flags", "Operations", "Toggle Control", "Dashboard Api")

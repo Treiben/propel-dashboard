@@ -28,7 +28,7 @@ public sealed class UpdateTargetingRulesEndpoint : IEndpoint
 			{
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<UpdateTargetingRulesRequest>>()
 		.WithName("UpdateTargetingRules")
 		.WithTags("Feature Flags", "Operations", "Custom Targeting", "Targeting Rules", "Dashboard Api")

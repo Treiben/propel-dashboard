@@ -29,7 +29,7 @@ public sealed class UpdateVariationsEndpoints : IEndpoint
 				return await handler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), 
 						request, cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.AddEndpointFilter<ValidationFilter<UpdateVariationsRequest>>()
 		.WithName("UpdateVariations")
 		.WithTags("Feature Flags", "Operations", "Custom Targeting", "Variations", "Dashboard Api")

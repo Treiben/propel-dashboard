@@ -4,13 +4,13 @@ namespace Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 
 public static class AuthorizationPolicies
 {
-	public static AuthorizationPolicy HasWriteActionPolicy { get; }
+	public static AuthorizationPolicy CanWrite { get; }
 		= new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
 		.RequireClaim("scope", "write", "admin")
 		.Build();
 
-	public static AuthorizationPolicy HasReadActionPolicy { get; }
+	public static AuthorizationPolicy CanRead { get; }
 		= new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
 		.RequireClaim("scope", "read", "admin")

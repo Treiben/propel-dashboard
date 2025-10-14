@@ -20,7 +20,7 @@ public sealed class DeleteFlagEndpoint : IEndpoint
 			{
 				return await deleteFlagHandler.HandleAsync(key, new FlagRequestHeaders(scope, applicationName, applicationVersion), cancellationToken);
 			})
-		.RequireAuthorization(AuthorizationPolicies.HasWriteActionPolicy)
+		.RequireAuthorization(AuthorizationPolicies.CanWrite)
 		.WithName("DeleteFeatureFlag")
 		.WithTags("Feature Flags", "CRUD Operations", "Delete", "Dashboard Api")
 		.Produces(StatusCodes.Status204NoContent)
