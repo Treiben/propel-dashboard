@@ -314,6 +314,11 @@ public static class SqlServerConfigurations
 				.HasColumnName("IsActive")
 				.HasDefaultValue(true)  // Changed to true - users should be active by default
 				.IsRequired();
+
+			builder.Property(e => e.ForcePasswordChange)
+				.HasColumnName("ForcePasswordChange")
+				.HasDefaultValue(false)  
+				.IsRequired();
 		}
 	}
 }

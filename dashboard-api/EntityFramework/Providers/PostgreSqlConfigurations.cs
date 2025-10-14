@@ -291,6 +291,11 @@ public static class PostgreSqlConfigurations
 					.HasColumnName("is_active")
 					.HasDefaultValue(false)
 					.IsRequired();
+
+			builder.Property(e => e.ForcePasswordChange)
+					.HasColumnName("force_password_change")
+					.HasDefaultValue(false)
+					.IsRequired();
 		}
 	}
 }
