@@ -45,3 +45,9 @@ public static class ProviderDetector
 		};
 	}
 }
+
+public enum DatabaseProvider
+{
+	PostgreSQL,
+	SqlServer
+}

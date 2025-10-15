@@ -4,44 +4,46 @@ using Propel.FeatureFlags.Dashboard.Api;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations;
 using Propel.FeatureFlags.Dashboard.Api.Healthchecks;
 using Propel.FeatureFlags.Dashboard.Api.Security;
-using Propel.FeatureFlags.Infrastructure;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Override configuration with environment variables
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
-
 builder.Services.AddHttpContextAccessor();
 
-// Configure dashboard-specific services
-builder.ConfigureFeatureFlags(options =>
-{
-	options.Cache = new CacheOptions
-	{
-		EnableInMemoryCache = false,
-		EnableDistributedCache = true,
-		Connection = builder.Configuration.GetConnectionString("Redis")!,
-	};
+var config = PropelConfiguration.ConfigureProductionSettings(builder.Configuration);
 
-	options.SqlConnection = builder.Configuration.GetConnectionString("DefaultConnection")!;
-});
+builder.Services.AddSingleton(config);
+
+// Configure dashboard-specific services
+builder.ConfigureFeatureFlags(config);
 
 // Configure CORS policies
 builder.Services.AddCors(options =>
 {
+	var allowedOrigins = builder.Configuration["CORS_ALLOWED_ORIGINS"]?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+		?? ["http://localhost:3000", "http://localhost:5173", "http://localhost:80"];
+
 	options.AddPolicy("AllowFrontend", policy =>
 	{
-		policy.WithOrigins(
-				"http://localhost:3000",
-				"https://localhost:3000",
-				"http://localhost:5173",
-				"https://localhost:5173"
-			)
-			.AllowAnyMethod()
-			.AllowAnyHeader()
-			.AllowCredentials();
+		if (builder.Configuration["CORS_ALLOW_ALL"] == "true")
+		{
+			policy.AllowAnyOrigin()
+				.AllowAnyMethod()
+				.AllowAnyHeader();
+		}
+		else
+		{
+			policy.WithOrigins(allowedOrigins)
+				.AllowAnyMethod()
+				.AllowAnyHeader()
+				.AllowCredentials();
+		}
 	});
 
 	options.AddPolicy("AllowAll", policy =>
@@ -62,11 +64,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			ValidateAudience = true,
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
-			ValidIssuer = builder.Configuration["Jwt:Issuer"],
-			ValidAudience = builder.Configuration["Jwt:Audience"],
-			IssuerSigningKey = new SymmetricSecurityKey(
-				Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ??
-					throw new InvalidOperationException("JWT secret not configured")))
+			ValidIssuer = config.JwtIssuer ?? "propel-dashboard",
+			ValidAudience = config.JwtAudience ?? "propel-dashboard-api",
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.JwtSecret)),
+			ClockSkew = TimeSpan.Zero
 		};
 	});
 
@@ -95,17 +96,38 @@ builder.Services.AddAuthorizationBuilder()
 
 var app = builder.Build();
 
-// Apply database migrations and seed default admin
+// Database migration and seeding
 if (app.Environment.IsDevelopment())
 {
 	await app.MigrateDatabaseAsync();
-	await app.SeedDefaultAdminAsync();
+	await app.SeedDefaultAdminAsync(config.DefaultAdminUsername, config.DefaultAdminPassword, forcePasswordChange: false);
+}
+else
+{
+	if (config.RunMigrations)
+		await app.MigrateDatabaseAsync();
+
+	if (config.SeedDefaultAdmin)
+		await app.SeedDefaultAdminAsync(config.DefaultAdminUsername, config.DefaultAdminPassword, forcePasswordChange: true);
 }
 
 // Configure the HTTP request pipeline
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+	app.UseExceptionHandler("/error");
+}
 
-// CORS must be before Authentication/Authorization
+// Only use HTTPS redirection if not in a container
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")))
+{
+	// Skip HTTPS redirection in containers - handled by reverse proxy
+}
+else
+{
+	app.UseHttpsRedirection();
+}
+
+// Use appropriate CORS policy
 if (app.Environment.IsDevelopment())
 {
 	app.UseCors("AllowAll");
@@ -117,10 +139,24 @@ else
 
 app.UseStatusCodePages();
 
+// Serve static files (React frontend)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Swagger configuration
+if (app.Environment.IsDevelopment() || builder.Configuration["ENABLE_SWAGGER"] == "true")
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
+}
+
 app.MapHealthCheckEndpoints();
 app.MapDashboardEndpoints();
+
+// SPA fallback for React Router (serve index.html for non-API routes)
+app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();

@@ -1,6 +1,5 @@
 ﻿using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer;
-using Propel.FeatureFlags.Infrastructure;
 
 namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 

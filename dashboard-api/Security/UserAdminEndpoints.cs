@@ -22,7 +22,7 @@ public sealed class AdminEndpoint : IEndpoint
 			async (
 				LoginRequest request,
 				IUserAdministrationService userAdministrationService,
-				IConfiguration config,
+				PropelConfiguration config,
 				CancellationToken cancellationToken) =>
 			{
 				var user = await userAdministrationService.GetActiveUserAsync(request.Username, cancellationToken);
@@ -74,7 +74,12 @@ public sealed class AdminEndpoint : IEndpoint
 				if (await userAdministrationService.GetActiveUserAsync(request.Username, cancellationToken) is not null)
 					return Results.BadRequest("Username already exists");
 
-				var created = await userAdministrationService.CreateUserAsync(request.Username, request.Role, request.Password, request.ForcePasswordChange, cancellationToken);
+				var created = await userAdministrationService.CreateUserAsync(
+					username: request.Username, 
+					password: request.Password,
+					role: request.Role,
+					forcePasswordChange: request.ForcePasswordChange, 
+					cancellationToken);
 
 				return Results.Created($"/api/auth/users/{created.Username}", new UserDto(
 					Username: created.Username,
@@ -105,8 +110,8 @@ public sealed class AdminEndpoint : IEndpoint
 				{
 					var updated = await userAdministrationService.UpdateAsync(
 						username: username, 
-						role: request.Role, 
-						password: request.Password, 
+						password: request.Password,
+						role: request.Role,
 						isActive: request.IsActive,
 						cancellationToken: cancellationToken);
 
@@ -149,39 +154,70 @@ public sealed class AdminEndpoint : IEndpoint
 		.Produces<User>();
 	}
 
-	private static string GenerateJwtToken(User user, IConfiguration config)
+	private static string GenerateJwtToken(User user, PropelConfiguration config)
 	{
-		var key = new SymmetricSecurityKey(
-			Encoding.UTF8.GetBytes(config["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret not configured")));
-		var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+		var jwtSecret = config.JwtSecret; // Use from PropelConfiguration
+		var jwtIssuer = config.JwtIssuer;
+		var jwtAudience = config.JwtAudience;
+
+		var key = Encoding.UTF8.GetBytes(jwtSecret);
+		var securityKey = new SymmetricSecurityKey(key);
+		var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
 		var claims = new[]
 		{
-			new Claim(ClaimTypes.NameIdentifier, user.Username),
-			new Claim(ClaimTypes.Name, user.Username),
-			new Claim(ClaimTypes.Role, user.Role),
-			new Claim("scope", "propel-dashboard-api")
-		};
-
-		// Add scope claims based on role
-		var scopeClaims = user.Role switch
-		{
-			UserRole.Admin => ["read", "write", "admin"],
-			UserRole.User => ["read", "write"],
-			UserRole.Viewer => ["read"],
-			_ => Array.Empty<string>()
-		};
-
-		var allClaims = claims.Concat(scopeClaims.Select(s => new Claim("scope", s))).ToArray();
+		new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+		new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+		new Claim(ClaimTypes.Role, user.Role),
+		new Claim("scope", "propel-dashboard-api"),
+		new Claim("scope", "read"),
+		new Claim("scope", "write")
+	};
 
 		var token = new JwtSecurityToken(
-			issuer: config["Jwt:Issuer"],
-			audience: config["Jwt:Audience"],
-			claims: allClaims,
-			expires: DateTime.UtcNow.AddHours(8),
-			signingCredentials: creds
+			issuer: jwtIssuer,
+			audience: jwtAudience,
+			claims: claims,
+			expires: DateTime.UtcNow.AddDays(1),
+			signingCredentials: credentials
 		);
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
 	}
+
+	//private static string GenerateJwtToken(User user, IConfiguration config)
+	//{
+	//	var key = new SymmetricSecurityKey(
+	//		Encoding.UTF8.GetBytes(config["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret not configured")));
+	//	var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+	//	var claims = new[]
+	//	{
+	//		new Claim(ClaimTypes.NameIdentifier, user.Username),
+	//		new Claim(ClaimTypes.Name, user.Username),
+	//		new Claim(ClaimTypes.Role, user.Role),
+	//		new Claim("scope", "propel-dashboard-api")
+	//	};
+
+	//	// Add scope claims based on role
+	//	var scopeClaims = user.Role switch
+	//	{
+	//		UserRole.Admin => ["read", "write", "admin"],
+	//		UserRole.User => ["read", "write"],
+	//		UserRole.Viewer => ["read"],
+	//		_ => Array.Empty<string>()
+	//	};
+
+	//	var allClaims = claims.Concat(scopeClaims.Select(s => new Claim("scope", s))).ToArray();
+
+	//	var token = new JwtSecurityToken(
+	//		issuer: config["Jwt:Issuer"],
+	//		audience: config["Jwt:Audience"],
+	//		claims: allClaims,
+	//		expires: DateTime.UtcNow.AddHours(8),
+	//		signingCredentials: creds
+	//	);
+
+	//	return new JwtSecurityTokenHandler().WriteToken(token);
+	//}
 }

@@ -9,7 +9,6 @@ using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 using Propel.FeatureFlags.Dashboard.Api.Security;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.FlagEvaluators;
-using Propel.FeatureFlags.Infrastructure;
 using Propel.FeatureFlags.Redis;
 using Propel.FeatureFlags.Utilities;
 using System.Text.Json;
@@ -19,7 +18,7 @@ namespace Propel.FeatureFlags.Dashboard.Api;
 
 public static class ProgramExtensions
 {
-	public static void ConfigureFeatureFlags(this WebApplicationBuilder builder, Action<PropelConfiguration> configure)
+	public static void ConfigureFeatureFlags(this WebApplicationBuilder builder, PropelConfiguration propelConfig)
 	{
 		// Configure JSON serialization options for HTTP endpoints (Minimal APIs)
 		builder.Services.ConfigureHttpJsonOptions(options =>
@@ -32,26 +31,18 @@ public static class ProgramExtensions
 			options.SerializerOptions.Converters.Add(new EnumJsonConverter<TargetingOperator>());
 		});
 
-		// Configure dashboard-specific services
-		var propelConfig = builder.Configuration.GetSection("Propel").Get<PropelConfiguration>() ?? new();
-		configure.Invoke(propelConfig);
-
-		builder.Services.AddSingleton(propelConfig);
-
 		builder.Services.RegisterEvaluators();
 
-		var cacheOptions = propelConfig.Cache;
-		if (cacheOptions.EnableDistributedCache == true)
+		if (propelConfig.AllowFlagsUpdateInRedis == true)
 		{
-			builder.Services.AddRedisCache(cacheOptions.Connection);
+			builder.Services.AddRedisCache(propelConfig.CacheConnection);
 		}
 
 		builder.Services.AddDashboardHealthchecks(propelConfig)
 			.AddDatabaseProvider(propelConfig)
 			.AddDashboardServices();
 
-		if (builder.Environment.IsDevelopment())
-			builder.Services.AddDatabaseMigrationsProvider(propelConfig);
+		builder.Services.AddDatabaseMigrationsProvider(propelConfig);
 	}
 
 	public static IServiceCollection RegisterEvaluators(this IServiceCollection services)
@@ -157,16 +148,13 @@ public static class ProgramExtensions
 		}
 
 		// Add redis cache health check only if connection string is available
-		if (propelConfig.Cache.EnableDistributedCache == true && !string.IsNullOrWhiteSpace(propelConfig.Cache.Connection))
+		if (propelConfig.AllowFlagsUpdateInRedis == true)
 		{
-			if (!string.IsNullOrEmpty(propelConfig.Cache.Connection))
-			{
-				healthChecksBuilder.AddRedis(
-					redisConnectionString: propelConfig.Cache.Connection,
-					name: "redis",
-					failureStatus: HealthStatus.Degraded,
-					tags: ["cache", "redis", "ready"]);
-			}
+			healthChecksBuilder.AddRedis(
+				redisConnectionString: propelConfig.CacheConnection,
+				name: "redis",
+				failureStatus: HealthStatus.Degraded,
+				tags: ["cache", "redis", "ready"]);
 		}
 
 		return services;

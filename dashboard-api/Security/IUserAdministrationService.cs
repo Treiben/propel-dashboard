@@ -7,19 +7,19 @@ namespace Propel.FeatureFlags.Dashboard.Api.Security;
 
 public interface IUserAdministrationService
 {
-	Task<User> CreateUserAsync(string username, string role, string password, bool forcePasswordChange = true, CancellationToken cancellationToken = default);
+	Task<User> CreateUserAsync(string username, string password, string role, bool forcePasswordChange = true, CancellationToken cancellationToken = default);
 	Task DeleteAsync(string username, CancellationToken cancellationToken = default);
 	Task<User?> GetActiveUserAsync(string username, CancellationToken cancellationToken = default);
 	Task<List<User>> GetAllUsers(CancellationToken cancellationToken = default);
-	Task<User> UpdateAsync(string username, string? role = null, string? password = null, bool? isActive = null, DateTimeOffset? lastLogin = null, CancellationToken cancellationToken = default);
+	Task<User> UpdateAsync(string username, string? password = null, string? role = null, bool? isActive = null, DateTimeOffset? lastLogin = null, CancellationToken cancellationToken = default);
 }
 
 
 public sealed class UserAdministrationService(IDatabaseProvider provider) : IUserAdministrationService
 {
 	public async Task<User> CreateUserAsync(string username, 
-											string role, 
 											string password,
+											string role,
 											bool forcePasswordChange = true,
 											CancellationToken cancellationToken = default)
 	{
@@ -63,8 +63,8 @@ public sealed class UserAdministrationService(IDatabaseProvider provider) : IUse
 														.AsNoTracking()
 														.ToListAsync(cancellationToken: cancellationToken);
 	public async Task<User> UpdateAsync(string username, 
-		string? role = null, 
-		string? password = null, 
+		string? password = null,
+		string? role = null,
 		bool? isActive = null, 
 		DateTimeOffset? lastLogin = null,
 		CancellationToken cancellationToken = default)

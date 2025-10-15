@@ -6,7 +6,7 @@ public static class DatabaseSeederExtensions
 {
 	public static async Task SeedDefaultAdminAsync(this WebApplication app,
 		string username = "admin",
-		string password = "admin1234!",
+		string password = "Admin123!",
 		bool forcePasswordChange = false)
 	{
 		using var scope = app.Services.CreateScope();
@@ -23,8 +23,8 @@ public static class DatabaseSeederExtensions
 			{
 				await adminService.CreateUserAsync(
 							username: username,
-							role: UserRole.Admin,
 							password: password,
+							role: UserRole.Admin,
 							forcePasswordChange: forcePasswordChange);
 
 				logger.LogInformation("Default admin user '{Username}' created successfully", username);
