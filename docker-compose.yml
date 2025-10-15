@@ -4,7 +4,7 @@ services:
     image: postgres:15-alpine
     container_name: propel-postgres
     environment:
-      POSTGRES_DB: propel_dashboard
+      POSTGRES_DB: propel_feature_flags  
       POSTGRES_USER: propel_user
       POSTGRES_PASSWORD: propel_password
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -15,7 +15,7 @@ services:
     networks:
       - propel-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U propel_user -d propel"]
+      test: ["CMD-SHELL", "pg_isready -U propel_user -d propel_feature_flags"]  # FIXED
       interval: 10s
       timeout: 5s
       retries: 5
@@ -84,12 +84,9 @@ services:
       dockerfile: dashboard-api/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080 
-      - POSTGRES_DB=propel-dashboard
-      - POSTGRES_USER=propel_user
-      - POSTGRES_PASSWORD=propel_password
-      - REDIS_PASSWORD=
-      - SQLSERVER_CONNECTION=Server=sqlserver,1433;Database=PropelFeatureFlags;User Id=sa;Password=Propel_Password123!;TrustServerCertificate=True;
+      - ASPNETCORE_URLS=http://+:8080
+      # NOTE: Configuration comes from appsettings.Development.json
+      # which is mounted as a volume in docker-compose.override.yml
     ports:
       - "5038:8080"
     networks:
@@ -124,7 +121,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:5003/api
+      - VITE_API_URL=http://localhost:5038/api
 
 volumes:
   postgres_data:
@@ -134,4 +131,3 @@ volumes:
 networks:
   propel-network:
     driver: bridge
-

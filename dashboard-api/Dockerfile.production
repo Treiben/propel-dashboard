@@ -1,0 +1,63 @@
+# Stage 1: Build React Frontend
+FROM node:20-alpine AS frontend-build
+WORKDIR /app/frontend
+
+# Copy package files and install dependencies (including devDependencies for build)
+COPY dashboard-react/package*.json ./
+RUN npm ci
+
+# Copy source and build
+COPY dashboard-react/ ./
+# Use vite build directly (skips tsc type checking for faster builds)
+RUN npx vite build
+
+# Stage 2: Build .NET API
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS backend-build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+
+# Copy project file and restore dependencies
+COPY dashboard-api/Propel.FeatureFlags.Dashboard.Api.csproj dashboard-api/
+RUN dotnet restore "dashboard-api/Propel.FeatureFlags.Dashboard.Api.csproj"
+
+# Copy source code and build
+COPY dashboard-api/. dashboard-api/
+WORKDIR /src/dashboard-api
+RUN dotnet build "Propel.FeatureFlags.Dashboard.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# Stage 3: Publish .NET API
+FROM backend-build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "Propel.FeatureFlags.Dashboard.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# Stage 4: Final Runtime Image
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd -g 1001 propel && useradd -u 1001 -g propel -m propel
+
+# Copy .NET API
+COPY --from=publish /app/publish .
+
+# Copy React build to wwwroot
+COPY --from=frontend-build /app/frontend/dist ./wwwroot
+
+# Fix permissions - propel user needs to read these files
+RUN chown -R propel:propel /app
+
+# Set up environment
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health/live || exit 1
+
+# Switch to non-root user
+USER propel
+
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "Propel.FeatureFlags.Dashboard.Api.dll"]

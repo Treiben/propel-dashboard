@@ -1,30 +1,47 @@
-**/.classpath
-**/.dockerignore
-**/.env
-**/.git
-**/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
-**/.vs
-**/.vscode
-**/*.*proj.user
-**/*.dbmdl
-**/*.jfm
-**/azds.yaml
-**/bin
-**/charts
-**/docker-compose*
-**/Dockerfile*
-**/node_modules
-**/npm-debug.log
-**/obj
-**/secrets.dev.yaml
-**/values.dev.yaml
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.vscode
+.vs
+
+# Documentation
+*.md
 LICENSE
-README.md
-!**/.gitignore
-!.git/HEAD
-!.git/config
-!.git/packed-refs
-!.git/refs/heads/**
+docs/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Build artifacts
+**/bin
+**/obj
+**/out
+**/publish
+
+# Tests
+tests/
+**/*.Tests/
+
+# IDE
+.idea/
+*.suo
+*.user
+.DS_Store
+
+# React/Frontend
+dashboard-react/node_modules/
+dashboard-react/dist/
+dashboard-react/.env.development
+dashboard-react/.env.local
+npm-debug.log
+
+# Environment
+.env
+.env.*
+!.env.example
