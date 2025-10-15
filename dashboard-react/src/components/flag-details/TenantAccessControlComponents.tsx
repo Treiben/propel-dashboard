@@ -265,7 +265,7 @@ export const TenantAccessSection: React.FC<TenantAccessSectionProps> = ({
 						<button
 							onClick={() => setEditingTenantAccess(true)}
 							disabled={operationLoading}
-							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${targetingStyles.buttonText} ${theme.info.hover?.text700 || 'hover:text-sky-700'}`}
+							className={`text-sm flex items-center gap-1 disabled:opacity-50 ${targetingStyles.buttonText} ${theme.info.hover.text700}`}
 							data-testid="manage-tenants-button"
 						>
 							<Building className="w-4 h-4" />

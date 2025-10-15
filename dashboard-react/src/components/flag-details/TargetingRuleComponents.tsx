@@ -69,7 +69,7 @@ interface TargetingRulesSectionProps {
 interface TargetingRuleForm {
 	attribute: string;
 	operator: TargetingOperator;
-	values: string[];
+	values: (string | number)[]; // Change from string[] to (string | number)[]
 	variation: string;
 }
 
@@ -153,7 +153,7 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 					operator: safeConvertOperator(rule?.operator),
 					// Convert all values to strings for display in input fields
 					values: Array.isArray(rule?.values) 
-						? rule.values.map(v => typeof v === 'number' ? v.toString() : (v || ''))
+						? rule.values.map(v => typeof v === 'number' ? v : (v || ''))
 						: [''],
 					variation: rule?.variation || 'on'
 				}));
@@ -270,7 +270,7 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 					operator: safeConvertOperator(rule?.operator),
 					// Convert all values to strings for display in input fields
 					values: Array.isArray(rule?.values) 
-						? rule.values.map(v => typeof v === 'number' ? v.toString() : (v || ''))
+						? rule.values.map(v => typeof v === 'number' ? v : (v || ''))
 						: [''],
 					variation: rule?.variation || 'on'
 				}));
@@ -478,7 +478,7 @@ export const TargetingRulesSection: React.FC<TargetingRulesSectionProps> = ({
 										{targetingRules.slice(0, 3).map((rule, index) => {
 											// Safely format values (handle both strings and numbers)
 											const formattedValues = Array.isArray(rule?.values) 
-												? rule.values.map(v => typeof v === 'number' ? v.toString() : (v || '')).join(', ')
+												? rule.values.map(v => typeof v === 'number' ? v : (v || '')).join(', ')
 												: 'No values';
 					
 											return (

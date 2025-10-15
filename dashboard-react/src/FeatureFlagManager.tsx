@@ -494,23 +494,25 @@ const FeatureFlagManager = ({ readOnly = false }: FeatureFlagManagerProps) => {
                                     flag={selectedFlag}
                                     readOnly={readOnly}
                                     onToggle={quickToggle}
-                                    onUpdateUserAccess={(allowedUsers, blockedUsers, percentage) => {
-                                        if (readOnly) return Promise.resolve(selectedFlag);
+                                    onUpdateUserAccess={async (allowedUsers, blockedUsers, percentage) => {
+                                        if (readOnly) return;
                                         const scopeHeaders = getScopeHeaders(selectedFlag);
                                         const request: ManageUserAccessRequest = {};
                                         if (allowedUsers !== undefined) request.allowed = allowedUsers;
                                         if (blockedUsers !== undefined) request.blocked = blockedUsers;
                                         if (percentage !== undefined) request.rolloutPercentage = percentage;
-                                        return updateUserAccess(selectedFlag.key, request, scopeHeaders);
+                                        await updateUserAccess(selectedFlag.key, request, scopeHeaders);
+                                        // Return void explicitly
                                     }}
-                                    onUpdateTenantAccess={(allowedTenants, blockedTenants, percentage) => {
-                                        if (readOnly) return Promise.resolve(selectedFlag);
+                                    onUpdateTenantAccess={async (allowedTenants, blockedTenants, percentage) => {
+                                        if (readOnly) return;
                                         const scopeHeaders = getScopeHeaders(selectedFlag);
                                         const request: ManageTenantAccessRequest = {};
                                         if (allowedTenants !== undefined) request.allowed = allowedTenants;
                                         if (blockedTenants !== undefined) request.blocked = blockedTenants;
                                         if (percentage !== undefined) request.rolloutPercentage = percentage;
-                                        return updateTenantAccess(selectedFlag.key, request, scopeHeaders);
+                                        await updateTenantAccess(selectedFlag.key, request, scopeHeaders);
+                                        // Return void explicitly
                                     }}
                                     onUpdateTargetingRules={handleUpdateTargetingRulesWrapper}
                                     onUpdateVariations={handleUpdateVariations}
@@ -550,7 +552,11 @@ const FeatureFlagManager = ({ readOnly = false }: FeatureFlagManagerProps) => {
                             flagKey={showDeleteConfirm || ''}
                             flagName={flags.find(f => f.key === showDeleteConfirm)?.name || searchResults.find(f => f.key === showDeleteConfirm)?.name || ''}
                             isDeleting={deletingFlag}
-                            onConfirm={() => showDeleteConfirm && handleDeleteFlag(showDeleteConfirm)}
+                            onConfirm={async () => {
+                                if (showDeleteConfirm) {
+                                    await handleDeleteFlag(showDeleteConfirm);
+                                }
+                            }}
                             onCancel={() => setShowDeleteConfirm(null)}
                         />
                     </>

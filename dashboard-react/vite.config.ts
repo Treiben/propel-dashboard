@@ -1,43 +1,32 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [react()],
+
+	// Development server configuration
 	server: {
 		host: '0.0.0.0',
-		port: 5173, // or 3000, 8080, any port > 1024
-		proxy: {
+		port: 5173,
+		proxy: mode === 'development' ? {
 			'/api': {
-				target: process.env.VITE_API_URL || 'http://propel.featureflags.dashboard.api:8080',
+				target: process.env.VITE_API_URL || 'http://propel-dashboard-api:8080',
 				changeOrigin: true,
 				secure: false,
 			}
-		}
+		} : undefined
 	},
+
 	preview: {
 		host: '0.0.0.0',
-		port: 8080 // also change preview port
+		port: 8080
 	},
-	//to run from docker container
-	//server: {
-	//  host: '0.0.0.0', // Allow external connections (needed for Docker)
-	//  port: 80,
-	//  proxy: {
-	//    '/api': {
-	//          target: process.env.VITE_API_URL || 'http://propel.featureflags.dashboard.api:8080',
-	//      changeOrigin: true,
-	//      secure: false,
-	//    }
-	//  }
-	//},
-	//preview: {
-	//  host: '0.0.0.0',
-	//  port: 80
-	//},
+
+	// Production build configuration
 	build: {
 		outDir: 'dist',
 		emptyOutDir: true,
-		sourcemap: false, // Disable source maps for production
+		sourcemap: false,
 		rollupOptions: {
 			output: {
 				manualChunks: {
@@ -47,4 +36,4 @@ export default defineConfig({
 			}
 		}
 	}
-})
+}));

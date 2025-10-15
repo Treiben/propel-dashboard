@@ -107,6 +107,12 @@ export const theme = {
 		border: {
 			200: 'border-sky-200',
 			300: 'border-sky-300',
+		},
+		hover: {
+			bg600: 'hover:bg-sky-600',
+			bg700: 'hover:bg-sky-700',
+			text700: 'hover:text-sky-700',
+			text800: 'hover:text-sky-800',
 		}
 	},
 
@@ -178,6 +184,7 @@ export const componentStyles = {
 			text: theme.warning.text[800],
 			textPrimary: theme.warning.text[900],
 			buttonText: theme.warning.text[600],
+			buttonHover: theme.warning.hover.text800,
 		},
 		variations: {
 			bg: theme.warning[50],
@@ -193,6 +200,7 @@ export const componentStyles = {
 			text: theme.warning.text[800],
 			textPrimary: theme.warning.text[900],
 			buttonText: theme.warning.text[600],
+			buttonHover: theme.warning.hover.text800,
 		}
 	}
 };
