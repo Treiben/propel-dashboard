@@ -48,7 +48,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .HasDefaultValue("off")
+                        .HasDefaultValue("")
                         .HasColumnName("default_variation");
 
                     b.Property<string>("Description")

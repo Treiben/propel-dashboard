@@ -49,7 +49,7 @@ public sealed class CreateGlobalFlagHandler(
 	{
 		try
 		{
-			var identifier = new FlagIdentifier(request.Key, Scope.Global);
+			var identifier = new GlobalFlagIdentifier(request.Key);
 
 			var flagExists = await administrationService.FlagExistsAsync(identifier, cancellationToken);
 			if (flagExists)
@@ -142,12 +142,12 @@ public sealed class CreateFlagRequestValidator : AbstractValidator<CreateGlobalF
 		
 		RuleForEach(c => c.Tags!.Keys)
 			.Length(1, 50)
-			.When(c => c.Tags != null && c.Tags.Any())
+			.When(c => c.Tags != null && c.Tags.Count != 0)
 			.WithMessage("Tag keys must be between 1 and 50 characters long.");
 		
 		RuleForEach(c => c.Tags!.Values)
 			.MaximumLength(200)
-			.When(c => c.Tags != null && c.Tags.Any())
+			.When(c => c.Tags != null && c.Tags.Count != 0)
 			.WithMessage("Tag values cannot exceed 200 characters.");
 	}
 }

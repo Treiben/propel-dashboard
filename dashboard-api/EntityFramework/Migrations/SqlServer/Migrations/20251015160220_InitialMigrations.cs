@@ -36,7 +36,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
                     DisabledTenants = table.Column<string>(type: "NVARCHAR(MAX)", nullable: false, defaultValue: "[]"),
                     TenantPercentageEnabled = table.Column<int>(type: "int", nullable: false, defaultValue: 100),
                     Variations = table.Column<string>(type: "NVARCHAR(MAX)", nullable: false, defaultValue: "{}"),
-                    DefaultVariation = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValue: "off")
+                    DefaultVariation = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValue: "")
                 },
                 constraints: table =>
                 {

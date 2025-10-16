@@ -213,7 +213,7 @@ public static class SqlServerConfigurations
 			builder.Property(e => e.DefaultVariation)
 				.HasColumnName("DefaultVariation")
 				.HasMaxLength(255)
-				.HasDefaultValue("off")
+				.HasDefaultValue("")
 				.IsRequired();
 		}
 	}

@@ -10,11 +10,12 @@ public static class Mapper
 	public static FeatureFlag MapToDomain(Entities.FeatureFlag entity)
 	{
 		// Create identifier
-		var identifier = new FlagIdentifier(
-			entity.Key,
-			(Scope)entity.Scope,
-			entity.ApplicationName,
-			entity.ApplicationVersion);
+		FlagIdentifier identifier = (Scope)entity.Scope == Scope.Application 
+			? new ApplicationFlagIdentifier(
+					entity.Key,
+					entity.ApplicationName,
+					entity.ApplicationVersion)
+			: new GlobalFlagIdentifier(entity.Key);
 
 		// Create metadata
 		var metadata = MapMetadataToDomain(entity);

@@ -192,7 +192,7 @@ public static class PostgreSqlConfigurations
 			builder.Property(e => e.DefaultVariation)
 				.HasColumnName("default_variation")
 				.HasMaxLength(255)
-				.HasDefaultValue("off")
+				.HasDefaultValue("")
 				.IsRequired();
 
 			// PostgreSQL - use JSONB

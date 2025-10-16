@@ -62,7 +62,7 @@
 
 ~~28 **MEDIUM, UI:** No error message on create flag 409 error~~
 
-29. **MINOR, UI:** Figure out why suddenly evaluation requires tenant id for each flag even though tenant id is not required for some modes.
+~~29. **MINOR, UI:** Figure out why suddenly evaluation requires tenant id for each flag even though tenant id is not required for some modes.~~
 
 ## BUG FIX VERIFICATION REPORT
 
@@ -86,7 +86,7 @@
 - BUG 26: CLOSED
 - BUG 27: OPEN
 - BUG 28: CLOSED
-- BUG 29: OPEN
+- BUG 29: CLOSED
 
 ## NEW FEATURES
 

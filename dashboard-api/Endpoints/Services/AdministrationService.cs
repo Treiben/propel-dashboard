@@ -151,11 +151,12 @@ public class AdministrationService(IDatabaseProvider provider, ILogger<Administr
 
 		string application = headers.ApplicationName ?? "";
 		string version = headers.ApplicationVersion ?? "1.0.0.0";
-		if (parsedScope == Scope.Global)
+		FlagIdentifier identifier = parsedScope switch
 		{
-			application = "global";
-			version = "0.0.0.0";
-		}
+			Scope.Global => new GlobalFlagIdentifier(key),
+			Scope.Application => new ApplicationFlagIdentifier(key, application, version),
+			_ => throw new InvalidOperationException("Unsupported scope")
+		};
 
 		if (string.IsNullOrWhiteSpace(application))
 			return (false, HttpProblemFactory.BadRequest(
@@ -163,7 +164,6 @@ public class AdministrationService(IDatabaseProvider provider, ILogger<Administr
 				"Application name with or without version required for Application scope requests. Pass name and version in headers X-Application-Name, X-Application-Version", logger), null);
 
 		// Resolve flag
-		var identifier = new FlagIdentifier(key, parsedScope, application, version);
 		var flag = await GetByKeyAsync(identifier, cancellationToken);
 		if (flag == null)
 		{

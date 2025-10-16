@@ -43,3 +43,6 @@ npm-debug.log
 .env
 .env.*
 !.env.example
+/temp/Propel.FeatureFlags/Propel.FeatureFlags.csproj
+/temp/Propel.FeatureFlags.Redis/Propel.FeatureFlags.Redis.csproj
+/temp

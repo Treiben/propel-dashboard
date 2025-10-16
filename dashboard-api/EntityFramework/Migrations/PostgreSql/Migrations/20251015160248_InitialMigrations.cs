@@ -36,7 +36,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSq
                     disabled_tenants = table.Column<string>(type: "jsonb", nullable: false, defaultValue: "[]"),
                     tenant_percentage_enabled = table.Column<int>(type: "integer", nullable: false, defaultValue: 100),
                     variations = table.Column<string>(type: "jsonb", nullable: false, defaultValue: "{}"),
-                    default_variation = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false, defaultValue: "off")
+                    default_variation = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false, defaultValue: "")
                 },
                 constraints: table =>
                 {

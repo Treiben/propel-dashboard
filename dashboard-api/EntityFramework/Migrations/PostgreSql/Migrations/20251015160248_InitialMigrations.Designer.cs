@@ -2,17 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
 
 #nullable disable
 
-namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer.Migrations
+namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql.Migrations
 {
-    [DbContext(typeof(SqlServerMigrationDbContext))]
-    [Migration("20251015011925_InitialMigrations")]
+    [DbContext(typeof(PostgreSqlMigrationDbContext))]
+    [Migration("20251015160248_InitialMigrations")]
     partial class InitialMigrations
     {
         /// <inheritdoc />
@@ -21,170 +21,154 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities.FeatureFlag", b =>
                 {
                     b.Property<string>("Key")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Key");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("key");
 
                     b.Property<string>("ApplicationName")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("character varying(255)")
                         .HasDefaultValue("global")
-                        .HasColumnName("ApplicationName");
+                        .HasColumnName("application_name");
 
                     b.Property<string>("ApplicationVersion")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasDefaultValue("0.0.0.0")
-                        .HasColumnName("ApplicationVersion");
+                        .HasColumnName("application_version");
 
                     b.Property<string>("DefaultVariation")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasDefaultValue("off")
-                        .HasColumnName("DefaultVariation");
+                        .HasColumnType("character varying(255)")
+                        .HasDefaultValue("")
+                        .HasColumnName("default_variation");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("text")
                         .HasDefaultValue("")
-                        .HasColumnName("Description");
+                        .HasColumnName("description");
 
                     b.Property<string>("DisabledTenants")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("DisabledTenants");
+                        .HasColumnName("disabled_tenants");
 
                     b.Property<string>("DisabledUsers")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("DisabledUsers");
+                        .HasColumnName("disabled_users");
 
                     b.Property<string>("EnabledTenants")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("EnabledTenants");
+                        .HasColumnName("enabled_tenants");
 
                     b.Property<string>("EnabledUsers")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("EnabledUsers");
+                        .HasColumnName("enabled_users");
 
                     b.Property<string>("EvaluationModes")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("EvaluationModes");
+                        .HasColumnName("evaluation_modes");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("Name");
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("name");
 
                     b.Property<DateTimeOffset?>("ScheduledDisableDate")
-                        .HasColumnType("DATETIMEOFFSET")
-                        .HasColumnName("ScheduledDisableDate");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("scheduled_disable_date");
 
                     b.Property<DateTimeOffset?>("ScheduledEnableDate")
-                        .HasColumnType("DATETIMEOFFSET")
-                        .HasColumnName("ScheduledEnableDate");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("scheduled_enable_date");
 
                     b.Property<int>("Scope")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0)
-                        .HasColumnName("Scope");
+                        .HasColumnName("scope");
 
                     b.Property<string>("TargetingRules")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("TargetingRules");
+                        .HasColumnName("targeting_rules");
 
                     b.Property<int>("TenantPercentageEnabled")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(100)
-                        .HasColumnName("TenantPercentageEnabled");
+                        .HasColumnName("tenant_percentage_enabled");
 
                     b.Property<string>("TimeZone")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("TimeZone");
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("time_zone");
 
                     b.Property<int>("UserPercentageEnabled")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(100)
-                        .HasColumnName("UserPercentageEnabled");
+                        .HasColumnName("user_percentage_enabled");
 
                     b.Property<string>("Variations")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("{}")
-                        .HasColumnName("Variations");
+                        .HasColumnName("variations");
 
                     b.Property<string>("WindowDays")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("[]")
-                        .HasColumnName("WindowDays");
+                        .HasColumnName("window_days");
 
                     b.Property<TimeOnly?>("WindowEndTime")
-                        .HasColumnType("TIME")
-                        .HasColumnName("WindowEndTime");
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("window_end_time");
 
                     b.Property<TimeOnly?>("WindowStartTime")
-                        .HasColumnType("TIME")
-                        .HasColumnName("WindowStartTime");
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("window_start_time");
 
                     b.HasKey("Key", "ApplicationName", "ApplicationVersion");
 
-                    b.ToTable("FeatureFlags", null, t =>
+                    b.ToTable("feature_flags", null, t =>
                         {
-                            t.HasCheckConstraint("CK_DisabledTenants_json", "ISJSON(DisabledTenants) = 1");
+                            t.HasCheckConstraint("CK_FeatureFlag_TenantPercentage", "tenant_percentage_enabled >= 0 AND tenant_percentage_enabled <= 100");
 
-                            t.HasCheckConstraint("CK_DisabledUsers_json", "ISJSON(DisabledUsers) = 1");
-
-                            t.HasCheckConstraint("CK_EnabledTenants_json", "ISJSON(EnabledTenants) = 1");
-
-                            t.HasCheckConstraint("CK_EnabledUsers_json", "ISJSON(EnabledUsers) = 1");
-
-                            t.HasCheckConstraint("CK_EvaluationModes_json", "ISJSON(EvaluationModes) = 1");
-
-                            t.HasCheckConstraint("CK_TargetingRules_json", "ISJSON(TargetingRules) = 1");
-
-                            t.HasCheckConstraint("CK_TenantPercentage", "TenantPercentageEnabled >= 0 AND TenantPercentageEnabled <= 100");
-
-                            t.HasCheckConstraint("CK_UserPercentage", "UserPercentageEnabled >= 0 AND UserPercentageEnabled <= 100");
-
-                            t.HasCheckConstraint("CK_Variations_json", "ISJSON(Variations) = 1");
-
-                            t.HasCheckConstraint("CK_WindowDays_json", "ISJSON(WindowDays) = 1");
+                            t.HasCheckConstraint("CK_FeatureFlag_UserPercentage", "user_percentage_enabled >= 0 AND user_percentage_enabled <= 100");
                         });
                 });
 
@@ -192,163 +176,162 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<string>("Action")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("Action");
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("action");
 
                     b.Property<string>("Actor")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Actor");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("actor");
 
                     b.Property<string>("ApplicationName")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("character varying(255)")
                         .HasDefaultValue("global")
-                        .HasColumnName("ApplicationName");
+                        .HasColumnName("application_name");
 
                     b.Property<string>("ApplicationVersion")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasDefaultValue("0.0.0.0")
-                        .HasColumnName("ApplicationVersion");
+                        .HasColumnName("application_version");
 
                     b.Property<string>("FlagKey")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("FlagKey");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("flag_key");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("NVARCHAR(MAX)")
-                        .HasColumnName("Notes");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
 
                     b.Property<DateTimeOffset>("Timestamp")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("DATETIMEOFFSET")
-                        .HasColumnName("Timestamp")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp")
+                        .HasDefaultValueSql("NOW()");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FlagKey", "ApplicationName", "ApplicationVersion");
 
-                    b.ToTable("FeatureFlagsAudit", (string)null);
+                    b.ToTable("feature_flags_audit", (string)null);
                 });
 
             modelBuilder.Entity("Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities.FeatureFlagMetadata", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<string>("ApplicationName")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("character varying(255)")
                         .HasDefaultValue("global")
-                        .HasColumnName("ApplicationName");
+                        .HasColumnName("application_name");
 
                     b.Property<string>("ApplicationVersion")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("character varying(100)")
                         .HasDefaultValue("0.0.0.0")
-                        .HasColumnName("ApplicationVersion");
+                        .HasColumnName("application_version");
 
                     b.Property<DateTimeOffset>("ExpirationDate")
-                        .HasColumnType("DATETIMEOFFSET")
-                        .HasColumnName("ExpirationDate");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expiration_date");
 
                     b.Property<string>("FlagKey")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("FlagKey");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("flag_key");
 
                     b.Property<bool>("IsPermanent")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false)
-                        .HasColumnName("IsPermanent");
+                        .HasColumnName("is_permanent");
 
                     b.Property<string>("Tags")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR(MAX)")
+                        .HasColumnType("jsonb")
                         .HasDefaultValue("{}")
-                        .HasColumnName("Tags");
+                        .HasColumnName("tags");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FlagKey", "ApplicationName", "ApplicationVersion")
                         .IsUnique();
 
-                    b.ToTable("FeatureFlagsMetadata", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_metadata_tags_json", "ISJSON(Tags) = 1");
-                        });
+                    b.ToTable("feature_flags_metadata", (string)null);
                 });
 
             modelBuilder.Entity("Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities.User", b =>
                 {
                     b.Property<string>("Username")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("UserName");
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("user-name");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("DATETIMEOFFSET")
-                        .HasColumnName("CreatedAt")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<bool>("ForcePasswordChange")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false)
-                        .HasColumnName("ForcePasswordChange");
+                        .HasColumnName("force_password_change");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("IsActive");
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_active");
 
                     b.Property<DateTimeOffset?>("LastLoginAt")
-                        .HasColumnType("DATETIMEOFFSET")
-                        .HasColumnName("LastLoginAt");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Password");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("password");
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("character varying(255)")
                         .HasDefaultValue("Viewer")
-                        .HasColumnName("Role");
+                        .HasColumnName("role");
 
                     b.HasKey("Username");
 
-                    b.ToTable("FeatureFlagsUsers", (string)null);
+                    b.ToTable("feature-flags-users", (string)null);
                 });
 #pragma warning restore 612, 618
         }

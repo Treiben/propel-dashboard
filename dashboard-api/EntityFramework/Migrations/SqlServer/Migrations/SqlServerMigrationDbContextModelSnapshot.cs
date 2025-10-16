@@ -48,7 +48,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.SqlServer
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
-                        .HasDefaultValue("off")
+                        .HasDefaultValue("")
                         .HasColumnName("DefaultVariation");
 
                     b.Property<string>("Description")

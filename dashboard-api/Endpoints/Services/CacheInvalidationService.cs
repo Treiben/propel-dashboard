@@ -14,9 +14,9 @@ public sealed class CacheInvalidationService(IFeatureFlagCache? cache = null) : 
 	{
 		if (cache == null) return;
 
-		CacheKey cacheKey = identifier.Scope == Scope.Global
-			? new GlobalCacheKey(identifier.Key)
-			: new ApplicationCacheKey(identifier.Key, identifier.ApplicationName!, identifier.ApplicationVersion);
+		FlagCacheKey cacheKey = identifier.Scope == Scope.Global
+			? new GlobalFlagCacheKey(identifier.Key)
+			: new ApplicationFlagCacheKey(identifier.Key, identifier.ApplicationName!, identifier.ApplicationVersion);
 
 		await cache.RemoveAsync(cacheKey, cancellationToken);
 	}

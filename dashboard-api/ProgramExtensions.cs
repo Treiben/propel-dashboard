@@ -54,7 +54,6 @@ public static class ProgramExtensions
 					new OperationalWindowEvaluator(),
 					new TargetingRulesEvaluator(),
 					new TenantRolloutEvaluator(),
-					new TerminalStateEvaluator(),
 					new UserRolloutEvaluator(),
 				])));
 		return services;
