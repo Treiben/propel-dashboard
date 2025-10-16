@@ -1,5 +1,4 @@
 import React from 'react';
-import PropelLogo from '../../propel.png';
 
 interface PropelIconProps {
     className?: string;
@@ -9,7 +8,7 @@ interface PropelIconProps {
 export const PropelIcon: React.FC<PropelIconProps> = ({ className = '', size = 32 }) => {
     return (
         <img
-            src={PropelLogo}
+            src="/propel.png"
             alt="Propel Feature Flags"
             width={size}
             height={size}

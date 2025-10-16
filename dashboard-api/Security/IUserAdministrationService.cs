@@ -11,7 +11,7 @@ public interface IUserAdministrationService
 	Task DeleteAsync(string username, CancellationToken cancellationToken = default);
 	Task<User?> GetActiveUserAsync(string username, CancellationToken cancellationToken = default);
 	Task<List<User>> GetAllUsers(CancellationToken cancellationToken = default);
-	Task<User> UpdateAsync(string username, string? password = null, string? role = null, bool? isActive = null, DateTimeOffset? lastLogin = null, CancellationToken cancellationToken = default);
+	Task<User> UpdateAsync(string username, string? password = null, string? role = null, bool? isActive = null, DateTimeOffset? lastLogin = null, bool? forcePasswordChange = null, CancellationToken cancellationToken = default);
 }
 
 
@@ -67,6 +67,7 @@ public sealed class UserAdministrationService(IDatabaseProvider provider) : IUse
 		string? role = null,
 		bool? isActive = null, 
 		DateTimeOffset? lastLogin = null,
+		bool? forcePasswordChange = null,
 		CancellationToken cancellationToken = default)
 	{
 		var user = await provider.Context.Users.FirstOrDefaultAsync(u => u.Username == username, cancellationToken: cancellationToken) ?? throw new InvalidOperationException("User not found");
@@ -81,6 +82,8 @@ public sealed class UserAdministrationService(IDatabaseProvider provider) : IUse
 		}
 		if (lastLogin is not null)
 			user.LastLoginAt = lastLogin;
+		if (forcePasswordChange is not null)
+			user.ForcePasswordChange = forcePasswordChange.Value;
 
 		provider.Context.Users.Update(user);
 		await provider.Context.SaveChangesAsync(cancellationToken);

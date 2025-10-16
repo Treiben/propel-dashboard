@@ -203,6 +203,7 @@ export interface LoginResponse {
 	token: string;
 	username: string;
 	role: string;
+	forcePasswordChange: boolean;
 }
 
 export interface UserDto {
@@ -217,12 +218,18 @@ export interface CreateUserRequest {
 	username: string;
 	password: string;
 	role: string;
+	forcePasswordChange: boolean;
 }
 
 export interface UpdateUserRequest {
 	role?: string;
 	password?: string;
 	isActive?: boolean;
+}
+
+export interface ChangePasswordRequest {
+	currentPassword: string;
+	newPassword: string;
 }
 
 // Helper functions
@@ -560,23 +567,34 @@ export const apiService = {
 			return response;
 		},
 
+		changePassword: async (username: string, request: ChangePasswordRequest) => {
+			// Uppdate the password and clear forcePasswordChange flag
+			return apiRequest<LoginResponse>(`/auth/password-change/${username}`, {
+				method: 'POST',
+				body: JSON.stringify({ 
+					currentPassword: request.currentPassword,
+					newPassword: request.newPassword
+				})
+			});
+		},
+
 		users: {
-			getAll: () => apiRequest<UserDto[]>('/auth/users'),
+			getAll: () => apiRequest<UserDto[]>('/admin/users'),
 
 			create: (request: CreateUserRequest) =>
-				apiRequest<UserDto>('/auth/users', {
+				apiRequest<UserDto>('/admin/users', {
 					method: 'POST',
 					body: JSON.stringify(request)
 				}),
 
 			update: (username: string, request: UpdateUserRequest) =>
-				apiRequest<UserDto>(`/auth/users/${username}`, {
+				apiRequest<UserDto>(`/admin/users/${username}`, {
 					method: 'PUT',
 					body: JSON.stringify(request)
 				}),
 
 			delete: (username: string) =>
-				apiRequest<void>(`/auth/users/${username}`, { method: 'DELETE' })
+				apiRequest<void>(`/admin/users/${username}`, { method: 'DELETE' })
 		}
 	},
 

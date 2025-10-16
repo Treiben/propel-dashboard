@@ -64,6 +64,7 @@
 
 ~~29. **MINOR, UI:** Figure out why suddenly evaluation requires tenant id for each flag even though tenant id is not required for some modes.~~
 
+30. **MEDIUM, CORE LIBRARY:** include rollout evaluation for access control even when users/tenants lists contain allowed/blocked users.
 ## BUG FIX VERIFICATION REPORT
 
 - BUG #8: CLOSED
@@ -87,40 +88,41 @@
 - BUG 27: OPEN
 - BUG 28: CLOSED
 - BUG 29: CLOSED
+- BUG 30: OPEN
 
 ## NEW FEATURES
 
-~~1. Propel icon and proper page title~~
+### ~~1. Propel icon and proper page title~~
 
 - ~~Add propel icon and find a good page title to dashboard~~
 
-~~2. Search by flag name or flag key~~
+### ~~2. Search by flag name or flag key~~
 
 - ~~Add search box to search flags by flag name or flag key~~
 
 - ~~Add api support for search by flag name or flag key~~
 
-~~3. Add filtering by application name and scope (global or application)~~
+### ~~3. Add filtering by application name and scope (global or application)~~
 - ~~Add filtering by application name and scope (global or application) to UI~~
 
 - ~~Add api support for filtering by application name and scope (global or application)~~
 
-~~4. E2E test with Sql Server backend~~
+### ~~4. E2E test with Sql Server backend~~
 ~~- Add e2e test with Sql Server backend to github actions~~
 ~~- Add sql server test db to github actions~~
 
-~~5. Add Variations and Default Variation to flag card~~
+### ~~5. Add Variations and Default Variation to flag card~~
 - ~~Add variations and default variation to flag card in UI~~
 
 - ~~Add api support for variations and default variation~~
 
-~~6. Bring back IsPermanent flag~~
+### ~~6. Bring back IsPermanent flag~~
 ~~- Add api support~~
 ~~- Add UI support~~
 
-~~7. Add flag expired indicator to flag card (red exclamation mark))~~
+### ~~7. Add flag expired indicator to flag card (red exclamation mark))~~
 
-8. Security: add user authentication and authorization
+### ~~8. Security: add user authentication and authorization~~
 - ~~Add user authentication and authorization to API~~
 - ~~Add user authentication and authorization to UI~~
 - ~~Add admin user management to UI~~
@@ -128,25 +130,23 @@
 - ~~Add user roles: admin (can read/write flag operations, read/write users operations), user (read/write flag operations), viewer (read only flag operations)~~
 - ~~Add user roles to seed data~~
 - ~~Add login page to UI~~
-- Add password change functionality to UI and API
+- ~~Add password change functionality to UI and API~~
 
-9. Add propel logo to login page
+### 9. ~~Add propel logo to login page~~
 
-10. Add deployment scripts and documentation
+### 10. Add deployment scripts and documentation
 
-~~11. Create a single container image with both UI and API~~
+### ~~11. Create a single container image with both UI and API~~
 
 
 
 # PROPEL CLI
 
-## NEW FEATURES
-~~1. Add CLI commands (crud commands)~~
+### ~~1. Add CLI commands (crud commands)~~
 
-~~2. Improve CLI migration: 
-	- embed up/down scripts per db provider
-	- add indexes~~
+### ~~2. Improve CLI migration~~
+- ~~embed up/down scripts per db provider~~
+- ~~add indexes~~
 
-~~2. Add CLI documentation~~
+### ~~3. Add CLI documentation~~
 
-~~3. Add CLI tests~~

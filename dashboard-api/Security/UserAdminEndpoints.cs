@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,7 +10,8 @@ using System.Text;
 namespace Propel.FeatureFlags.Dashboard.Api.Security;
 
 public record LoginRequest(string Username, string Password);
-public record LoginResponse(string Token = "", string Username = "", string Role = "");
+public record LoginResponse(string Token = "", string Username = "", string Role = "", bool ForcePasswordChange = false);
+public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 public record CreateUserRequest(string Username, string Password, string Role, bool ForcePasswordChange);
 public record UpdateUserRequest(string? Role, string? Password, bool? IsActive);
 public record UserDto(string Username, string Role, bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? LastLoginAt);
@@ -42,10 +44,54 @@ public sealed class AdminEndpoint : IEndpoint
 				// Generate JWT
 				var token = GenerateJwtToken(user, config);
 
-				return Results.Ok(new LoginResponse(Token: token, Username: user.Username, Role: user.Role));
+				return Results.Ok(new LoginResponse(
+					Token: token,
+					Username: user.Username,
+					Role: user.Role,
+					ForcePasswordChange: user.ForcePasswordChange));
 			})
 		.AllowAnonymous()
 		.WithName("Login")
+		.WithTags("Authorization", "User Login", "Dashboard Api")
+		.Produces<LoginResponse>();
+
+		epRoutBuilder.MapPost("/api/auth/password-change/{username}",
+			async (
+				string username,
+				ChangePasswordRequest request,
+				IUserAdministrationService userAdministrationService,
+				PropelConfiguration config,
+				CancellationToken cancellationToken) =>
+			{
+				var user = await userAdministrationService.GetActiveUserAsync(username, cancellationToken);
+				if (user is null)
+					return Results.Unauthorized();
+
+				var hasher = new PasswordHasher<User>();
+				var result = hasher.VerifyHashedPassword(user, user.Password, request.CurrentPassword);
+
+				if (result != PasswordVerificationResult.Success)
+					return Results.Unauthorized();
+
+				// Update last login
+				var lastLogin = DateTimeOffset.UtcNow;
+				var updatedUser = await userAdministrationService.UpdateAsync(username: user.Username,
+					lastLogin: lastLogin, 
+					forcePasswordChange: false,
+					password: request.NewPassword,
+					cancellationToken: cancellationToken);
+			
+				// Generate JWT
+				var token = GenerateJwtToken(updatedUser, config);
+
+				return Results.Ok(new LoginResponse(
+					Token: token,
+					Username: updatedUser.Username,
+					Role: updatedUser.Role,
+					ForcePasswordChange: updatedUser.ForcePasswordChange));
+			})
+		.RequireAuthorization()
+		.WithName("PasswordChange")
 		.WithTags("Authorization", "User Login", "Dashboard Api")
 		.Produces<LoginResponse>();
 
@@ -75,10 +121,10 @@ public sealed class AdminEndpoint : IEndpoint
 					return Results.BadRequest("Username already exists");
 
 				var created = await userAdministrationService.CreateUserAsync(
-					username: request.Username, 
+					username: request.Username,
 					password: request.Password,
 					role: request.Role,
-					forcePasswordChange: request.ForcePasswordChange, 
+					forcePasswordChange: true,
 					cancellationToken);
 
 				return Results.Created($"/api/auth/users/{created.Username}", new UserDto(
@@ -109,10 +155,11 @@ public sealed class AdminEndpoint : IEndpoint
 				try
 				{
 					var updated = await userAdministrationService.UpdateAsync(
-						username: username, 
+						username: username,
 						password: request.Password,
 						role: request.Role,
 						isActive: request.IsActive,
+						forcePasswordChange: request.Password is not null,
 						cancellationToken: cancellationToken);
 
 					return Results.Ok(new UserDto(
@@ -184,40 +231,4 @@ public sealed class AdminEndpoint : IEndpoint
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
 	}
-
-	//private static string GenerateJwtToken(User user, IConfiguration config)
-	//{
-	//	var key = new SymmetricSecurityKey(
-	//		Encoding.UTF8.GetBytes(config["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret not configured")));
-	//	var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-	//	var claims = new[]
-	//	{
-	//		new Claim(ClaimTypes.NameIdentifier, user.Username),
-	//		new Claim(ClaimTypes.Name, user.Username),
-	//		new Claim(ClaimTypes.Role, user.Role),
-	//		new Claim("scope", "propel-dashboard-api")
-	//	};
-
-	//	// Add scope claims based on role
-	//	var scopeClaims = user.Role switch
-	//	{
-	//		UserRole.Admin => ["read", "write", "admin"],
-	//		UserRole.User => ["read", "write"],
-	//		UserRole.Viewer => ["read"],
-	//		_ => Array.Empty<string>()
-	//	};
-
-	//	var allClaims = claims.Concat(scopeClaims.Select(s => new Claim("scope", s))).ToArray();
-
-	//	var token = new JwtSecurityToken(
-	//		issuer: config["Jwt:Issuer"],
-	//		audience: config["Jwt:Audience"],
-	//		claims: allClaims,
-	//		expires: DateTime.UtcNow.AddHours(8),
-	//		signingCredentials: creds
-	//	);
-
-	//	return new JwtSecurityTokenHandler().WriteToken(token);
-	//}
 }

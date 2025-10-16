@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { apiService } from './services/apiService';
+import { PropelIcon } from './components/PropelIcon';
+import ChangePassword from './components/ChangePassword';
 
 interface LoginProps {
     onLoginSuccess: (user: { username: string; role: string }) => void;
@@ -10,6 +12,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [forcePasswordChange, setForcePasswordChange] = useState(false);
+    const [loginData, setLoginData] = useState<{ username: string; role: string } | null>(null);
 
     const handleLogin = async () => {
         setError('');
@@ -18,6 +23,15 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         try {
             // Use apiService instead of manual fetch
             const data = await apiService.auth.login({ username, password });
+
+            // Check if password change is required
+            if (data.forcePasswordChange) {
+                setForcePasswordChange(true);
+                setShowChangePassword(true);
+                setLoginData({ username: data.username, role: data.role });
+                setLoading(false);
+                return;
+            }
 
             // Token is now automatically set by apiService
             localStorage.setItem('propel-user', JSON.stringify({
@@ -34,16 +48,50 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         }
     };
 
+    const handlePasswordChanged = () => {
+        // After password change, complete the login process
+        if (loginData) {
+            localStorage.setItem('propel-user', JSON.stringify({
+                username: loginData.username,
+                role: loginData.role
+            }));
+            onLoginSuccess(loginData);
+        }
+    };
+
+    const handleCancelPasswordChange = () => {
+        // Clear the token and reset the form
+        apiService.auth.removeToken();
+        setShowChangePassword(false);
+        setForcePasswordChange(false);
+        setLoginData(null);
+        setPassword('');
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && username && password) {
             handleLogin();
         }
     };
 
+    // Show change password screen if required
+    if (showChangePassword && loginData) {
+        return (
+            <ChangePassword
+                username={loginData.username}
+                onPasswordChanged={handlePasswordChanged}
+                onCancel={forcePasswordChange ? undefined : handleCancelPasswordChange}
+            />
+        );
+    }
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
                 <div>
+                    <div className="flex justify-center mb-6">
+                        <PropelIcon size={64} />
+                    </div>
                     <h2 className="text-center text-3xl font-bold text-gray-900">
                         Propel Dashboard
                     </h2>
