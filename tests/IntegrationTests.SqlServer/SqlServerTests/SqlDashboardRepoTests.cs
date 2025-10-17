@@ -12,7 +12,7 @@ public class GetAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : I
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("comprehensive-flag", Scope.Application, "test-app", "2.1.0");
+		var flagIdentifier = new ApplicationFlagIdentifier("comprehensive-flag", "test-app", "2.1.0");
 		var metadata = new FlagAdministration(Name: "Comprehensive Test Flag",
 			Description: "Complete field mapping test with all possible values",
 			Tags: new Dictionary<string, string> { { "category", "testing" }, { "priority", "high" }, { "env", "staging" } },
@@ -146,7 +146,7 @@ public class GetAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : I
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("non-existent-dashboard-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("non-existent-dashboard-flag");
 
 		// Act
 		var result = await fixture.AdministrationService.GetByKeyAsync(flagIdentifier);
@@ -194,7 +194,7 @@ public class GetAllAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 
 	private static FeatureFlag CreateTestFlag(string key, string name)
 	{
-		var identifier = new FlagIdentifier(key, Scope.Global);
+		var identifier = new GlobalFlagIdentifier(key);
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: "Test description",
@@ -262,7 +262,7 @@ public class GetPagedAsync_WithDashboardRepository(SqlServerTestsFixture fixture
 
 	private static FeatureFlag CreateTestFlag(string key, string name, Scope scope = Scope.Global, string? appName = null)
 	{
-		var identifier = new FlagIdentifier(key, scope, appName);
+		FlagIdentifier identifier = scope == Scope.Global ? new GlobalFlagIdentifier(key) : new ApplicationFlagIdentifier(key, appName);
 		var metadata = new FlagAdministration(
 					Name: name,
 					Description: "Test description",
@@ -290,7 +290,7 @@ public class CreateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var identifier = new FlagIdentifier("create-test-flag", Scope.Global);
+		var identifier = new GlobalFlagIdentifier("create-test-flag");
 		var metadata = new FlagAdministration(
 			Name: "Create Test Flag",
 			Description: "Test flag creation",
@@ -326,7 +326,7 @@ public class CreateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var identifier = new FlagIdentifier("complex-create-flag", Scope.Application, "test-app");
+		var identifier = new ApplicationFlagIdentifier("complex-create-flag", "test-app");
 		var metadata = new FlagAdministration(
 				Name: "Complex Create Flag",
 				Description: "Testing complex flag creation",
@@ -442,7 +442,7 @@ public class UpdateAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("update-test-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("update-test-flag");
 		var originalFlag = CreateTestFlag(flagIdentifier, "Original Name");
 		await fixture.AdministrationService.CreateAsync(originalFlag);
 
@@ -495,7 +495,7 @@ public class DeleteAsync_WithDashboardRepository(SqlServerTestsFixture fixture) 
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("delete-test-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("delete-test-flag");
 		var flag = CreateTestFlag(flagIdentifier, "Delete Test Flag");
 		await fixture.AdministrationService.CreateAsync(flag);
 
@@ -536,7 +536,7 @@ public class FeatureFlagRepositoryComprehensiveTests(SqlServerTestsFixture fixtu
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("minmax-datetime-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("minmax-datetime-flag");
 
 		var metadata = new FlagAdministration(
 				Name: "Min/Max DateTime Test Flag",
@@ -575,7 +575,7 @@ public class FeatureFlagRepositoryComprehensiveTests(SqlServerTestsFixture fixtu
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("minimal-nullable-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("minimal-nullable-flag");
 		var metadata = new FlagAdministration(
 								Name: "Minimal Nullable Flag",
 								Description: "Testing null/default values for optional fields",
@@ -646,7 +646,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(SqlServerTestsFixture f
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("metadata-update-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("metadata-update-flag");
 		var originalFlag = CreateTestFlag(flagIdentifier, "Original Name");
 		await fixture.AdministrationService.CreateAsync(originalFlag);
 
@@ -683,7 +683,7 @@ public class UpdateMetadataAsync_WithDashboardRepository(SqlServerTestsFixture f
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("config-preserve-flag", Scope.Application, "test-app");
+		var flagIdentifier = new ApplicationFlagIdentifier("config-preserve-flag", "test-app");
 		var metadata = new FlagAdministration(
 			Name: "Config Preserve Flag",
 			Description: "Testing configuration preservation",
@@ -762,7 +762,7 @@ public class FlagExistsAsync_WithDashboardRepository(SqlServerTestsFixture fixtu
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("exists-test-flag", Scope.Global);
+		var flagIdentifier = new GlobalFlagIdentifier("exists-test-flag");
 		var flag = CreateTestFlag(flagIdentifier, "Exists Test Flag");
 		await fixture.AdministrationService.CreateAsync(flag);
 
@@ -778,7 +778,7 @@ public class FlagExistsAsync_WithDashboardRepository(SqlServerTestsFixture fixtu
 	{
 		// Arrange
 		await fixture.ClearAllData();
-		var flagIdentifier = new FlagIdentifier("non-existent-flag", Scope.Application, "test-app");
+		var flagIdentifier = new ApplicationFlagIdentifier("non-existent-flag", "test-app");
 
 		// Act
 		var result = await fixture.AdministrationService.FlagExistsAsync(flagIdentifier);
@@ -907,7 +907,7 @@ public class FindAsync_WithDashboardRepository(SqlServerTestsFixture fixture) : 
 
 	private static FeatureFlag CreateTestFlag(string key, string name, string description)
 	{
-		var identifier = new FlagIdentifier(key, Scope.Global);
+		var identifier = new GlobalFlagIdentifier(key);
 		var metadata = new FlagAdministration(
 			Name: name,
 			Description: description,

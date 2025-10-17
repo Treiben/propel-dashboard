@@ -17,7 +17,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_toggle_flag_on_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("toggle-on-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("toggle-on-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Toggle On",
 						Description: "Will be enabled",
@@ -42,7 +42,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		response.ShouldNotBeNull();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("toggle-on-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("toggle-on-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeTrue();
 	}
 
@@ -50,7 +50,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_toggle_flag_off_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("toggle-off-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("toggle-off-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Toggle Off",
 						Description: "Will be disabled",
@@ -73,7 +73,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("toggle-off-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("toggle-off-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeTrue();
 	}
 
@@ -81,7 +81,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_return_ok_when_flag_already_in_requested_state()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("already-on-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("already-on-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Already On",
 						Description: "Already enabled",
@@ -110,7 +110,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_reset_access_control_when_toggling_on()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("access-control-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("access-control-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Access Control",
 						Description: "Will reset access",
@@ -132,7 +132,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("access-control-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("access-control-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(100);
 		updated.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(100);
 	}
@@ -141,7 +141,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_reset_access_control_to_zero_when_toggling_off()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("access-off-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("access-off-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Access Off",
 						Description: "Will reset to zero",
@@ -163,7 +163,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("access-off-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("access-off-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(0);
 		updated.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(0);
 	}
@@ -172,7 +172,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_toggle()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-toggle-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-toggle-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Toggle",
 						Description: "In cache",
@@ -183,7 +183,7 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-toggle-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-toggle-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-toggle-flag"));
 
 		var handler = fixture.Services.GetRequiredService<ToggleFlagHandler>();

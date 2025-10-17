@@ -1,6 +1,6 @@
 ﻿namespace Propel.FeatureFlags.Dashboard.Api;
 
-public record PropelConfiguration
+public record DashboardConfiguration
 {
 	public required string SqlConnection { get; init; }
 	public required string CacheConnection { get; init; }
@@ -14,7 +14,7 @@ public record PropelConfiguration
 	public required string JwtAudience { get; init; } 
 
 
-	public static PropelConfiguration ConfigureProductionSettings(IConfiguration configuration)
+	public static DashboardConfiguration ConfigureProductionSettings(IConfiguration configuration)
 	{
 		// Read configuration values from environment variables or appsettings
 		var sqlConnectionString = configuration["SQL_CONNECTION"]
@@ -68,7 +68,7 @@ public record PropelConfiguration
 				|| allowFlagsUpdateInRedisConfig.Equals("1", StringComparison.OrdinalIgnoreCase))
 			allowFlagsUpdateInRedis = true;
 
-		return new PropelConfiguration
+		return new DashboardConfiguration
 		{
 			SqlConnection = sqlConnectionString ?? throw new InvalidOperationException("SQL_CONNECTION environment variable or configuration is required"),
 			CacheConnection = allowFlagsUpdateInRedis

@@ -17,7 +17,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_schedule_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("update-schedule-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("update-schedule-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Schedule Flag",
 						Description: "Will be scheduled",
@@ -41,7 +41,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("update-schedule-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("update-schedule-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeTrue();
 		updated.EvaluationOptions.Schedule.EnableOn.DateTime.ShouldNotBe(DateTime.MinValue.ToUniversalTime());
 		updated.EvaluationOptions.Schedule.DisableOn.DateTime.ShouldNotBe(DateTime.MaxValue.ToUniversalTime());
@@ -51,7 +51,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_schedule_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("remove-schedule-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("remove-schedule-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Remove Schedule",
 						Description: "Has schedule to remove",
@@ -79,7 +79,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("remove-schedule-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("remove-schedule-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeFalse();
 	}
 
@@ -87,7 +87,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_scheduled_mode_when_setting_schedule()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-schedule-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-schedule-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Schedule",
 						Description: "Check mode addition",
@@ -111,7 +111,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("mode-schedule-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("mode-schedule-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeTrue();
 	}
 
@@ -119,7 +119,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_on_off_modes_when_scheduling()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-cleanup-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-cleanup-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Cleanup",
 						Description: "Remove on/off modes",
@@ -148,7 +148,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("mode-cleanup-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("mode-cleanup-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Scheduled]).ShouldBeTrue();
@@ -158,7 +158,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_schedule_update()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-schedule-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-schedule-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Schedule",
 						Description: "In cache",
@@ -169,7 +169,7 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-schedule-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-schedule-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-schedule-flag"));
 
 		var handler = fixture.Services.GetRequiredService<UpdateScheduleHandler>();

@@ -17,7 +17,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_time_window_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("time-window-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("time-window-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Time Window",
 						Description: "Will have time window",
@@ -46,7 +46,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("time-window-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("time-window-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeTrue();
 		updated.EvaluationOptions.OperationalWindow.DaysActive.Length.ShouldBe(3);
 	}
@@ -55,7 +55,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_time_window_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("remove-window-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("remove-window-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Remove Window",
 						Description: "Has window to remove",
@@ -94,7 +94,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("remove-window-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("remove-window-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeFalse();
 	}
 
@@ -102,7 +102,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_time_window_mode_when_setting_window()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-window-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-window-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Window",
 						Description: "Check mode addition",
@@ -130,7 +130,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("mode-window-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("mode-window-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeTrue();
 	}
 
@@ -138,7 +138,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_on_off_modes_when_setting_time_window()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cleanup-window-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cleanup-window-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cleanup Window",
 						Description: "Remove on/off modes",
@@ -171,7 +171,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("cleanup-window-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("cleanup-window-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TimeWindow]).ShouldBeTrue();
@@ -181,7 +181,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_time_window_with_all_days_active()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("all-days-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("all-days-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "All Days",
 						Description: "All days active",
@@ -212,7 +212,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("all-days-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("all-days-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.OperationalWindow.DaysActive.Length.ShouldBe(7);
 	}
 
@@ -220,7 +220,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_time_window_update()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-window-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-window-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Window",
 						Description: "In cache",
@@ -231,7 +231,7 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-window-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-window-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-window-flag"));
 
 		var handler = fixture.Services.GetRequiredService<UpdateTimeWindowHandler>();

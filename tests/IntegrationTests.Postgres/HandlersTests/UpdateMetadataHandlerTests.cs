@@ -17,7 +17,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_update_flag_name_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("update-name-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("update-name-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Old Name",
 						Description: "Description",
@@ -42,7 +42,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		response.Name.ShouldBe("New Name");
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("update-name-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("update-name-flag"), CancellationToken.None);
 		updated!.Administration.Name.ShouldBe("New Name");
 	}
 
@@ -50,7 +50,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_update_flag_description_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("update-desc-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("update-desc-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Name",
 						Description: "Old Description",
@@ -73,7 +73,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		response.Description.ShouldBe("New Description");
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("update-desc-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("update-desc-flag"), CancellationToken.None);
 		updated!.Administration.Description.ShouldBe("New Description");
 	}
 
@@ -81,7 +81,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_update_flag_tags_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("update-tags-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("update-tags-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Name",
 						Description: "Description",
@@ -103,7 +103,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("update-tags-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("update-tags-flag"), CancellationToken.None);
 		updated!.Administration.Tags["env"].ShouldBe("production");
 		updated.Administration.Tags["team"].ShouldBe("backend");
 	}
@@ -112,7 +112,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_update_flag_expiration_date_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("update-expiration-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("update-expiration-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Name",
 						Description: "Description",
@@ -135,7 +135,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("update-expiration-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("update-expiration-flag"), CancellationToken.None);
 		updated!.Administration.RetentionPolicy.ShouldNotBeNull();
 	}
 
@@ -143,7 +143,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_update_multiple_fields_at_once()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("update-multiple-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("update-multiple-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Old Name",
 						Description: "Old Description",
@@ -166,7 +166,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("update-multiple-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("update-multiple-flag"), CancellationToken.None);
 		updated!.Administration.Name.ShouldBe("New Name");
 		updated.Administration.Description.ShouldBe("New Description");
 		updated.Administration.Tags["updated"].ShouldBe("true");
@@ -176,7 +176,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_update()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-update-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-update-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached",
 						Description: "In cache",
@@ -187,7 +187,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 
 		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-update-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-update-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-update-flag"));
 
 		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
@@ -223,7 +223,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_preserve_existing_values_when_fields_are_null()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("preserve-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("preserve-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Original Name",
 						Description: "Original Description",
@@ -245,7 +245,7 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 		
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("preserve-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("preserve-flag"), CancellationToken.None);
 		updated!.Administration.Name.ShouldBe("Original Name");
 		updated.Administration.Description.ShouldBe("Only description updated");
 	}

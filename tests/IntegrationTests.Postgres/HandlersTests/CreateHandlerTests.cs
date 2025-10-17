@@ -33,7 +33,7 @@ public class CreateFlagHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Created<FeatureFlagResponse>>();
 
 		var flag = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("test-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("test-flag"), CancellationToken.None);
 
 		flag.ShouldNotBeNull();
 		flag.Administration.Name.ShouldBe("Test Flag");
@@ -45,7 +45,7 @@ public class CreateFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_return_conflict_when_flag_already_exists()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("duplicate-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("duplicate-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Existing",
 						Description: "Already exists",
@@ -83,7 +83,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_delete_flag_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("deletable-flag", Scope.Application, applicationName: "test", applicationVersion: "1.0.0.0");
+		var identifier = new ApplicationFlagIdentifier("deletable-flag", applicationName: "test", applicationVersion: "1.0.0.0");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "To Delete",
 						Description: "Will be deleted",
@@ -111,7 +111,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_not_delete_permanent_flag()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("permanent-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("permanent-flag");
 		var flag = new FeatureFlag(identifier, 
 			new FlagAdministration(Name: "Permanent Flag", 
 						Description: "Cannot be deleted",
@@ -124,7 +124,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 
 		// Mark as permanent
 		var stored = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("permanent-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("permanent-flag"), CancellationToken.None);
 
 		await fixture.AdministrationService.UpdateAsync(stored, CancellationToken.None);
 
@@ -160,7 +160,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_deletion()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-flag", Scope.Application, applicationName: "test", applicationVersion: "1.0.0.0");
+		var identifier = new ApplicationFlagIdentifier("cached-flag", applicationName: "test", applicationVersion: "1.0.0.0");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached",
 						Description: "In cache",
@@ -172,7 +172,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
-		var cacheKey = new ApplicationCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);
+		var cacheKey = new ApplicationFlagCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-flag"));
 
 		var handler = fixture.Services.GetRequiredService<DeleteFlagHandler>();
@@ -190,7 +190,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 	public async Task ShouldNot_Delete_BecauseFlagIsPermanent()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("perm-flag", Scope.Application, applicationName: "test", applicationVersion: "1.0.0.0");
+		var identifier = new ApplicationFlagIdentifier("perm-flag", applicationName: "test", applicationVersion: "1.0.0.0");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Permanent",
 						Description: "In cache and in db",
@@ -202,7 +202,7 @@ public class DeleteFlagHandlerTests(HandlersTestsFixture fixture)
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
 
-		var cacheKey = new ApplicationCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);
+		var cacheKey = new ApplicationFlagCacheKey(identifier.Key, identifier.ApplicationName, identifier.ApplicationVersion);
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "perm-flag"));
 
 		var handler = fixture.Services.GetRequiredService<DeleteFlagHandler>();

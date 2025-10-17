@@ -158,7 +158,7 @@ public class AdministrationService(IDatabaseProvider provider, ILogger<Administr
 			_ => throw new InvalidOperationException("Unsupported scope")
 		};
 
-		if (string.IsNullOrWhiteSpace(application))
+		if (parsedScope == Scope.Application && string.IsNullOrWhiteSpace(application))
 			return (false, HttpProblemFactory.BadRequest(
 				"No application name or version provided",
 				"Application name with or without version required for Application scope requests. Pass name and version in headers X-Application-Name, X-Application-Version", logger), null);

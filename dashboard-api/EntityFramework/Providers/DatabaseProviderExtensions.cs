@@ -4,7 +4,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 
 public static class DatabaseProviderExtensions
 {
-	public static IServiceCollection AddDatabaseProvider(this IServiceCollection services, PropelConfiguration config)
+	public static IServiceCollection AddDatabaseProvider(this IServiceCollection services, DashboardConfiguration config)
 	{
 		var databaseProvider = ProviderDetector.DetectProvider(config.SqlConnection)
 			?? throw new NotSupportedException($"Could not detect database provider from connection string. " +

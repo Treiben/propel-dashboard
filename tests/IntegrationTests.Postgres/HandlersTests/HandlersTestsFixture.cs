@@ -1,15 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
 using Propel.FeatureFlags.Dashboard.Api;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Migrations.PostgreSql;
-using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 using Propel.FeatureFlags.Domain;
-using Propel.FeatureFlags.Infrastructure;
 using Propel.FeatureFlags.Infrastructure.Cache;
-using Propel.FeatureFlags.Redis;
 using Propel.FeatureFlags.Utilities;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -66,36 +64,28 @@ public class HandlersTestsFixture : IAsyncLifetime
 			options.SerializerOptions.Converters.Add(new EnumJsonConverter<TargetingOperator>());
 		});
 
-		ConfigureFeatureFlags(services, options =>
+		var configurationDict = new Dictionary<string, string?>
 		{
-			options.SqlConnection = sqlConnectionString;
-			options.Cache = new CacheOptions
-			{
-				EnableInMemoryCache = false,
-				EnableDistributedCache = true,
-				Connection = _redisContainer.GetConnectionString()
-			};
-		});
-		Services = services.BuildServiceProvider();
+			["SQL_CONNECTION"] = sqlConnectionString,
+			["REDIS_CONNECTION"] = redisConnectionString,
+			["ALLOW_FLAGS_UPDATE_IN_REDIS"] = "true",
+			["RUN_MIGRATIONS"] = "true",
+			["JWT_SECRET"] = "Super secret",
+			["JWT_ISSUER"] = "Test",
+			["JWT_AUDIENCE"] = "TestAudience",
+			["SEED_DEFAULT_ADMIN"] = "true",
+			["DEFAULT_ADMIN_USERNAME"] = "admin",
+			["DEFAULT_ADMIN_PASSWORD"] = "Admin123!"
+		};
 
-		// Apply migrations to initialize the database schema
-		await ApplyMigrationsAsync();
-	}
+		var configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(configurationDict)
+			.Build();
 
-	public void ConfigureFeatureFlags(IServiceCollection services, Action<PropelConfiguration> configure)
-	{
-		PropelConfiguration propelConfig = new();
-		configure.Invoke(propelConfig);
+		// Configure dashboard-specific services
+		var config = DashboardConfiguration.ConfigureProductionSettings(configuration);
 
-		services.AddSingleton(propelConfig);
-
-		services.RegisterEvaluators();
-
-		var cacheOptions = propelConfig.Cache;
-		if (cacheOptions.EnableDistributedCache == true)
-		{
-			services.AddRedisCache(cacheOptions.Connection);
-		}
+		services.AddSingleton(config);
 
 		var mockCurrentUserService = new Mock<ICurrentUserService>();
 		mockCurrentUserService.Setup(s => s.UserName).Returns("integration-test-user");
@@ -103,10 +93,12 @@ public class HandlersTestsFixture : IAsyncLifetime
 
 		services.AddSingleton<ICurrentUserService>(mockCurrentUserService.Object);
 
-		services.AddDatabaseProvider(propelConfig)
-				.AddDashboardServices();
+		services.ConfigureFeatureFlags(config);
 
-		services.AddDatabaseMigrationsProvider(propelConfig);
+		Services = services.BuildServiceProvider();
+
+		// Apply migrations to initialize the database schema
+		await ApplyMigrationsAsync();
 	}
 
 	public async Task DisposeAsync()
@@ -127,8 +119,6 @@ public class HandlersTestsFixture : IAsyncLifetime
 
 		await connection.OpenAsync();
 		await command.ExecuteNonQueryAsync();
-
-		await Cache.ClearAsync();
 	}
 
 	private async Task ApplyMigrationsAsync()

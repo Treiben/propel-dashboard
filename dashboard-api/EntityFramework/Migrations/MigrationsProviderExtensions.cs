@@ -5,7 +5,7 @@ namespace Propel.FeatureFlags.Dashboard.Api.EntityFramework.Providers;
 
 public static class MigrationsProviderExtensions
 {
-	public static IServiceCollection AddDatabaseMigrationsProvider(this IServiceCollection services, PropelConfiguration config)
+	public static IServiceCollection AddDatabaseMigrationsProvider(this IServiceCollection services, DashboardConfiguration config)
 	{
 		var connectionString = config.SqlConnection
 			?? throw new InvalidOperationException("Database connection string is required");

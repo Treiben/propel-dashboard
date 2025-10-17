@@ -16,7 +16,7 @@ public class FlagEvaluationHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_evaluate_global_flag_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("eval-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("eval-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Eval Flag",
 						Description: "For evaluation",
@@ -41,7 +41,7 @@ public class FlagEvaluationHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_evaluate_flag_with_tenant_context()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("tenant-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("tenant-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tenant Flag",
 						Description: "For tenant evaluation",
@@ -66,7 +66,7 @@ public class FlagEvaluationHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_evaluate_flag_with_user_context()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("user-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("user-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "User Flag",
 						Description: "For user evaluation",
@@ -91,7 +91,7 @@ public class FlagEvaluationHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_evaluate_flag_with_kv_attributes()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("attrs-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("attrs-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Attributes Flag",
 						Description: "With attributes",
@@ -117,7 +117,7 @@ public class FlagEvaluationHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_return_bad_request_for_invalid_attributes_format()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("invalid-attrs-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("invalid-attrs-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Invalid Attrs",
 						Description: "Test invalid format",

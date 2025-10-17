@@ -17,7 +17,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_tenant_rollout_percentage_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("tenant-percentage-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("tenant-percentage-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tenant Percentage",
 						Description: "Will have percentage",
@@ -39,7 +39,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("tenant-percentage-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("tenant-percentage-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(75);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantRolloutPercentage]).ShouldBeTrue();
 	}
@@ -48,7 +48,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_allowed_tenants_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("allowed-tenants-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("allowed-tenants-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Allowed Tenants",
 						Description: "Will have allowed tenants",
@@ -74,7 +74,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("allowed-tenants-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("allowed-tenants-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.Allowed.ShouldContain("tenant-1");
 		updated.EvaluationOptions.TenantAccessControl.Allowed.ShouldContain("tenant-2");
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantTargeted]).ShouldBeTrue();
@@ -84,7 +84,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_blocked_tenants_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("blocked-tenants-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("blocked-tenants-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Blocked Tenants",
 						Description: "Will have blocked tenants",
@@ -110,7 +110,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("blocked-tenants-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("blocked-tenants-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.Blocked.ShouldContain("tenant-bad-1");
 		updated.EvaluationOptions.TenantAccessControl.Blocked.ShouldContain("tenant-bad-2");
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantTargeted]).ShouldBeTrue();
@@ -120,7 +120,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_rollout_mode_when_percentage_is_one_hundred()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("hundred-percentage-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("hundred-percentage-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Hundred Percentage",
 						Description: "Test unrestricted rollout",
@@ -142,7 +142,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("hundred-percentage-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("hundred-percentage-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(100);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantRolloutPercentage]).ShouldBeFalse();
 	}
@@ -151,7 +151,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_on_off_modes_when_setting_tenant_access()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("tenant-mode-cleanup-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("tenant-mode-cleanup-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tenant Mode Cleanup",
 						Description: "Remove on/off modes",
@@ -178,7 +178,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("tenant-mode-cleanup-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("tenant-mode-cleanup-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
 	}
@@ -187,7 +187,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_both_allowed_and_percentage_together()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("combined-tenant-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("combined-tenant-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Combined Tenant",
 						Description: "Both allowed and percentage",
@@ -213,7 +213,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("combined-tenant-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("combined-tenant-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TenantAccessControl.Allowed.ShouldContain("tenant-a");
 		updated.EvaluationOptions.TenantAccessControl.RolloutPercentage.ShouldBe(80);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TenantTargeted]).ShouldBeTrue();
@@ -224,7 +224,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_tenant_access_update()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-tenant-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-tenant-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Tenant",
 						Description: "In cache",
@@ -235,7 +235,7 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-tenant-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-tenant-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-tenant-flag"));
 
 		var handler = fixture.Services.GetRequiredService<ManageTenantAccessHandler>();

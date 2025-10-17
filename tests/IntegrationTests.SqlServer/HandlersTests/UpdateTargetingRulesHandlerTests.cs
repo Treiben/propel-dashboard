@@ -17,7 +17,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_targeting_rules_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("targeting-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("targeting-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Targeting Flag",
 						Description: "Will have rules",
@@ -44,7 +44,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("targeting-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("targeting-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TargetingRules.Count.ShouldBe(2);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeTrue();
 	}
@@ -53,7 +53,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_all_targeting_rules_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("remove-targeting-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("remove-targeting-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Remove Targeting",
 						Description: "Has rules to remove",
@@ -83,7 +83,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("remove-targeting-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("remove-targeting-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TargetingRules.ShouldBeEmpty();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeFalse();
 	}
@@ -92,7 +92,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_targeting_rules_mode_when_adding_rules()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-targeting-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-targeting-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Targeting",
 						Description: "Check mode addition",
@@ -118,7 +118,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("mode-targeting-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("mode-targeting-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeTrue();
 	}
 
@@ -126,7 +126,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_on_off_modes_when_adding_targeting_rules()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cleanup-targeting-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cleanup-targeting-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cleanup Targeting",
 						Description: "Remove on/off modes",
@@ -157,7 +157,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("cleanup-targeting-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("cleanup-targeting-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.TargetingRules]).ShouldBeTrue();
@@ -167,7 +167,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_replace_existing_rules_with_new_rules()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("replace-targeting-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("replace-targeting-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Replace Targeting",
 						Description: "Replace rules",
@@ -201,7 +201,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("replace-targeting-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("replace-targeting-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.TargetingRules.Count.ShouldBe(1);
 		updated.EvaluationOptions.TargetingRules[0].Attribute.ShouldBe("new-attr");
 	}
@@ -210,7 +210,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_targeting_rules_update()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-targeting-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-targeting-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached Targeting",
 						Description: "In cache",
@@ -221,7 +221,7 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-targeting-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-targeting-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-targeting-flag"));
 
 		var handler = fixture.Services.GetRequiredService<UpdateTargetingRulesHandler>();

@@ -16,12 +16,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
 
-var config = PropelConfiguration.ConfigureProductionSettings(builder.Configuration);
+var config = DashboardConfiguration.ConfigureProductionSettings(builder.Configuration);
 
 builder.Services.AddSingleton(config);
 
 // Configure dashboard-specific services
-builder.ConfigureFeatureFlags(config);
+builder.Services.ConfigureFeatureFlags(config);
 
 // Configure CORS policies
 builder.Services.AddCors(options =>

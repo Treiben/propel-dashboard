@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Propel.FeatureFlags.Dashboard.Api.Domain;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints;
 using Propel.FeatureFlags.Dashboard.Api.Endpoints.Dto;
-using Propel.FeatureFlags.Dashboard.Api.Endpoints.Shared;
 using Propel.FeatureFlags.Domain;
 using Propel.FeatureFlags.Infrastructure.Cache;
 
@@ -18,7 +17,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_user_rollout_percentage_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("user-percentage-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("user-percentage-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "User Percentage",
 						Description: "Will have percentage",
@@ -40,7 +39,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("user-percentage-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("user-percentage-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(60);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.UserRolloutPercentage]).ShouldBeTrue();
 	}
@@ -49,7 +48,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_add_allowed_users_successfully()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("allowed-users-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("allowed-users-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Allowed Users",
 						Description: "Will have allowed users",
@@ -75,7 +74,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("allowed-users-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("allowed-users-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-1");
 		updated.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-2");
 		updated.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-3");
@@ -85,7 +84,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	[Fact]
 	public async Task Should_add_blocked_users_successfully()
 	{
-		var identifier = new FlagIdentifier("blocked-users-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("blocked-users-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Blocked Users",
 						Description: "Will have blocked users",
@@ -111,7 +110,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("blocked-users-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("blocked-users-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.Blocked.ShouldContain("user-blocked-1");
 		updated.EvaluationOptions.UserAccessControl.Blocked.ShouldContain("user-blocked-2");
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.UserTargeted]).ShouldBeTrue();
@@ -121,7 +120,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_rollout_mode_when_percentage_is_one_hundred()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("hundred-user-percentage-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("hundred-user-percentage-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Hundred User Percentage",
 						Description: "Testing unrestricted user access",
@@ -143,7 +142,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("hundred-user-percentage-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("hundred-user-percentage-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(100);
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.UserRolloutPercentage]).ShouldBeFalse();
 	}
@@ -152,7 +151,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_remove_on_off_modes_when_setting_user_access()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("user-mode-cleanup-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("user-mode-cleanup-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "User Mode Cleanup",
 						Description: "Remove on/off modese",
@@ -179,7 +178,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("user-mode-cleanup-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("user-mode-cleanup-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.ModeSet.Contains([EvaluationMode.On]).ShouldBeFalse();
 		updated.EvaluationOptions.ModeSet.Contains([EvaluationMode.Off]).ShouldBeFalse();
 	}
@@ -188,7 +187,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_set_both_allowed_and_percentage_together()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("combined-user-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("combined-user-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Combined User",
 						Description: "Both allowed and percentage",
@@ -214,7 +213,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 		result.ShouldBeOfType<Ok<FeatureFlagResponse>>();
 
 		var updated = await fixture.AdministrationService.GetByKeyAsync(
-			new FlagIdentifier("combined-user-flag", Scope.Global), CancellationToken.None);
+			new GlobalFlagIdentifier("combined-user-flag"), CancellationToken.None);
 		updated!.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-alpha");
 		updated.EvaluationOptions.UserAccessControl.Allowed.ShouldContain("user-beta");
 		updated.EvaluationOptions.UserAccessControl.RolloutPercentage.ShouldBe(90);
@@ -226,7 +225,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_invalidate_cache_after_user_access_update()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("cached-user-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("cached-user-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Cached User",
 						Description: "In cache",
@@ -237,7 +236,7 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 
 		await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
 
-		var cacheKey = new GlobalCacheKey("cached-user-flag");
+		var cacheKey = new GlobalFlagCacheKey("cached-user-flag");
 		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-user-flag"));
 
 		var handler = fixture.Services.GetRequiredService<ManageUserAccessHandler>();

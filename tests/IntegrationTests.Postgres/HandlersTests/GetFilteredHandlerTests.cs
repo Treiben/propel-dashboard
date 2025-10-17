@@ -14,7 +14,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_return_paged_flags_successfully()
 	{
 		// Arrange
-		var identifier1 = new FlagIdentifier($"paged-flag-1", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier1 = new GlobalFlagIdentifier($"paged-flag-1");
 		var flag1 = new FeatureFlag(identifier1,
 			new FlagAdministration(Name: $"Flag 1",
 						Description: $"First flag",
@@ -23,7 +23,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
 			FlagEvaluationOptions.DefaultOptions with { ModeSet = EvaluationMode.UserTargeted });
 
-		var identifier2 = new FlagIdentifier($"paged-flag-2", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier2 = new GlobalFlagIdentifier($"paged-flag-2");
 		var flag2 = new FeatureFlag(identifier2,
 			new FlagAdministration(Name: $"Flag 2",
 						Description: $"Second flag",
@@ -55,7 +55,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_evaluation_modes_that_not_found()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-filter-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-filter-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Name",
 						Description: "With specific mode",
@@ -95,7 +95,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_one_evaluation_mode()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-filter-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-filter-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Name",
 						Description: "With specific mode",
@@ -139,7 +139,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_many_evaluation_modes()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("mode-filter-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("mode-filter-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Mode Name",
 						Description: "With specific mode",
@@ -183,7 +183,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_tags()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("tagged-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("tagged-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tagged Flag",
 						Description: "With tags",
@@ -216,7 +216,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 	public async Task Should_filter_flags_by_tag_keys()
 	{
 		// Arrange
-		var identifier = new FlagIdentifier("tagkey-flag", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+		var identifier = new GlobalFlagIdentifier("tagkey-flag");
 		var flag = new FeatureFlag(identifier,
 			new FlagAdministration(Name: "Tag Key Flag",
 						Description: "With tag keys",
@@ -251,7 +251,7 @@ public class GetFilteredFlagsHandlerTests(HandlersTestsFixture fixture)
 		// Arrange
 		for (int i = 0; i < 15; i++)
 		{
-			var identifier = new FlagIdentifier($"pagination-flag-{i}", Scope.Global, applicationName: "global", applicationVersion: "0.0.0.0");
+			var identifier = new GlobalFlagIdentifier($"pagination-flag-{i}");
 			var flag = new FeatureFlag(identifier,
 				new FlagAdministration(Name: $"Flag {i}",
 							Description: $"Flag number {i}",

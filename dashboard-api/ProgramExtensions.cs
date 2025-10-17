@@ -18,10 +18,10 @@ namespace Propel.FeatureFlags.Dashboard.Api;
 
 public static class ProgramExtensions
 {
-	public static void ConfigureFeatureFlags(this WebApplicationBuilder builder, PropelConfiguration propelConfig)
+	public static IServiceCollection ConfigureFeatureFlags(this IServiceCollection services, DashboardConfiguration propelConfig)
 	{
 		// Configure JSON serialization options for HTTP endpoints (Minimal APIs)
-		builder.Services.ConfigureHttpJsonOptions(options =>
+		services.ConfigureHttpJsonOptions(options =>
 		{
 			options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 			options.SerializerOptions.WriteIndented = true;
@@ -31,21 +31,23 @@ public static class ProgramExtensions
 			options.SerializerOptions.Converters.Add(new EnumJsonConverter<TargetingOperator>());
 		});
 
-		builder.Services.RegisterEvaluators();
+		services.RegisterEvaluators();
 
 		if (propelConfig.AllowFlagsUpdateInRedis == true)
 		{
-			builder.Services.AddRedisCache(propelConfig.CacheConnection);
+			services.AddRedisCache(propelConfig.CacheConnection);
 		}
 
-		builder.Services.AddDashboardHealthchecks(propelConfig)
+		services.AddDashboardHealthchecks(propelConfig)
 			.AddDatabaseProvider(propelConfig)
 			.AddDashboardServices();
 
-		builder.Services.AddDatabaseMigrationsProvider(propelConfig);
+		services.AddDatabaseMigrationsProvider(propelConfig);
+
+		return services;
 	}
 
-	public static IServiceCollection RegisterEvaluators(this IServiceCollection services)
+	private static IServiceCollection RegisterEvaluators(this IServiceCollection services)
 	{
 		// Register evaluation manager with all handlers
 		services.AddSingleton<IEvaluatorsSet>(_ => new EvaluatorsSet(
@@ -59,7 +61,7 @@ public static class ProgramExtensions
 		return services;
 	}
 
-	public static IServiceCollection AddDashboardServices(this IServiceCollection services)
+	private static IServiceCollection AddDashboardServices(this IServiceCollection services)
 	{
 		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
 		services.TryAddScoped<IAdministrationService, AdministrationService>();
@@ -107,7 +109,7 @@ public static class ProgramExtensions
 		return services;
 	}
 
-	private static IServiceCollection AddDashboardHealthchecks(this IServiceCollection services, PropelConfiguration propelConfig)
+	private static IServiceCollection AddDashboardHealthchecks(this IServiceCollection services, DashboardConfiguration propelConfig)
 	{
 		// Add health checks with proper fallback handling
 		var healthChecksBuilder = services.AddHealthChecks();

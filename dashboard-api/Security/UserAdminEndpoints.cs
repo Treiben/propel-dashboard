@@ -24,7 +24,7 @@ public sealed class AdminEndpoint : IEndpoint
 			async (
 				LoginRequest request,
 				IUserAdministrationService userAdministrationService,
-				PropelConfiguration config,
+				DashboardConfiguration config,
 				CancellationToken cancellationToken) =>
 			{
 				var user = await userAdministrationService.GetActiveUserAsync(request.Username, cancellationToken);
@@ -60,7 +60,7 @@ public sealed class AdminEndpoint : IEndpoint
 				string username,
 				ChangePasswordRequest request,
 				IUserAdministrationService userAdministrationService,
-				PropelConfiguration config,
+				DashboardConfiguration config,
 				CancellationToken cancellationToken) =>
 			{
 				var user = await userAdministrationService.GetActiveUserAsync(username, cancellationToken);
@@ -201,7 +201,7 @@ public sealed class AdminEndpoint : IEndpoint
 		.Produces<User>();
 	}
 
-	private static string GenerateJwtToken(User user, PropelConfiguration config)
+	private static string GenerateJwtToken(User user, DashboardConfiguration config)
 	{
 		var jwtSecret = config.JwtSecret; // Use from PropelConfiguration
 		var jwtIssuer = config.JwtIssuer;
