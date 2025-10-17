@@ -27,7 +27,7 @@ public static class HealthCheckExtensions
                 };
                 await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
             }
-        });
+        }).AllowAnonymous();
 
         // Readiness probe - returns 200 if the application is ready to handle requests
         app.MapHealthChecks("api/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -69,7 +69,7 @@ public static class HealthCheckExtensions
 
                 await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
             }
-        });
+        }).AllowAnonymous();
 
         // General health endpoint with detailed information
         app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
@@ -104,6 +104,6 @@ public static class HealthCheckExtensions
 
                 await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
             }
-        });
+        }).AllowAnonymous();
     }
 }
