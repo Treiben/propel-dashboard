@@ -9,9 +9,7 @@
 .vs
 
 # Documentation
-*.md
 LICENSE
-docs/
 
 # Docker
 docker-compose*.yml

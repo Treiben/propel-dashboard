@@ -5,18 +5,42 @@
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://reactjs.org/)
 
-A centralized dashboard for managing, configuring, and evaluating feature flags in your applications. Built with .NET 9 and React, deployed as a single Docker container for simplicity and ease of use.
+A centralized web dashboard for managing and configuring feature flags in your applications. Built with .NET 9 and React, deployed as a single Docker container for simplicity.
+
+> **Note:** Looking for a CLI tool? Check out [Propel CLI](https://github.com/Treiben/propel-cli) for command-line flag management and database migrations in CI/CD pipelines.
+
+---
+
+## 🎬 Dashboard Demo
+
+![Dashboard Overview](.github/assets/dashboard-demo.gif)
+
+*Creating and configuring feature flags with targeting rules*
+
+<details>
+<summary>📸 More Screenshots</summary>
+
+### Feature Flags List
+![Flags List](.github/assets/screenshot-flags.png)
+
+### Targeting Configuration
+![Targeting Rules](.github/assets/screenshot-targeting.png)
+
+### User Access Control
+![User Management](.github/assets/screenshot-users.png)
+
+</details>
 
 ---
 
 ## ✨ Features
 
-- 🎯 **Centralized Feature Flag Management** - Control features across all your applications from one place
+- 🎯 **Feature Flag Management** - Create, configure, and manage feature flags with percentage rollouts, user targeting, and tenant-based access control
 - 🔐 **JWT Authentication** - Secure access with role-based authorization
 - 🎨 **Modern UI** - Built with React, TypeScript, and Vite for a responsive experience
 - 🐳 **Single Container Deployment** - Grafana-style architecture - one image for both API and UI
 - 💾 **Multi-Database Support** - Works with PostgreSQL or SQL Server
-- ⚡ **Optional Redis Caching** - Improve performance with distributed caching
+- ⚡ **Optional Redis Caching** - Distributed caching with automatic cache invalidation when flags are updated
 - 🏥 **Health Checks** - Built-in liveness and readiness probes for orchestration
 - 🔄 **Auto Migrations** - Database migrations run automatically on startup
 - 🚀 **Production Ready** - Designed for enterprise deployment scenarios
@@ -52,14 +76,18 @@ docker-compose -f docker-compose.release.yml up -d
 
 3. Access at **http://localhost:8080**
 
+
+See [QUICKSTART.md](./docs/QUICKSTART.md) for details.
+
 ---
 
 ## 📋 Prerequisites
 
-- **Docker** 20.10+
-- **Docker Compose** 2.0+ (optional, for full stack)
+- **Docker** 20.10+ and **Docker Compose** 2.0+ (optional)
 - **PostgreSQL** 12+ or **SQL Server** 2019+ (for production)
-- **Redis** 7.0+ (optional, for caching)
+- **Redis** 7.0+ (optional, for distributed caching)
+- **RAM**: 256MB minimum, 512MB recommended
+- **Image Size**: ~276MB
 
 ---
 
@@ -103,6 +131,8 @@ docker run -d \
   propel/feature-flags-dashboard:latest
 ```
 
+See [ENVIRONMENT.md](./docs/ENVIRONMENT-VARS.md) for details.
+
 ---
 
 ## 🏗️ Architecture
@@ -130,7 +160,7 @@ docker run -d \
 - ✅ Same-origin API calls (no CORS issues)
 - ✅ Simpler deployment and scaling
 
-See [ARCHITECTURE.md](./docs/architecture_doc.md) for detailed architecture documentation.
+See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for detailed architecture documentation.
 
 ---
 
@@ -147,6 +177,19 @@ SQL_CONNECTION="Host=postgres.example.com;Port=5432;Database=propel_flags;Userna
 ```bash
 SQL_CONNECTION="Server=sqlserver.example.com,1433;Database=PropelFlags;User Id=propel_user;Password=SecurePass123!;TrustServerCertificate=True"
 ```
+
+---
+
+## ⚡ Redis Caching (Optional)
+
+Enable Redis to cache feature flags for improved performance:
+
+```bash
+ALLOW_FLAGS_UPDATE_IN_REDIS=true
+REDIS_CONNECTION=redis.example.com:6379
+```
+
+**Important:** If your applications cache feature flags in Redis, the dashboard must connect to the same Redis instance. When flags are updated through the dashboard, cached entries are automatically invalidated to ensure applications receive the latest configuration.
 
 ---
 
@@ -288,7 +331,7 @@ make clean
 
 ## 🚀 Deployment
 
-See [DEPLOYMENT.md](./docs/deployment_guide.md) for comprehensive deployment guides including:
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for comprehensive deployment guides including:
 - Kubernetes deployment
 - Cloud platforms (Azure, AWS, GCP)
 - Production configuration
@@ -307,6 +350,18 @@ We use [Semantic Versioning](https://semver.org/). Available versions can be fou
 - `v1.0.0` - Specific version
 - `v1.0` - Latest patch of minor version
 - `v1` - Latest minor of major version
+
+---
+
+## 🛠️ Related Tools
+
+### Propel CLI
+
+For command-line management and CI/CD integration:
+- Manage feature flags from terminal
+- Run database schema migrations
+- Perfect for automation pipelines
+- [View on GitHub](https://github.com/Treiben/propel-cli)
 
 ---
 
@@ -332,7 +387,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 - 📖 **Documentation**: [/docs](./docs)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/Treiben/propel-dashboard/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Treiben/propel-dashboard/discussions)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/orgs/Treiben/discussions)
 
 ---
 

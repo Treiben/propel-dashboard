@@ -130,9 +130,9 @@ services:
 
 The API exposes the following health check endpoints (no authentication required):
 
-- `/health` - Overall health status
-- `/health/live` - Liveness probe (is the app running?)
-- `/health/ready` - Readiness probe (is the app ready to serve requests?)
+- `/api/health` - Overall health status
+- `/api/health/live` - Liveness probe (is the app running?)
+- `/api/health/ready` - Readiness probe (is the app ready to serve requests?)
 
 ## Running with Docker
 

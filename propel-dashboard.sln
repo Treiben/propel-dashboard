@@ -19,7 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.env.example = .env.example
-		docs\bugs_and_todo_list.md = docs\bugs_and_todo_list.md
 		.github\workflows\build.yml = .github\workflows\build.yml
 		Makefile = Makefile
 		propel-profile.png = propel-profile.png
