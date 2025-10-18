@@ -70,6 +70,11 @@ test:
 logs:
 	@docker logs -f $(CONTAINER_NAME) 2>/dev/null || docker-compose -f docker-compose.release.yml logs -f
 
+migrate:
+	@echo "Running database migrations..."
+	@propel-cli migrate --connection-string $(ACTIVE_SQL_CONNECTION)
+	@echo "Migrations completed."
+
 seed-data:
 	@echo "Adding sample data to the dashboard..."
 	@propel-cli seed --connection-string $(ACTIVE_SQL_CONNECTION) --seeds-path $(ACTIVE_SEEDS_PATH)

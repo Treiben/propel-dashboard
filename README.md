@@ -1,9 +1,9 @@
 # Propel Feature Flags Dashboard
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/r/propel/feature-flags-dashboard)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://reactjs.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A centralized web dashboard for managing and configuring feature flags in your applications. Built with .NET 9 and React, deployed as a single Docker container for simplicity.
 
@@ -23,11 +23,20 @@ A centralized web dashboard for managing and configuring feature flags in your a
 ### Feature Flags List
 ![Flags List](.github/assets/screenshot-flags.png)
 
+### Complex Flag
+![Flags List](.github/assets/screenshot-complex-flags.png)
+
 ### Targeting Configuration
 ![Targeting Rules](.github/assets/screenshot-targeting.png)
 
-### User Access Control
-![User Management](.github/assets/screenshot-users.png)
+### User Access Control Configuration
+![User Management](.github/assets/screenshot-user-access-control.png)
+
+### Variations Configuration
+![Variations](.github/assets/user-access-control-with-percentage-targeting-variations.png)
+
+### Evaluation
+![Evaluation](.github/assets/screenshot-evaluation.png)
 
 </details>
 
@@ -392,13 +401,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 ---
 
 ## 🙏 Acknowledgments
-
-Built with:
-- [.NET 9](https://dotnet.microsoft.com/)
-- [React](https://reactjs.org/)
-- [Vite](https://vitejs.dev/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Redis](https://redis.io/)
 - Inspired by [Grafana's](https://grafana.com/) single-container architecture
 
 ---

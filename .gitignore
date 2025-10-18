@@ -4,7 +4,6 @@
 .gitattributes
 
 # CI/CD
-.github
 .vscode
 .vs
 
@@ -44,3 +43,4 @@ npm-debug.log
 /temp/Propel.FeatureFlags/Propel.FeatureFlags.csproj
 /temp/Propel.FeatureFlags.Redis/Propel.FeatureFlags.Redis.csproj
 /temp
+/docs/scratches/screenshot_guide.md
