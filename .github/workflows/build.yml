@@ -19,7 +19,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-      security-events: write  # Required for uploading Code Scanning results
+      security-events: write
+      id-token: write  # Required for CodeQL upload
+      actions: read    # Required for workflow run access
 
     steps:
       - name: Checkout code

@@ -1,5 +1,6 @@
 # Propel Feature Flags Dashboard
 
+[![Build and Push Docker Image](https://github.com/Treiben/propel-dashboard/actions/workflows/build.yml/badge.svg)](https://github.com/Treiben/propel-dashboard/actions/workflows/build.yml)
 [![Docker](https://img.shields.io/docker/v/tasriyan/propel?label=docker)](https://hub.docker.com/r/tasriyan/propel)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://reactjs.org/)
