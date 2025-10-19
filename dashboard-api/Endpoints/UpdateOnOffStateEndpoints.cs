@@ -84,7 +84,7 @@ public sealed class ToggleFlagHandler(
 				ChangeHistory =
 				[
 					.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(username: currentUserService.UserName!, notes: notes),
+					AuditTrail.FlagModified(username: currentUserService.Username!, notes: notes),
 				]
 			};
 			var flagWithUpdatedModes = flag with { Administration = metadata, EvaluationOptions = config };
@@ -94,7 +94,7 @@ public sealed class ToggleFlagHandler(
 
 			var action = Enum.GetName(onOffMode);
 			logger.LogInformation("Feature flag {Key} {Action} by {User} (changed from {PreviousStatus}). Reason: {Reason}",
-				key, action, currentUserService.UserName, JsonSerializer.Serialize(previousModes), notes);
+				key, action, currentUserService.Username, JsonSerializer.Serialize(previousModes), notes);
 
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}

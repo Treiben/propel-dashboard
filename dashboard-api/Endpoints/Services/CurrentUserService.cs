@@ -1,18 +1,20 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
 
 namespace Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 
 public interface ICurrentUserService
 {
-	string? UserId { get; }
-	string? UserName { get; }
+	string? Username { get; }
 }
 
 public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
 	private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-	public string? UserId =>
-		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
-	public string? UserName =>
-		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name) ?? "system";
+	public string? Username =>
+		_httpContextAccessor.HttpContext?.User?.FindFirstValue(JwtRegisteredClaimNames.Name) ??
+		_httpContextAccessor.HttpContext?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name) ??
+		_httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier) ??
+		"system";
 }

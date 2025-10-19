@@ -58,7 +58,7 @@ public sealed class ManageTenantAccessHandler(
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} tenant rollout percentage set to {Percentage}% by {User})",
-				key, request.RolloutPercentage, currentUserService.UserName);
+				key, request.RolloutPercentage, currentUserService.Username);
 
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}
@@ -109,7 +109,7 @@ public sealed class ManageTenantAccessHandler(
 		var metadata = flag.Administration with
 		{
 			ChangeHistory = [.. flag.Administration.ChangeHistory,
-				AuditTrail.FlagModified(currentUserService.UserName!, notes: request.Notes ??  $"Updated tenant access control")]
+				AuditTrail.FlagModified(currentUserService.Username!, notes: request.Notes ??  $"Updated tenant access control")]
 		};
 
 		return flag with { EvaluationOptions = configuration, Administration = metadata };

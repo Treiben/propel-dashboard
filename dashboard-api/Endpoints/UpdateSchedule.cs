@@ -57,7 +57,7 @@ public sealed class UpdateScheduleHandler(
 
 			bool isScheduleRemoval = request.EnableOn == null && request.DisableOn == null;
 
-			var flagWithUpdatedSchedule = CreateFlagWithUpdatedSchedule(request, flag!, currentUserService.UserName!);
+			var flagWithUpdatedSchedule = CreateFlagWithUpdatedSchedule(request, flag!, currentUserService.Username!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedSchedule, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
@@ -66,7 +66,7 @@ public sealed class UpdateScheduleHandler(
 				? "removed schedule"
 				: $"enable at {updatedFlag.EvaluationOptions.Schedule.EnableOn:yyyy-MM-dd HH:mm} UTC, disable at {updatedFlag.EvaluationOptions.Schedule.DisableOn:yyyy-MM-dd HH:mm} UTC";
 			logger.LogInformation("Feature flag {Key} schedule updated by {User}: {ScheduleInfo}",
-				key, currentUserService.UserName, JsonSerializer.Serialize(scheduleInfo));
+				key, currentUserService.Username, JsonSerializer.Serialize(scheduleInfo));
 
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}

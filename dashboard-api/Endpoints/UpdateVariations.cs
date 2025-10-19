@@ -61,7 +61,7 @@ public sealed class UpdateVariationsHandler(
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} variations updated by {User}",
-				key, currentUserService.UserName);
+				key, currentUserService.Username);
 
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}
@@ -90,7 +90,7 @@ public sealed class UpdateVariationsHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, request.Notes ?? "All variations removed")]
+					AuditTrail.FlagModified(currentUserService.Username!, request.Notes ?? "All variations removed")]
 			};
 		}
 		else
@@ -106,7 +106,7 @@ public sealed class UpdateVariationsHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, request.Notes ?? "Variations updated")]
+					AuditTrail.FlagModified(currentUserService.Username!, request.Notes ?? "Variations updated")]
 			};
 		}
 

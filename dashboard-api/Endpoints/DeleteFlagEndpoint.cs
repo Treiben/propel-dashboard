@@ -53,7 +53,7 @@ public sealed class DeleteFlagHandler(
 			}
 
 			var deleteResult = await administrationService.DeleteAsync(flag.Identifier,
-				currentUserService.UserName!, "Flag deleted from dashboard", cancellationToken);
+				currentUserService.Username!, "Flag deleted from dashboard", cancellationToken);
 
 			if (!deleteResult)
 			{
@@ -66,7 +66,7 @@ public sealed class DeleteFlagHandler(
 			await cacheInvalidationService.InvalidateFlagAsync(flag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} deleted successfully by {User}",
-				key, currentUserService.UserName);
+				key, currentUserService.Username);
 
 			return Results.NoContent();
 		}

@@ -88,7 +88,7 @@ public class HandlersTestsFixture : IAsyncLifetime
 		services.AddSingleton(config);
 
 		var mockCurrentUserService = new Mock<ICurrentUserService>();
-		mockCurrentUserService.Setup(s => s.UserName).Returns("integration-test-user");
+		mockCurrentUserService.Setup(s => s.Username).Returns("integration-test-user");
 		mockCurrentUserService.Setup(s => s.UserId).Returns("integration-test-user-id");
 
 		services.AddSingleton<ICurrentUserService>(mockCurrentUserService.Object);

@@ -64,14 +64,14 @@ public sealed class CreateGlobalFlagHandler(
 				Scope.Global,
 				request.Name,
 				request.Description ?? string.Empty,
-				AuditTrail.FlagCreated(currentUserService.UserName!)) with { Tags = request.Tags ?? [] };
+				AuditTrail.FlagCreated(currentUserService.Username!)) with { Tags = request.Tags ?? [] };
 
 			var globalFlag = new FeatureFlag(identifier, metadata, FlagEvaluationOptions.DefaultOptions);
 
 			var flag = await administrationService.CreateAsync(globalFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} created successfully by {User}",
-				identifier.Key, currentUserService.UserName);
+				identifier.Key, currentUserService.Username);
 
 			return Results.Created($"/api/feature-flags/{globalFlag.Identifier.Key}", new FeatureFlagResponse(globalFlag));
 		}

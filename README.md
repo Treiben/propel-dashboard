@@ -1,24 +1,20 @@
 # Propel Feature Flags Dashboard
 
-[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/r/propel/feature-flags-dashboard)
+[![Docker](https://img.shields.io/docker/v/tasriyan/propel?label=docker)](https://hub.docker.com/r/tasriyan/propel)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB)](https://reactjs.org/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-A centralized web dashboard for managing and configuring feature flags in your applications. Built with .NET 9 and React, deployed as a single Docker container for simplicity.
+Web dashboard for managing feature flags. Single Docker container. .NET 9 + React.
 
-> **Note:** Looking for a CLI tool? Check out [Propel CLI](https://github.com/Treiben/propel-cli) for command-line flag management and database migrations in CI/CD pipelines.
+> **CLI Tool:** [Propel CLI](https://github.com/Treiben/propel-cli) for terminal management and CI/CD
 
 ---
 
-## 🎬 Dashboard Demo
-
-![Dashboard Overview](.github/assets/dashboard-demo.gif)
-
-*Creating and configuring feature flags with targeting rules*
+## Dashboard 
 
 <details>
-<summary>📸 More Screenshots</summary>
+<summary>📸 Screenshots</summary>
 
 ### Feature Flags List
 ![Flags List](.github/assets/screenshot-flags.png)
@@ -42,367 +38,277 @@ A centralized web dashboard for managing and configuring feature flags in your a
 
 ---
 
-## ✨ Features
+## Quick Start
 
-- 🎯 **Feature Flag Management** - Create, configure, and manage feature flags with percentage rollouts, user targeting, and tenant-based access control
-- 🔐 **JWT Authentication** - Secure access with role-based authorization
-- 🎨 **Modern UI** - Built with React, TypeScript, and Vite for a responsive experience
-- 🐳 **Single Container Deployment** - Grafana-style architecture - one image for both API and UI
-- 💾 **Multi-Database Support** - Works with PostgreSQL or SQL Server
-- ⚡ **Optional Redis Caching** - Distributed caching with automatic cache invalidation when flags are updated
-- 🏥 **Health Checks** - Built-in liveness and readiness probes for orchestration
-- 🔄 **Auto Migrations** - Database migrations run automatically on startup
-- 🚀 **Production Ready** - Designed for enterprise deployment scenarios
+```bash
+docker pull tasriyan/propel:latest
+
+docker run -d \
+  -p 8080:8080 \
+  -e SQL_CONNECTION="Host=postgres;Database=propel;Username=user;Password=pass" \
+  tasriyan/propel:latest
+```
+
+**Access:** http://localhost:8080  
+**Login:** `admin` / `Admin123!`
+
+[Full quick start →](docs/QUICKSTART.md)
 
 ---
 
-## 🚀 Quick Start
+## Features
 
-### Using Docker (Recommended)
+- Feature flags with percentage rollouts, user targeting, tenant access control
+- JWT authentication, role-based authorization
+- Single container (Grafana-style)
+- PostgreSQL or SQL Server
+- Optional Redis caching with auto-invalidation
+- Health checks, auto-migrations
 
+---
+### Managing Flags
+
+**DO:**
+- ✅ Use descriptive kebab-case keys: `new-payment-processor`
+- ✅ Add meaningful names and descriptions
+- ✅ Test in non-production first
+- ✅ Use toggle for simple On/Off switches
+- ✅ Use targeting rules and variations for complex evaluation logic
+
+**DON'T:**
+- ❌ Delete global flags without team approval
+- ❌ Toggle flags with complex schedules (you'll lose the schedule)
+- ❌ Use spaces or special characters in keys
+- ❌ Create duplicate keys
+- ❌ Delete application flags without deleting them in code base first (they restore automatically)
+
+---
+
+## Configuration
+
+**Required:**
 ```bash
-docker run -d \
-  -p 8080:8080 \
-  -e SQL_CONNECTION="Host=your-postgres;Database=propel;Username=user;Password=pass" \
-  propel/feature-flags-dashboard:latest
+SQL_CONNECTION="Host=postgres;Database=propel;Username=user;Password=pass"
 ```
 
-Access the dashboard at **http://localhost:8080**
+**Recommended for production:**
+```bash
+JWT_SECRET=$(openssl rand -base64 32)
+DEFAULT_ADMIN_USERNAME=myadmin
+DEFAULT_ADMIN_PASSWORD=StrongPass123!
+```
 
-**Default credentials:** `admin` / `changeme`
+**Optional:**
+```bash
+ALLOW_FLAGS_UPDATE_IN_REDIS=true
+REDIS_CONNECTION=redis:6379
+```
 
-### Using Docker Compose
+[All environment variables →](docs/ENVIRONMENT-VARS.md)
 
-1. Download the release compose file:
+---
+
+## Docker Compose
+
 ```bash
 curl -O https://raw.githubusercontent.com/Treiben/propel-dashboard/main/docker-compose.release.yml
-```
 
-2. Start the stack:
-```bash
 docker-compose -f docker-compose.release.yml up -d
 ```
 
-3. Access at **http://localhost:8080**
-
-
-See [QUICKSTART.md](./docs/QUICKSTART.md) for details.
-
----
-
-## 📋 Prerequisites
-
-- **Docker** 20.10+ and **Docker Compose** 2.0+ (optional)
-- **PostgreSQL** 12+ or **SQL Server** 2019+ (for production)
-- **Redis** 7.0+ (optional, for distributed caching)
-- **RAM**: 256MB minimum, 512MB recommended
-- **Image Size**: ~276MB
-
----
-
-## 🔧 Configuration
-
-All configuration is done via environment variables:
-
-### Required
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `SQL_CONNECTION` | Database connection string | `Host=postgres;Database=propel;Username=user;Password=pass` |
-
-### Optional (with defaults)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `JWT_SECRET` | Auto-generated | JWT signing key (⚠️ set for production!) |
-| `JWT_ISSUER` | `propel-dashboard` | JWT issuer |
-| `JWT_AUDIENCE` | `propel-dashboard-api` | JWT audience |
-| `DEFAULT_ADMIN_USERNAME` | `admin` | Initial admin username |
-| `DEFAULT_ADMIN_PASSWORD` | `changeme` | Initial admin password |
-| `ALLOW_FLAGS_UPDATE_IN_REDIS` | `false` | Enable Redis caching |
-| `REDIS_CONNECTION` | `redis:6379` | Redis connection string |
-| `RUN_MIGRATIONS` | `true` | Auto-run database migrations |
-| `SEED_DEFAULT_ADMIN` | `true` | Create default admin user |
-| `DASHBOARD_PORT` | `8080` | Port to expose dashboard |
-
-### Example with Environment Variables
-
+With Redis:
 ```bash
-docker run -d \
-  --name propel-dashboard \
-  -p 8080:8080 \
-  -e SQL_CONNECTION="Server=myserver.database.windows.net;Database=Propel;User Id=admin;Password=SecurePass123!" \
-  -e JWT_SECRET="your-32-character-minimum-secret-key" \
-  -e DEFAULT_ADMIN_USERNAME="myadmin" \
-  -e DEFAULT_ADMIN_PASSWORD="MySecurePass123!" \
-  -e ALLOW_FLAGS_UPDATE_IN_REDIS=true \
-  -e REDIS_CONNECTION="redis.example.com:6379" \
-  propel/feature-flags-dashboard:latest
+docker-compose -f docker-compose.release.yml --profile with-redis up -d
 ```
 
-See [ENVIRONMENT.md](./docs/ENVIRONMENT-VARS.md) for details.
-
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-### Production (Single Container)
+Single container in production:
 
 ```
 ┌─────────────────────────────────────────┐
-│  propel/feature-flags-dashboard:latest  │
-│                                         │
-│  ┌───────────────────────────────────┐ │
-│  │   ASP.NET Core (Port 8080)        │ │
-│  │   • API Endpoints (/api/*)        │ │
-│  │   • Static Files (React UI)       │ │
-│  │   • Health Checks                 │ │
-│  └───────────────────────────────────┘ │
-│                                         │
-│  wwwroot/ (React Build)                 │
+│  tasriyan/propel:latest                 │
+│  ┌───────────────────────────────────┐  │
+│  │   ASP.NET Core :8080              │  │
+│  │   • API (/api/*)                  │  │
+│  │   • Static Files (React)          │  │
+│  └───────────────────────────────────┘  │
 └─────────────────────────────────────────┘
 ```
 
-**Benefits:**
-- ✅ Single image to version and deploy
-- ✅ No inter-container networking complexity
-- ✅ Same-origin API calls (no CORS issues)
-- ✅ Simpler deployment and scaling
-
-See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for detailed architecture documentation.
+[Architecture details →](docs/ARCHITECTURE.md)
 
 ---
 
-## 📦 Database Support
+## Database Support
 
-### PostgreSQL (Recommended)
-
+**PostgreSQL:**
 ```bash
-SQL_CONNECTION="Host=postgres.example.com;Port=5432;Database=propel_flags;Username=propel_user;Password=SecurePass123"
+SQL_CONNECTION="Host=postgres;Port=5432;Database=propel;Username=user;Password=pass"
 ```
 
-### SQL Server
-
+**SQL Server:**
 ```bash
-SQL_CONNECTION="Server=sqlserver.example.com,1433;Database=PropelFlags;User Id=propel_user;Password=SecurePass123!;TrustServerCertificate=True"
+SQL_CONNECTION="Server=sqlserver,1433;Database=propel;User Id=sa;Password=pass;TrustServerCertificate=True"
 ```
 
 ---
 
-## ⚡ Redis Caching (Optional)
+## Redis Caching
 
-Enable Redis to cache feature flags for improved performance:
+Optional. Enable for better performance:
 
 ```bash
 ALLOW_FLAGS_UPDATE_IN_REDIS=true
-REDIS_CONNECTION=redis.example.com:6379
+REDIS_CONNECTION=redis:6379
 ```
 
-**Important:** If your applications cache feature flags in Redis, the dashboard must connect to the same Redis instance. When flags are updated through the dashboard, cached entries are automatically invalidated to ensure applications receive the latest configuration.
+**Important:** If your apps cache flags in Redis, dashboard must connect to same Redis instance. Dashboard auto-invalidates cache when flags update.
 
 ---
 
-## 🔐 Security Best Practices
+## Deployment
 
-### 1. Set Strong JWT Secret
-
-```bash
-# Generate a secure secret
-openssl rand -base64 32
-
-# Use in environment variable
-JWT_SECRET=your-generated-secret-here
-```
-
-### 2. Change Default Credentials
-
-Always change the default admin credentials in production:
-
-```bash
-DEFAULT_ADMIN_USERNAME=myadmin
-DEFAULT_ADMIN_PASSWORD=StrongPassword123!
-```
-
-### 3. Use HTTPS
-
-Deploy behind a reverse proxy (nginx, Traefik, Caddy) for HTTPS:
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name dashboard.example.com;
-    
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-    
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
----
-
-## 🏥 Health Checks
-
-| Endpoint | Purpose | Use Case |
-|----------|---------|----------|
-| `/health/live` | Liveness probe | Is container running? |
-| `/health/ready` | Readiness probe | Ready for traffic? |
-| `/health` | All health checks | General health status |
-
-### Kubernetes Example
-
+**Kubernetes:**
 ```yaml
-livenessProbe:
-  httpGet:
-    path: /health/live
-    port: 8080
-  initialDelaySeconds: 10
-  periodSeconds: 30
-
-readinessProbe:
-  httpGet:
-    path: /health/ready
-    port: 8080
-  initialDelaySeconds: 5
-  periodSeconds: 10
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: propel-dashboard
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: dashboard
+        image: tasriyan/propel:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SQL_CONNECTION
+          valueFrom:
+            secretKeyRef:
+              name: propel-secrets
+              key: sql-connection
+        livenessProbe:
+          httpGet:
+            path: /api/health/live
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: 8080
 ```
+
+[Full deployment guide →](docs/DEPLOYMENT.md)
 
 ---
 
-## 🛠️ Development
+## Health Checks
 
-### Project Structure
+- `/api/health/live` - Liveness (is running?)
+- `/api/health/ready` - Readiness (accepting traffic?)
+- `/api/health` - All checks
 
-```
-propel-dashboard/
-├── dashboard-api/           # .NET 9 API
-│   ├── Dockerfile          # Development build
-│   ├── Dockerfile.production  # Production build
-│   ├── Program.cs
-│   └── ...
-├── dashboard-react/        # React + TypeScript UI
-│   ├── src/
-│   ├── vite.config.ts
-│   └── ...
-├── docker-compose.yml      # Development environment
-├── docker-compose.release.yml  # Production release
-├── Makefile               # Build commands
-└── README.md
-```
+---
 
-### Development Environment
+## Development
 
 ```bash
-# Start development environment (hot reload enabled)
+# Start dev environment (hot reload)
 docker-compose up -d
 
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
+# API: http://localhost:5038
+# UI: http://localhost:3000
 ```
 
-**Development URLs:**
-- API: http://localhost:5038
-- UI: http://localhost:3000
-- PostgreSQL: localhost:5432
-- Redis: localhost:6379
+**Structure:**
+```
+propel-dashboard/
+├── dashboard-api/          # .NET 9 API
+│   ├── Dockerfile
+│   └── Dockerfile.production
+├── dashboard-react/        # React + TypeScript
+│   ├── src/
+│   └── vite.config.ts
+├── docker-compose.yml      # Dev
+├── docker-compose.release.yml  # Prod
+└── Makefile
+```
 
-### Build Commands
-
+**Build commands:**
 ```bash
-# Build production image
-make build
-
-# Run with docker-compose
-make run
-
-# Run standalone (external database)
-make run-standalone
-
-# View logs
-make logs
-
-# Run health checks
-make test
-
-# Clean up
-make clean
+make build          # Build production image
+make run            # Run with docker-compose
+make logs           # View logs
+make test           # Health checks
+make clean          # Clean up
 ```
 
 ---
 
-## 🚀 Deployment
+## Security
 
-See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for comprehensive deployment guides including:
-- Kubernetes deployment
-- Cloud platforms (Azure, AWS, GCP)
-- Production configuration
-- Monitoring and troubleshooting
+1. **Set JWT secret:**
+   ```bash
+   JWT_SECRET=$(openssl rand -base64 32)
+   ```
+
+2. **Change admin credentials**
+
+3. **Use HTTPS** (reverse proxy)
+
+4. **Disable auto-seeding after first run:**
+   ```bash
+   SEED_DEFAULT_ADMIN=false
+   ```
 
 ---
 
-## 📊 Versioning
+## Versioning
 
-We use [Semantic Versioning](https://semver.org/). Available versions can be found on:
-- [Docker Hub](https://hub.docker.com/r/propel/feature-flags-dashboard)
-- [GitHub Container Registry](https://github.com/Treiben/propel-dashboard/pkgs/container/feature-flags-dashboard)
+[Docker Hub](https://hub.docker.com/r/tasriyan/propel) | [GitHub Packages](https://github.com/Treiben/propel-dashboard/pkgs/container/propel-dashboard)
 
 **Tags:**
-- `latest` - Latest stable release
+- `latest` - Latest stable
 - `v1.0.0` - Specific version
-- `v1.0` - Latest patch of minor version
-- `v1` - Latest minor of major version
+- `v1.0` - Latest patch
+- `v1` - Latest minor
 
 ---
 
-## 🛠️ Related Tools
+## Related
 
-### Propel CLI
-
-For command-line management and CI/CD integration:
-- Manage feature flags from terminal
-- Run database schema migrations
-- Perfect for automation pipelines
-- [View on GitHub](https://github.com/Treiben/propel-cli)
+**[Propel CLI](https://github.com/Treiben/propel-cli)** - Command-line flag management, database migrations, CI/CD automation
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please see our contributing guidelines.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork
+2. Create branch (`git checkout -b feature/thing`)
+3. Commit (`git commit -m 'Add thing'`)
+4. Push (`git push origin feature/thing`)
+5. Open PR
 
 ---
 
-## 📝 License
+## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🆘 Support
-
-- 📖 **Documentation**: [/docs](./docs)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/Treiben/propel-dashboard/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/orgs/Treiben/discussions)
+Apache License 2.0 - see [LICENSE](LICENSE)
 
 ---
 
-## 🙏 Acknowledgments
-- Inspired by [Grafana's](https://grafana.com/) single-container architecture
+## Support
+
+- 📖 [Documentation](docs/)
+- 🐛 [Issues](https://github.com/Treiben/propel-dashboard/issues)
+- 💬 [Discussions](https://github.com/orgs/Treiben/discussions)
 
 ---
+
+**Inspired by [Grafana](https://grafana.com/)'s single-container architecture**
 
 **Made with ❤️ by Tatyana Asriyan**

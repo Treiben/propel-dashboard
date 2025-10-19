@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Propel.FeatureFlags.Dashboard.Api.Endpoints.Services;
 using Propel.FeatureFlags.Dashboard.Api.EntityFramework.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -214,6 +212,7 @@ public sealed class AdminEndpoint : IEndpoint
 		var claims = new[]
 		{
 		new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+		new Claim(JwtRegisteredClaimNames.Name, user.Username),
 		new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 		new Claim(ClaimTypes.Role, user.Role),
 		new Claim("scope", "propel-dashboard-api"),
@@ -222,6 +221,7 @@ public sealed class AdminEndpoint : IEndpoint
 	};
 
 		var token = new JwtSecurityToken(
+			
 			issuer: jwtIssuer,
 			audience: jwtAudience,
 			claims: claims,

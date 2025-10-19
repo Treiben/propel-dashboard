@@ -65,7 +65,7 @@ public sealed class UpdateTimeWindowHandler(
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} time window updated by {User}",
-				key, currentUserService.UserName);
+				key, currentUserService.Username);
 
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}
@@ -103,7 +103,7 @@ public sealed class UpdateTimeWindowHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, 
+					AuditTrail.FlagModified(currentUserService.Username!, 
 									request.Notes ?? (request.DaysActive.Count > 0 ? "Time window removed, days active updated" : "Time window removed"))]
 			};
 		}
@@ -124,7 +124,7 @@ public sealed class UpdateTimeWindowHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, 
+					AuditTrail.FlagModified(currentUserService.Username!, 
 									notes: request.Notes ??  $"Time window updated: StartOn={request.StartOn:HH:mm}, EndOn={request.EndOn:HH:mm}, TimeZone={request.TimeZone}, DaysActive=[{string.Join(", ", request.DaysActive)}]" +
 																(request.DaysActive.Count == 0 ? " (no days active - flag will never be active)" : ""))]
 			};

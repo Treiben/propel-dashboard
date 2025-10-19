@@ -60,7 +60,7 @@ public sealed class UpdateTargetingRulesHandler(
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} targeting rules updated by {User}",
-				key, currentUserService.UserName);
+				key, currentUserService.Username);
 
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}
@@ -99,7 +99,7 @@ public sealed class UpdateTargetingRulesHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, request.Notes ?? "All targeting rules removed")]
+					AuditTrail.FlagModified(currentUserService.Username!, request.Notes ?? "All targeting rules removed")]
 			};
 		}
 		else
@@ -121,7 +121,7 @@ public sealed class UpdateTargetingRulesHandler(
 			metadata = flag.Administration with
 			{
 				ChangeHistory = [.. flag.Administration.ChangeHistory,
-					AuditTrail.FlagModified(currentUserService.UserName!, request.Notes ?? "Targeting rules modified")]
+					AuditTrail.FlagModified(currentUserService.Username!, request.Notes ?? "Targeting rules modified")]
 			};
 		}
 

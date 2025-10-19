@@ -56,12 +56,12 @@ public sealed class UpdateFlagHandler(
 			var (isValid, result, flag) = await administrationService.ValidateAndResolveFlagAsync(key, headers, cancellationToken);
 			if (!isValid) return result;
 
-			var flagWithUpdatedMeta = CreateFlagWithUpdatedMetadata(request, flag!, currentUserService.UserName!);
+			var flagWithUpdatedMeta = CreateFlagWithUpdatedMetadata(request, flag!, currentUserService.Username!);
 
 			var updatedFlag = await administrationService.UpdateMetadataAsync(flagWithUpdatedMeta!, cancellationToken);
 			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
-			logger.LogInformation("Feature flag {Key} updated by {User}", key, currentUserService.UserName);
+			logger.LogInformation("Feature flag {Key} updated by {User}", key, currentUserService.Username);
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));
 		}
 		catch (ArgumentException ex)

@@ -1,6 +1,8 @@
 .PHONY: help build push run stop clean test
 
-IMAGE_NAME := propel/feature-flags-dashboard
+LOCAL_IMAGE_NAME := propel/feature-flags-dashboard
+PUSHED_IMAGE_NAME := tasriyan/propel
+
 VERSION ?= latest
 DOCKERFILE := dashboard-api/Dockerfile.production
 CONTAINER_NAME := PROPEL-DASHBOARD
@@ -13,6 +15,7 @@ POSTGRES_SEEDS_PATH := ".\seeds\postgres"
 
 ACTIVE_SQL_CONNECTION ?= $(DEFAULT_SQL_SERVER_CONNECTION)
 ACTIVE_SEEDS_PATH := $(SQL_SERVER_SEEDS_PATH)
+IMAGE_NAME := $(PUSHED_IMAGE_NAME)
 
 help:
 	@echo "Available targets:"
