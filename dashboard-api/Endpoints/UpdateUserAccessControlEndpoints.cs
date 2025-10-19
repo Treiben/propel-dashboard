@@ -38,7 +38,7 @@ public sealed class UpdateUserAccessControlEndpoints : IEndpoint
 public sealed class ManageUserAccessHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<ManageUserAccessHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -55,7 +55,7 @@ public sealed class ManageUserAccessHandler(
 			var flagWithUpdatedUsers = CreateFlagWithUpdatedUsersAccess(request, flag!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedUsers, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} user rollout percentage set to {Percentage}% by {User})",
 				key, request.RolloutPercentage, currentUserService.Username);

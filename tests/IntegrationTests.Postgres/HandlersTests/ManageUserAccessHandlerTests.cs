@@ -248,7 +248,8 @@ public class ManageUserAccessHandlerTests(HandlersTestsFixture fixture)
 
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
+		cached.ShouldNotBeNull();
+		cached.UserAccessControl.RolloutPercentage.ShouldBe(25);
 	}
 
 	[Fact]

@@ -249,7 +249,8 @@ public class UpdateTimeWindowHandlerTests(HandlersTestsFixture fixture)
 
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
+		cached.ShouldNotBeNull();
+		cached.OperationalWindow.DaysActive.ShouldContain(DayOfWeek.Wednesday);
 	}
 
 	[Fact]

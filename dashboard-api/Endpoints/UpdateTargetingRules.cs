@@ -40,7 +40,7 @@ public sealed class UpdateTargetingRulesEndpoint : IEndpoint
 public sealed class UpdateTargetingRulesHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<UpdateTargetingRulesHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -57,7 +57,7 @@ public sealed class UpdateTargetingRulesHandler(
 			var flagWithUpdatedRules = CreateFlagWithUpdatedRules(request, flag!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedRules, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} targeting rules updated by {User}",
 				key, currentUserService.Username);

@@ -39,7 +39,7 @@ public sealed class ToggleFlagEndpoint : IEndpoint
 public sealed class ToggleFlagHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<ToggleFlagHandler> logger)
 {
 	public async Task<IResult> HandleAsync(string key,
@@ -90,7 +90,7 @@ public sealed class ToggleFlagHandler(
 			var flagWithUpdatedModes = flag with { Administration = metadata, EvaluationOptions = config };
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedModes, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			var action = Enum.GetName(onOffMode);
 			logger.LogInformation("Feature flag {Key} {Action} by {User} (changed from {PreviousStatus}). Reason: {Reason}",

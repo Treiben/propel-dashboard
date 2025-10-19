@@ -195,7 +195,8 @@ public class ToggleFlagHandlerTests(HandlersTestsFixture fixture)
 
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
+		cached.ShouldNotBeNull();
+		cached.ModeSet.Modes.ShouldContain(EvaluationMode.On);
 	}
 
 	[Fact]

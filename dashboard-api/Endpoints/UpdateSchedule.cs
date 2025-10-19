@@ -40,7 +40,7 @@ public sealed class UpdateScheduleEndpoint : IEndpoint
 public sealed class UpdateScheduleHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<UpdateScheduleHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -60,7 +60,7 @@ public sealed class UpdateScheduleHandler(
 			var flagWithUpdatedSchedule = CreateFlagWithUpdatedSchedule(request, flag!, currentUserService.Username!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedSchedule, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			var scheduleInfo = isScheduleRemoval
 				? "removed schedule"

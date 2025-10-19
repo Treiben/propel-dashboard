@@ -42,7 +42,6 @@ public sealed class UpdateAdministrationEndpoints : IEndpoint
 public sealed class UpdateFlagHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
 		ILogger<UpdateFlagHandler> logger)
 {
 	public async Task<IResult> HandleAsync(string key,
@@ -57,9 +56,7 @@ public sealed class UpdateFlagHandler(
 			if (!isValid) return result;
 
 			var flagWithUpdatedMeta = CreateFlagWithUpdatedMetadata(request, flag!, currentUserService.Username!);
-
 			var updatedFlag = await administrationService.UpdateMetadataAsync(flagWithUpdatedMeta!, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} updated by {User}", key, currentUserService.Username);
 			return Results.Ok(new FeatureFlagResponse(updatedFlag));

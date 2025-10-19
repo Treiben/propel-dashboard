@@ -247,7 +247,8 @@ public class ManageTenantAccessHandlerTests(HandlersTestsFixture fixture)
 
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
+		cached.ShouldNotBeNull();
+		cached.TenantAccessControl.RolloutPercentage.ShouldBe(60);
 	}
 
 	[Fact]

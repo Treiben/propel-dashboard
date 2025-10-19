@@ -38,7 +38,7 @@ public sealed class UpdateTenantAccessControlEndpoints : IEndpoint
 public sealed class ManageTenantAccessHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<ManageTenantAccessHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -55,7 +55,7 @@ public sealed class ManageTenantAccessHandler(
 			var flagWithUpdatedTenants = CreateFlagWithUpdatedTenantAccess(request, flag!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedTenants, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} tenant rollout percentage set to {Percentage}% by {User})",
 				key, request.RolloutPercentage, currentUserService.Username);

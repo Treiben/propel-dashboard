@@ -237,7 +237,8 @@ public class UpdateTargetingRulesHandlerTests(HandlersTestsFixture fixture)
 
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
+		cached.ShouldNotBeNull();
+		cached.TargetingRules.ShouldContain(r => r.Attribute == "env");
 	}
 
 	[Fact]

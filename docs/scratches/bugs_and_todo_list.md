@@ -66,7 +66,7 @@
 
 30. **MEDIUM, CORE LIBRARY:** include rollout evaluation for access control even when users/tenants lists contain allowed/blocked users.
 	
-31. **MEDIUM, API:** instead of removing flag from cache on update, update the cache entry to reduce cache misses.
+~~31. **MEDIUM, API:** instead of removing flag from cache on update, update the cache entry to reduce cache misses.~~
 
 ~~32. **MEDIUM, API:** modify JWT token to include username for audit logging.~~
 	
@@ -94,7 +94,7 @@
 - BUG 28: CLOSED
 - BUG 29: CLOSED
 - BUG 30: OPEN
-- BUG 31: OPEN
+- BUG 31: CLOSED
 - BUG 32: CLOSED
 
 ## NEW FEATURES

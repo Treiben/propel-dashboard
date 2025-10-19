@@ -183,7 +183,9 @@ public class UpdateScheduleHandlerTests(HandlersTestsFixture fixture)
 
 		// Assert
 		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
+		cached.ShouldNotBeNull();
+		cached.Schedule.EnableOn.DateTime.ShouldBe(enableOn.DateTime);
+		cached.Schedule.DisableOn.DateTime.ShouldBe(disableOn.DateTime);
 	}
 
 	[Fact]

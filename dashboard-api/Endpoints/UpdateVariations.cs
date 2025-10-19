@@ -41,7 +41,7 @@ public sealed class UpdateVariationsEndpoints : IEndpoint
 public sealed class UpdateVariationsHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<UpdateVariationsHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -58,7 +58,7 @@ public sealed class UpdateVariationsHandler(
 			var flagWithUpdatedVariations = CreateFlagWithUpdatedVariations(request, flag!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedVariations, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} variations updated by {User}",
 				key, currentUserService.Username);

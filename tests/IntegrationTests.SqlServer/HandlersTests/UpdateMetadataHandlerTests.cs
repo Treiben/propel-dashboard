@@ -173,36 +173,6 @@ public class UpdateFlagHandlerTests(HandlersTestsFixture fixture)
 	}
 
 	[Fact]
-	public async Task Should_invalidate_cache_after_update()
-	{
-		// Arrange
-		var identifier = new GlobalFlagIdentifier("cached-update-flag");
-		var flag = new FeatureFlag(identifier,
-			new FlagAdministration(Name: "Cached",
-						Description: "In cache",
-						RetentionPolicy: new RetentionPolicy(IsPermanent: true, ExpirationDate: UtcDateTime.MaxValue, new FlagLockPolicy([EvaluationMode.On])),
-						Tags: [],
-						ChangeHistory: [AuditTrail.FlagCreated("test-user", null)]),
-			FlagEvaluationOptions.DefaultOptions with { ModeSet = new ModeSet([EvaluationMode.On]) });
-
-		_ = await fixture.AdministrationService.CreateAsync(flag, CancellationToken.None);
-
-		var cacheKey = new GlobalFlagCacheKey("cached-update-flag");
-		await fixture.Cache.SetAsync(cacheKey, new EvaluationOptions(key: "cached-update-flag"));
-
-		var handler = fixture.Services.GetRequiredService<UpdateFlagHandler>();
-		var headers = new FlagRequestHeaders("Global", null, null);
-		var request = new UpdateFlagRequest(Name: "Updated Name", Description: null, Tags: null, Notes: null, IsPermanent: null, ExpirationDate: null);
-
-		// Act
-		await handler.HandleAsync("cached-update-flag", headers, request, CancellationToken.None);
-
-		// Assert
-		var cached = await fixture.Cache.GetAsync(cacheKey);
-		cached.ShouldBeNull();
-	}
-
-	[Fact]
 	public async Task Should_return_404_when_flag_not_found()
 	{
 		// Arrange

@@ -66,7 +66,7 @@ public static class ProgramExtensions
 		services.TryAddScoped<ICurrentUserService, CurrentUserService>();
 		services.TryAddScoped<IAdministrationService, AdministrationService>();
 		services.TryAddScoped<IUserAdministrationService, UserAdministrationService>();
-		services.TryAddScoped<ICacheInvalidationService, CacheInvalidationService>();
+		services.TryAddScoped<ICacheService, CacheService>();
 
 		services.AddValidators();
 		services.AddHandlers();

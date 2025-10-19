@@ -45,7 +45,7 @@ public sealed class UpdateTimeWindowEndpoint : IEndpoint
 public sealed class UpdateTimeWindowHandler(
 		IAdministrationService administrationService,
 		ICurrentUserService currentUserService,
-		ICacheInvalidationService cacheInvalidationService,
+		ICacheService cacheService,
 		ILogger<UpdateTimeWindowHandler> logger)
 {
 	public async Task<IResult> HandleAsync(
@@ -62,7 +62,7 @@ public sealed class UpdateTimeWindowHandler(
 			var flagWithUpdatedWindow = CreateFlagWithUpdatedTimeWindow(request, flag!);
 
 			var updatedFlag = await administrationService.UpdateAsync(flagWithUpdatedWindow, cancellationToken);
-			await cacheInvalidationService.InvalidateFlagAsync(updatedFlag.Identifier, cancellationToken);
+			await cacheService.UpdateFlagAsync(updatedFlag, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} time window updated by {User}",
 				key, currentUserService.Username);

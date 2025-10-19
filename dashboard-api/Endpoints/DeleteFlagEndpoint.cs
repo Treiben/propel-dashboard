@@ -32,7 +32,7 @@ public sealed class DeleteFlagEndpoint : IEndpoint
 
 public sealed class DeleteFlagHandler(
 	IAdministrationService administrationService,
-	ICacheInvalidationService cacheInvalidationService,
+	ICacheService cacheService,
 	ICurrentUserService currentUserService,
 	ILogger<DeleteFlagHandler> logger)
 {
@@ -63,7 +63,7 @@ public sealed class DeleteFlagHandler(
 					$"Failed to delete feature flag '{key}'. The flag exists but could not be removed from the database. Please try again or contact support.");
 			}
 
-			await cacheInvalidationService.InvalidateFlagAsync(flag.Identifier, cancellationToken);
+			await cacheService.RemoveFlagAsync(flag.Identifier, cancellationToken);
 
 			logger.LogInformation("Feature flag {Key} deleted successfully by {User}",
 				key, currentUserService.Username);
