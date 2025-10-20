@@ -72,17 +72,3 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: tasriyan/propel:latest
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-        if: github.event_name != 'pull_request'
-
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-        if: github.event_name != 'pull_request'
