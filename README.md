@@ -10,8 +10,6 @@ Web dashboard for managing feature flags. Single Docker container. .NET 9 + Reac
 
 > **CLI Tool:** [Propel CLI](https://github.com/Treiben/propel-cli) for terminal management and CI/CD
 
----
-
 ## Dashboard 
 
 <details>
@@ -37,8 +35,6 @@ Web dashboard for managing feature flags. Single Docker container. .NET 9 + Reac
 
 </details>
 
----
-
 ## Quick Start
 
 ```bash
@@ -55,8 +51,6 @@ docker run -d \
 
 [Full quick start →](docs/QUICKSTART.md)
 
----
-
 ## Features
 
 - Feature flags with percentage rollouts, user targeting, tenant access control
@@ -66,7 +60,6 @@ docker run -d \
 - Optional Redis caching with auto-invalidation
 - Health checks, auto-migrations
 
----
 ### Managing Flags
 
 **DO:**
@@ -82,8 +75,6 @@ docker run -d \
 - ❌ Use spaces or special characters in keys
 - ❌ Create duplicate keys
 - ❌ Delete application flags without deleting them in code base first (they restore automatically)
-
----
 
 ## Configuration
 
@@ -107,8 +98,6 @@ REDIS_CONNECTION=redis:6379
 
 [All environment variables →](docs/ENVIRONMENT-VARS.md)
 
----
-
 ## Docker Compose
 
 ```bash
@@ -121,8 +110,6 @@ With Redis:
 ```bash
 docker-compose -f docker-compose.release.yml --profile with-redis up -d
 ```
-
----
 
 ## Architecture
 
@@ -141,8 +128,6 @@ Single container in production:
 
 [Architecture details →](docs/ARCHITECTURE.md)
 
----
-
 ## Database Support
 
 **PostgreSQL:**
@@ -155,8 +140,6 @@ SQL_CONNECTION="Host=postgres;Port=5432;Database=propel;Username=user;Password=p
 SQL_CONNECTION="Server=sqlserver,1433;Database=propel;User Id=sa;Password=pass;TrustServerCertificate=True"
 ```
 
----
-
 ## Redis Caching
 
 Optional. Enable for better performance:
@@ -167,8 +150,6 @@ REDIS_CONNECTION=redis:6379
 ```
 
 **Important:** If your apps cache flags in Redis, dashboard must connect to same Redis instance. Dashboard auto-invalidates cache when flags update.
-
----
 
 ## Deployment
 
@@ -205,15 +186,11 @@ spec:
 
 [Full deployment guide →](docs/DEPLOYMENT.md)
 
----
-
 ## Health Checks
 
 - `/api/health/live` - Liveness (is running?)
 - `/api/health/ready` - Readiness (accepting traffic?)
 - `/api/health` - All checks
-
----
 
 ## Development
 
@@ -248,8 +225,6 @@ make test           # Health checks
 make clean          # Clean up
 ```
 
----
-
 ## Security
 
 1. **Set JWT secret:**
@@ -265,9 +240,7 @@ make clean          # Clean up
    ```bash
    SEED_DEFAULT_ADMIN=false
    ```
-
----
-
+   
 ## Versioning
 
 [Docker Hub](https://hub.docker.com/r/tasriyan/propel) | [GitHub Packages](https://github.com/Treiben/propel-dashboard/pkgs/container/propel-dashboard)
@@ -278,16 +251,9 @@ make clean          # Clean up
 - `v1.0` - Latest patch
 - `v1` - Latest minor
 
----
-
 ## Related
 
 **[Propel CLI](https://github.com/Treiben/propel-cli)** - Command-line flag management, database migrations, CI/CD automation
-
----
-
-## Contributing
-Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## Support
 
@@ -295,11 +261,9 @@ Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelin
 - 🐛 [Issues](https://github.com/Treiben/propel-dashboard/issues)
 - 💬 [Discussions](https://github.com/orgs/Treiben/discussions)
 
----
+## Contributing
+Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## License
 Licensed under the Apache License, Version 2.0.
-
 Copyright 2025 Tatyana Asriyan
-
-[⬆ Back to top](#table-of-contents)
