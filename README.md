@@ -287,20 +287,7 @@ make clean          # Clean up
 ---
 
 ## Contributing
-
-1. Fork
-2. Create branch (`git checkout -b feature/thing`)
-3. Commit (`git commit -m 'Add thing'`)
-4. Push (`git push origin feature/thing`)
-5. Open PR
-
----
-
-## License
-
-Apache License 2.0 - see [LICENSE](LICENSE)
-
----
+Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## Support
 
@@ -310,6 +297,9 @@ Apache License 2.0 - see [LICENSE](LICENSE)
 
 ---
 
-**Inspired by [Grafana](https://grafana.com/)'s single-container architecture**
+## License
+Licensed under the Apache License, Version 2.0.
 
-**Made with ❤️ by Tatyana Asriyan**
+Copyright 2025 Tatyana Asriyan
+
+[⬆ Back to top](#table-of-contents)
