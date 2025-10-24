@@ -1,5 +1,5 @@
 -- ====================================================================
--- COMPREHENSIVE FEATURE FLAG EVALUATION MODE EXAMPLES -- TEST SEEDS
+-- FEATURE FLAG EVALUATION MODE EXAMPLES -- TEST SEEDS
 -- ====================================================================
 -- These examples demonstrate all valid evaluation_modes combinations
 --	Off = 0

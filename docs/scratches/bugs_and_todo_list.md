@@ -69,6 +69,10 @@
 ~~31. **MEDIUM, API:** instead of removing flag from cache on update, update the cache entry to reduce cache misses.~~
 
 ~~32. **MEDIUM, API:** modify JWT token to include username for audit logging.~~
+
+- 33. **MEDIUM, API:** created by shows last modified user name instead of actual created by user name.
+
+- 34. **MAJOR, CLI:** migration scripts for posgres hardcoded schema to "demo" instead of using the --schema parameter.
 	
 ## BUG FIX VERIFICATION REPORT
 
