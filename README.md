@@ -204,7 +204,6 @@ spec:
 - `/api/health/ready` - Readiness (accepting traffic?)
 - `/api/health` - All checks
 
-
 ## Development
 
 ```bash
